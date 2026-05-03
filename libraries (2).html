@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emoji Libraries — Talking in Pictures</title>
+<style>
+:root {
+  --who:#ff8c42;
+  --doing:#e6c000;
+  --what:#5ab84b;
+  --where:#3d8ef0;
+  --why:#b967c7;
+  --feeling:#ff6b9d;
+  --header:#6054d4;
+  --header2:#8b5cf6;
+  --bg:#f0f2f8;
+  --panel:#fff;
+  --radius:16px;
+  --shadow:0 2px 18px rgba(0,0,0,.09);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:"Segoe UI",system-ui,sans-serif;
+  background:var(--bg);
+  min-height:100vh;
+  color:#2d2d3a;
+}
+
+/* ── HEADER */
+header{
+  background:linear-gradient(135deg,var(--header),var(--header2));
+  color:#fff;
+  padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:64px;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 16px rgba(96,84,212,.25);
+}
+.logo{
+  font-size:1.15rem;font-weight:800;
+  display:flex;align-items:center;gap:10px;
+  text-decoration:none;color:#fff;
+}
+.logo-dots{display:flex;gap:5px}
+.logo-dot{
+  width:12px;height:12px;border-radius:50%;
+  animation:pulse 2.4s ease-in-out infinite;
+}
+.logo-dot:nth-child(1){background:var(--who);animation-delay:0s}
+.logo-dot:nth-child(2){background:var(--doing);animation-delay:.2s}
+.logo-dot:nth-child(3){background:var(--what);animation-delay:.4s}
+.logo-dot:nth-child(4){background:var(--where);animation-delay:.6s}
+.logo-dot:nth-child(5){background:var(--why);animation-delay:.8s}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.3);opacity:.8}}
+
+.back-btn{
+  background:rgba(255,255,255,.2);
+  border:1.5px solid rgba(255,255,255,.4);
+  color:#fff;padding:8px 18px;
+  border-radius:20px;font-size:.82rem;
+  font-weight:700;text-decoration:none;
+  transition:.15s;
+}
+.back-btn:hover{background:rgba(255,255,255,.35)}
+
+/* ── HERO */
+.hero{
+  text-align:center;
+  padding:56px 24px 40px;
+  background:linear-gradient(180deg,rgba(96,84,212,.06) 0%,transparent 100%);
+}
+.hero h1{
+  font-size:clamp(1.8rem,4vw,2.8rem);
+  font-weight:900;
+  color:var(--header);
+  letter-spacing:-0.02em;
+  margin-bottom:12px;
+}
+.hero p{
+  font-size:1.05rem;
+  color:#666;
+  max-width:560px;
+  margin:0 auto 28px;
+  line-height:1.6;
+}
+.role-strip{
+  display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+  margin-bottom:8px;
+}
+.role-pill{
+  padding:5px 14px;border-radius:20px;
+  font-size:.75rem;font-weight:700;letter-spacing:.03em;
+}
+
+/* ── MAIN */
+main{max-width:900px;margin:0 auto;padding:0 20px 80px;}
+
+/* ── SECTION HEADERS */
+.section-label{
+  display:flex;align-items:center;gap:12px;
+  margin:44px 0 20px;
+}
+.section-label h2{font-size:1.3rem;font-weight:800;color:#2d2d3a}
+.section-badge{
+  padding:4px 13px;border-radius:20px;
+  font-size:.72rem;font-weight:800;
+  letter-spacing:.05em;text-transform:uppercase;
+}
+.badge-free{background:#eafbe6;color:#3a8a2e}
+.badge-premium{background:#f5e6fa;color:#8b2faf}
+
+.section-rule{flex:1;height:1.5px;background:linear-gradient(90deg,#e0e0f0,transparent)}
+
+/* ── PACK CARD */
+.pack-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:18px;
+}
+.pack-card{
+  background:var(--panel);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  border:1.5px solid #ebebf5;
+  overflow:hidden;
+  transition:.18s;
+  display:flex;flex-direction:column;
+}
+.pack-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(96,84,212,.14)}
+
+.card-stripe{height:5px;background:linear-gradient(90deg,var(--who),var(--doing),var(--what),var(--where),var(--why),var(--feeling))}
+.card-stripe.premium{background:linear-gradient(90deg,var(--why),var(--header2),var(--feeling))}
+
+.card-body{padding:20px 20px 8px;flex:1}
+.card-emoji-row{font-size:1.6rem;margin-bottom:10px;letter-spacing:2px}
+.card-title{font-size:1rem;font-weight:800;color:#2d2d3a;margin-bottom:6px}
+.card-desc{font-size:.82rem;color:#777;line-height:1.5;margin-bottom:10px}
+
+.card-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.tag{
+  padding:3px 9px;border-radius:10px;
+  font-size:.68rem;font-weight:700;
+  background:#f0f2f8;color:#6054d4;
+}
+
+.card-footer{
+  padding:14px 20px 18px;
+  border-top:1px solid #f0f0f8;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-size{font-size:.75rem;color:#aaa}
+
+.dl-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 18px;border-radius:10px;
+  font-size:.82rem;font-weight:800;
+  text-decoration:none;
+  transition:.15s;border:none;cursor:pointer;
+}
+.dl-btn-free{
+  background:linear-gradient(135deg,var(--header),var(--header2));
+  color:#fff;
+}
+.dl-btn-free:hover{opacity:.88;transform:scale(1.03)}
+
+.dl-btn-lock{
+  background:#f5e6fa;color:#8b2faf;
+  border:1.5px solid #d9aaed;
+}
+.dl-btn-lock:hover{background:#eed9f7}
+
+/* ── LOCKED OVERLAY CARD */
+.pack-card.locked .card-body{opacity:.75}
+.lock-note{
+  font-size:.72rem;color:#b967c7;
+  font-weight:700;margin-top:4px;
+}
+
+/* ── COMING SOON CARD */
+.pack-card.soon{border-style:dashed;border-color:#ddd;background:#fafafa}
+.pack-card.soon .card-stripe{opacity:.4}
+.soon-label{
+  display:inline-block;
+  background:#fff3cd;color:#856404;
+  border:1.5px solid #ffc107;
+  border-radius:8px;padding:3px 10px;
+  font-size:.72rem;font-weight:800;
+  margin-bottom:8px;
+}
+
+/* ── HOW IT WORKS */
+.how{
+  background:linear-gradient(135deg,#6054d4,#8b5cf6);
+  border-radius:var(--radius);
+  color:#fff;padding:32px 28px;
+  margin:44px 0 0;
+}
+.how h3{font-size:1.1rem;font-weight:800;margin-bottom:20px;opacity:.9;letter-spacing:.02em;text-transform:uppercase;font-size:.8rem}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}
+.step{display:flex;flex-direction:column;gap:8px}
+.step-num{
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:.9rem;
+}
+.step-text{font-size:.85rem;line-height:1.5;opacity:.9}
+.step-text strong{display:block;font-size:.95rem;opacity:1;margin-bottom:2px}
+
+/* ── FOOTER */
+footer{
+  text-align:center;padding:32px 24px;
+  font-size:.8rem;color:#aaa;
+  border-top:1px solid #e8e8f0;
+}
+footer a{color:var(--header);text-decoration:none;font-weight:700}
+
+/* ── ANIMATIONS */
+.pack-card{animation:fadeUp .4s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.pack-card:nth-child(2){animation-delay:.07s}
+.pack-card:nth-child(3){animation-delay:.14s}
+.pack-card:nth-child(4){animation-delay:.21s}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="https://www.talkinginpictures.co.uk">
+    <div class="logo-dots">
+      <div class="logo-dot"></div>
+      <div class="logo-dot"></div>
+      <div class="logo-dot"></div>
+      <div class="logo-dot"></div>
+      <div class="logo-dot"></div>
+    </div>
+    Talking in Pictures
+  </a>
+  <a class="back-btn" href="https://www.talkinginpictures.co.uk">← Back to Home</a>
+</header>
+
+<div class="hero">
+  <h1>📚 Emoji Libraries</h1>
+  <p>Download emoji packs for <strong>Sentence Studio</strong>. Load any <code>.txt</code> file directly into the app to give students rich, tailored vocabulary sets.</p>
+  <div class="role-strip">
+    <span class="role-pill" style="background:#fff0e6;color:#c95e00">Who</span>
+    <span class="role-pill" style="background:#fffbe0;color:#9a8000">Doing</span>
+    <span class="role-pill" style="background:#eafbe6;color:#2e7d22">What</span>
+    <span class="role-pill" style="background:#e3effe;color:#1a5fbe">Where</span>
+    <span class="role-pill" style="background:#f5e6fa;color:#7a1fa0">Why</span>
+    <span class="role-pill" style="background:#ffe6f1;color:#b5004f">Feeling</span>
+  </div>
+</div>
+
+<main>
+
+  <!-- FREE SECTION -->
+  <div class="section-label">
+    <h2>Free Libraries</h2>
+    <span class="section-badge badge-free">✓ Always Free</span>
+    <div class="section-rule"></div>
+  </div>
+
+  <div class="pack-grid">
+
+    <div class="pack-card">
+      <div class="card-stripe"></div>
+      <div class="card-body">
+        <div class="card-emoji-row">👦👧🏃🍎🏠😊</div>
+        <div class="card-title">Core Vocabulary Pack</div>
+        <div class="card-desc">A broad starter set covering all 8 sentence roles. People, actions, objects, places, feelings — everything you need to get started with Colourful Semantics.</div>
+        <div class="card-tags">
+          <span class="tag">All roles</span>
+          <span class="tag">Skin tones</span>
+          <span class="tag">619 emojis</span>
+          <span class="tag">Starter</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="card-size">52 KB · .txt</span>
+        <a class="dl-btn dl-btn-free"
+           href="https://raw.githubusercontent.com/TalkinginPictures/sentence-studio-libraries/main/Emoji%20Pack%20Clean%20Core%20V2%20Skin%20Tones%20Boy%20Girl.txt"
+           download="Core Vocabulary Pack.txt">
+          ⬇ Download Free
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PREMIUM SECTION -->
+  <div class="section-label">
+    <h2>Premium Packs</h2>
+    <span class="section-badge badge-premium">✦ Tailored Sets</span>
+    <div class="section-rule"></div>
+  </div>
+
+  <div class="pack-grid">
+
+    <div class="pack-card locked">
+      <div class="card-stripe premium"></div>
+      <div class="card-body">
+        <div class="card-emoji-row">🍽️🥣🧃🥄🍞</div>
+        <div class="card-title">Mealtime & Food Routines</div>
+        <div class="card-desc">Targeted vocabulary for mealtime communication. Ideal for students working on daily living language and AAC core + fringe vocabulary.</div>
+        <div class="card-tags">
+          <span class="tag">Daily living</span>
+          <span class="tag">AAC</span>
+          <span class="tag">EYFS–KS2</span>
+        </div>
+        <div class="lock-note">🔒 Coming soon</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-size">Premium pack</span>
+        <span class="dl-btn dl-btn-lock">🔒 Coming Soon</span>
+      </div>
+    </div>
+
+    <div class="pack-card locked">
+      <div class="card-stripe premium"></div>
+      <div class="card-body">
+        <div class="card-emoji-row">😢😡🥰😰🤩😶</div>
+        <div class="card-title">Emotions & Feelings Expanded</div>
+        <div class="card-desc">A deep vocabulary set for emotional literacy. Nuanced feelings, body sensations and social situations for SEMH and PSHE focus.</div>
+        <div class="card-tags">
+          <span class="tag">SEMH</span>
+          <span class="tag">PSHE</span>
+          <span class="tag">Feelings</span>
+        </div>
+        <div class="lock-note">🔒 Coming soon</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-size">Premium pack</span>
+        <span class="dl-btn dl-btn-lock">🔒 Coming Soon</span>
+      </div>
+    </div>
+
+    <div class="pack-card locked">
+      <div class="card-stripe premium"></div>
+      <div class="card-body">
+        <div class="card-emoji-row">🏫📚✏️🧑‍🏫🖊️📐</div>
+        <div class="card-title">School & Classroom Life</div>
+        <div class="card-desc">Curriculum-aligned vocabulary for school routines, subjects, people and places. Perfect for EHCP target language work.</div>
+        <div class="card-tags">
+          <span class="tag">EHCP</span>
+          <span class="tag">KS1–KS2</span>
+          <span class="tag">Curriculum</span>
+        </div>
+        <div class="lock-note">🔒 Coming soon</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-size">Premium pack</span>
+        <span class="dl-btn dl-btn-lock">🔒 Coming Soon</span>
+      </div>
+    </div>
+
+    <div class="pack-card soon">
+      <div class="card-stripe premium"></div>
+      <div class="card-body">
+        <span class="soon-label">⭐ School Licence</span>
+        <div class="card-title">Whole School Bundle</div>
+        <div class="card-desc">All current and future packs for your entire setting. One purchase, unlimited downloads for all staff. Ideal for SENCOs with resource budgets.</div>
+        <div class="card-tags">
+          <span class="tag">All packs</span>
+          <span class="tag">Whole school</span>
+          <span class="tag">SENCO</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="card-size">Annual licence</span>
+        <span class="dl-btn dl-btn-lock">🔒 Coming Soon</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="how">
+    <h3>How to use a library</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text"><strong>Download</strong>Click the download button — the <code>.txt</code> file saves to your device.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text"><strong>Open Sentence Studio</strong>Launch the app and tap the ⚙️ Teacher Setup button.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>Load the file</strong>Under "Emoji Library", tap Choose File and select your downloaded <code>.txt</code> pack.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text"><strong>Ready!</strong>Your new vocabulary set loads instantly — no account or internet needed in class.</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>Made with ❤️ by a SEND teacher, for SEND teachers &nbsp;·&nbsp; <a href="https://www.talkinginpictures.co.uk">talkinginpictures.co.uk</a></p>
+  <p style="margin-top:8px">Want a bespoke pack built around your students' EHCP targets? <a href="mailto:oli@talkinginpicture.co.uk">Get in touch</a></p>
+</footer>
+
+</body>
+</html>
