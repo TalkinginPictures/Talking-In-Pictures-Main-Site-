@@ -1,0 +1,705 @@
+{ emoji:"🧑", canon:"person", role:"who", keywords:["person","people","someone","anyone"] }
+{ emoji:"👦", canon:"boy", role:"who", keywords:["boy","child","son"] }
+{ emoji:"👧", canon:"girl", role:"who", keywords:["girl","child","daughter"] }
+{ emoji:"👨", canon:"man", role:"who", keywords:["man","male","dad"] }
+{ emoji:"👩", canon:"woman", role:"who", keywords:["woman","female","mum"] }
+{ emoji:"👶", canon:"baby", role:"who", keywords:["baby","infant"] }
+{ emoji:"👴", canon:"grandfather", role:"who", keywords:["old man","grandfather","elderly"] }
+{ emoji:"👵", canon:"grandmother", role:"who", keywords:["old woman","grandmother","elderly"] }
+{ emoji:"🏃", canon:"run", role:"doing", keywords:["run","running","ran"] }
+{ emoji:"🚶", canon:"walk", role:"doing", keywords:["walk","walking","went"] }
+{ emoji:"🗣️", canon:"talk", role:"doing", keywords:["talk","talking","say","speak"] }
+{ emoji:"👂", canon:"listen", role:"doing", keywords:["listen","listening","hear"] }
+{ emoji:"👀", canon:"look", role:"doing", keywords:["look","looking","see","watch"] }
+{ emoji:"✍️", canon:"write", role:"doing", keywords:["write","writing","draw","drawing"] }
+{ emoji:"📖", canon:"read", role:"doing", keywords:["read","reading"] }
+{ emoji:"🍽️", canon:"eat", role:"doing", keywords:["eat","eating","ate"] }
+{ emoji:"💤", canon:"sleep", role:"doing", keywords:["sleep","sleeping","slept"] }
+{ emoji:"📘", canon:"book", role:"what", keywords:["book","reading","story"] }
+{ emoji:"✏️", canon:"pencil", role:"what", keywords:["pencil","pen","writing"] }
+{ emoji:"🧸", canon:"toy", role:"what", keywords:["toy","teddy"] }
+{ emoji:"⚽", canon:"ball", role:"what", keywords:["ball","football"] }
+{ emoji:"🍎", canon:"apple", role:"what", keywords:["apple","fruit","food"] }
+{ emoji:"🍌", canon:"banana", role:"what", keywords:["banana","fruit"] }
+{ emoji:"🥛", canon:"milk", role:"what", keywords:["milk","drink"] }
+{ emoji:"🎒", canon:"bag", role:"what", keywords:["bag","school bag"] }
+{ emoji:"🛏️", canon:"bed", role:"what", keywords:["bed"] }
+{ emoji:"🏠", canon:"home", role:"where", keywords:["home","house"] }🌳", canon:"park", role:"where", keywords:["park","outside","garden"] }
+{ emoji:"🛏️", canon:"bed", role:"where", keywords:["bedroom","in bed"] }
+{ emoji:"🏥", canon:"hospital", role:"where", keywords:["hospital"] }
+{ emoji:"🚗", canon:"car", role:"where", keywords:["car","inside car"] }
+{ emoji:"🏫", canon:"school", role:"where", keywords:["school","classroom"] }
+{ emoji:"⏰", canon:"now", role:"when", keywords:["now","time"] }{ emoji:"⏰", canon:["morning","early"] }
+{ emoji:"☀️", canon:"day", role:"when", keywords:["day","daytime"] }
+{ emoji:"🌙", canon:"night", role:"when", keywords:["night","evening"] }
+{ emoji:"📅", canon:"today", role:"when", keywords:["today","date"] }
+{ emoji:"🐢", canon:"slow", role:"how", keywords:["slow","slowly"] }{ emoji💪", canon:"strong", role:"how", keywords:["strong","bravely"] }
+{ emoji:"🚀", canon:"fast", role:"how", keywords:["fast","quickly"] }
+{ emoji:"❤️", canon:"kind", role:"how", keywords:["kind","kindly","with love"] }
+{ emoji:"😊", canon:"happy", role:"feeling", keywords:["happy","happily","good"] }{ emoji:"😊", canon:"happy", role:"feeling", keywords:["happy","happily emoji:"😴", canon:"tired", role:"feeling", keywords:["tired","sleepy"] }
+{ emoji:"😨", canon:"scared", role:"feeling", keywords:["scared","afraid"] }
+{ emoji:"😢", canon:"sad", role:"feeling", keywords:["sad","sadly","upset"] }
+{ emoji:"😡", canon:"angry", role:"feeling", keywords:["angry","cross","mad"] }
+{ emoji:"❓", canon:"why", role:"why", keywords:["why","because","reason"] }
+{ emoji:"🐉", canon:"dragon", role:"who", keywords:["dragon","monster"] }🧚", canon:"fairy", role:"who", keywords:["fairy","magic fairy"] }
+
+{ emoji:"🔥", canon:"fire", role:"what", keywords:["fire","flames","heat"] }
+{ emoji:"🔥", canon:"fire", role:"doing", keywords:["burn","burning"] }
+{ emoji:"🔥", canon:"fire", role:"how", keywords:["hot","dangerous"] }
+
+{ emoji:"🪄", canon:"magic", role:"doing", keywords:["magic","cast spell","spell"] }
+{ emoji:"🏰", canon:"castle", role:"where", keywords:["castle","palace"] }
+{ emoji:"🧙", canon:"wizard", role:"who", keywords:["wizard","magician"] }
+{ emoji:"🧑", canon:"person", role:"who", keywords:["person","people","someone","anyone","adult"] }
+{ emoji:"🧑🏻", canon:"person", role:"who", keywords:["person","adult","light skin"] }
+{ emoji:"🧑🏼", canon:"person", role:"who", keywords:["person","adult","medium light skin"] }
+{ emoji:"🧑🏽", canon:"person", role:"who", keywords:["person","adult","medium skin"] }
+{ emoji:"🧑🏾", canon:"person", role:"who", keywords:["person","adult","medium dark skin"] }
+{ emoji:"🧑🏿", canon:"person", role:"who", keywords:["person","adult","dark skin"] }
+{ emoji:"👨", canon:"man", role:"who", keywords:["man","male","adult","dad"] }
+{ emoji:"👨🏻", canon:"man", role:"who", keywords:["man","male","light skin"] }
+{ emoji:"👨🏼", canon:"man", role:"who", keywords:["man","male","medium light skin"] }
+{ emoji:"👨🏽", canon:"man", role:"who", keywords:["man","male","medium skin"] }
+{ emoji:"👨🏾", canon:"man", role:"who", keywords:["man","male","medium dark skin"] }
+{ emoji:"👨🏿", canon:"man", role:"who", keywords:["man","male","dark skin"] }
+{ emoji:"👩", canon:"woman", role:"who", keywords:["woman","female","adult","mum"] }
+{ emoji:"👩🏻", canon:"woman", role:"who", keywords:["woman","female","light skin"] }
+{ emoji:"👩🏼", canon:"woman", role:"who", keywords:["woman","female","medium light skin"] }
+{ emoji:"👩🏽", canon:"woman", role:"who", keywords:["woman","female","medium skin"] }
+{ emoji:"👩🏾", canon:"woman", role:"who", keywords:["woman","female","medium dark skin"] }
+{ emoji:"👩🏿", canon:"woman", role:"who", keywords:["woman","female","dark skin"] }
+{ emoji:"🧒", canon:"child", role:"who", keywords:["child","kid","young"] }
+{ emoji:"🧒🧒🏾", canon:"child", role:"who", keywords:["child","kid","medium dark skin"] }
+{ emoji:"🧒🏻", canon:"child", role:"who", keywords:["child","kid","light skin"] }
+{ emoji:"🧒🏿", canon:"child", role:"who", keywords:["child","kid","dark skin"] }
+{ emoji:"🧒🏼", canon:"child", role:"who", keywords:["child","kid","medium light skin"] }
+{ emoji:"🧒🏽", canon:"child", role:"who", keywords:["child","kid","medium skin"] }
+{ emoji:"👶", canon:"baby", role:"who", keywords:["baby","infant"] }
+{ emoji:"👶", canon:"baby", role:"who", keywords:["babybaby","infant","light skin"] }
+{ emoji:"👶🏼", canon:"baby", role:"who", keywords:["baby","infant","medium light skin"] }
+{ emoji:"👶🏽", canon:"baby", role:"who", keywords:["baby","infant","medium skin"] }
+{ emoji:"👶🏾", canon:"baby", role:"who", keywords:["baby","infant","medium dark skin"] }
+{ emoji:"👶🏿", canon:"baby", role:"who", keywords:["baby","infant","dark skin"] }
+{ emoji:"👴", canon:"grandfather", role:"who", keywords:["old man","grandfather","elderly"] }
+{ emoji:"👴", canon:"grandfather", role:":["old woman","grandmother","elderly"] }
+{ emoji:"👵🏻", canon:"grandmother", role:"who", keywords:["old woman","grandmother","light skin"] }
+{ emoji:"👵🏼", canon:"grandmother", role:"who", keywords:["old woman","grandmother","medium light skin"] }
+{ emoji:"👵🏽", canon:"grandmother", role:"who", keywords:["old woman","grandmother","medium skin"] }
+{ emoji:"👵🏾", canon:"grandmother", role:"who", keywords:["old woman","grandmother","medium dark skin"] }
+{ emoji:"👵🏿", canon:"grandmother", role:"who", keywords:["old woman","grandmother","dark skin"] }
+{ emoji:"👴🏻", canon:"grandfather", role:"who", keywords:["old man","grandfather","light skin"] }
+{ emoji:"👴🏼", canon:"grandfather", role:"who", keywords:["old man","grandfather","medium light skin"] }
+{ emoji:"👴🏽", canon:"grandfather", role:"who", keywords:["old man","grandfather","medium skin"] }
+{ emoji:"👴🏾", canon:"grandfather", role:"who", keywords:["old man","grandfather","medium dark skin"] }
+{ emoji:"👴🏿", canon:"grandfather", role:"who", keywords:["old man","grandfather","dark skin"] }
+{ emoji:"🧑‍🦱", canon:"person_curly", role:"who", keywords:["person","curly hair","afro"] }
+{ emoji:"🧑‍🦱", canon: "medium dark skin"] }
+{ emoji:"🧑🏿‍🦱", canon:"person_curly", role:"who", keywords:["person","curly hair","dark skin"] }
+{ emoji:"🧑🏻‍🦱", canon:"person_curly", role:"who", keywords:["person","curly hair","light skin"] }
+{ emoji:"🧑🏼‍🦱", canon:"person_curly", role:"who", keywords:["person","curly hair","medium light skin"] }
+{ emoji:"🧑🏽‍🦱", canon:"person_curly", role:"who", keywords:["person","curly hair","medium skin"] }
+{ emoji:"🍎", canon:"apple", role:"what", keywords:["apple","fruit","food"] }
+{ emoji:"🍏", canon:"green_apple", role:"what", keywords:["green apple","fruit"] }
+{ emoji:"🍌", canon:"banana", role:"what", keywords:["banana","fruit"] }
+{ emoji:"🍇", canon:"grapes", role:"what", keywords:["grapes","fruit"] }
+{ emoji:"🍓", canon:"strawberry", role:"what", keywords:["strawberry","fruit"] }
+{ emoji:"🍊", canon:"orange", role:"what", keywords:["orange","fruit"] }
+{ emoji:"🍍", canon:"pineapple", role:"what", keywords:["pineapple","fruit"] }
+{ emoji:"🍐", canon:"pear", role:"what", keywords:["pear","fruit"] }
+{ emoji:"🥝", canon:"kiwi", role:"what", keywords:["kiwi","fruit"] }
+{ emoji:"🥕", canon:"carrot", role:"what", keywords:["carrot","vegetable"] }
+{ emoji:"🥔", canon:"potato", role:"what", keywords:["potato","vegetable"] }
+{ emoji:"🌽", canon:"corn", role:"what", keywords:["corn","maize","vegetable"] }
+{ emoji:"🥦", canon:"broccoli", role:"what", keywords:["broccoli","vegetable"] }
+{ emoji:"🥬", canon:"leafy_greens", role:"what", keywords:["leafy greens","lettuce","vegetable"] }
+{ emoji:"🍅", canon:"tomato", role:"what", keywords:["tomato","vegetable"] }
+{ emoji:"🥒", canon:"cucumber", role:"what", keywords:["cucumber","vegetable"] }
+{ emoji:"🍞", canon:"bread", role:"what", keywords:["bread","toast","food"] }
+{ emoji:"🥪", canon:"sandwich", role:"what", keywords:["sandwich","lunch","food"] }
+{ emoji:"🍚", canon:"rice", role:"what", keywords:["rice","food"] }
+{ emoji:"🍝", canon:"pasta", role:"what", keywords:["pasta","noodles","food"] }
+{ emoji:"🍕", canon:"pizza", role:"what", keywords:["pizza","food"] }
+{ emoji:"🍔", canon:"burger", role:"what", keywords:["burger","hamburger","food"] }
+{ emoji:"🍟", canon:"chips", role:"what", keywords:["chips","fries","food"] }
+{ emoji:"🥛", canon:"milk", role:"what", keywords:["milk","drink"] }
+{ emoji:"🥛 canon:"hot_drink", role:"what", keywords:["tea","coffee","hot drink"] }
+{ emoji:"🧋", canon:"bubble_tea", role:"what", keywords:["bubble tea","drink"] }
+{ emoji:"🍼", canon:"bottle", role:"what", keywords:["bottle","milk","drink"] }
+{ emoji:"🧃", canon:"juice", role:"what", keywords:["juice","drink"] }
+{ emoji:"🍽️", canon:"eat", role:"doing", keywords:["eat","eating","ate"] }{ emoji:"🍽️ emoji:"🥣", canon:"eat_meal", role:"doing", keywords:["eat","eating","meal"] }
+{ emoji:"🥤", canon:"drink", role:"doing", keywords:["drink","drinking","drank"] }
+{ emoji:"😋", canon:"tasty", role:"how", keywords:["tasty","yummy","nice"] }{ emoji:"😋", canon:"tastylike_food", role:"feeling", keywords:["disgusted","yuck","do not like"] }
+{ emoji:"❤️", canon:"like_food", role:"feeling", keywords:["like","love","favourite"] }
+{ emoji:"🏃", canon:"run", role:"doing", keywords:["run","running","ran"] }{ emoji:"🏃", canon:"run", role:"doing", keywords:["run","running down","lying down","rest"] }
+{ emoji:"🛑", canon:"stop", role:"doing", keywords:["stop","stopped","waiting"] }
+{ emoji:"🚶", canon:"walk", role:"doing", keywords:["walk","walking","went"] }
+{ emoji:"🧍", canon:"stand", role:"doing", keywords:["stand","standing"] }
+{ emoji:"🪑", canon:"sit", role:"doing", keywords:["sit","sitting"] }
+{ emoji:"⚽", canon:"play", role:"doing", keywords:["play","playing","kick"] }{ emoji:"⚽", canon:"play", role:"doing", keywords:["play","playing","kick"", role:"doing", keywords:["puzzle","thinking","solve"] }
+{ emoji:"🎨", canon:"paint", role:"doing", keywords:["paint","painting","draw"] }
+{ emoji:"🕺", canon:"dance", role:"doing", keywords:["dance","dancing"] }
+``
+{ emoji:"🎮", canon:"play_game", role:"doing", keywords:["play","game","gaming"] }
+{ emoji:"✍️", canon:"write", role:"doing", keywords:["write","writing","draw"] }", role:"doing", keywords:["read","reading"] }
+{ emoji:"🧮", canon:"count", role:"doing", keywords:["count","counting","maths"] }
+{ emoji:"🎒", canon:"school_work", role:"doing", keywords:["school","learning","work"] }
+
+{ emoji:"🧹", canon:"clean", role:"doing", keywords:["clean","cleaning","tidy"] }{ emoji:"🧹", canon:"clean", role:"doing",:"make_bed", role:"doing", keywords:["make bed","tidy bed"] }
+{ emoji:"🤝", canon:"help", role:"doing", keywords:["help","helping","share"] }
+{ emoji:"👐", canon:"give", role:"doing", keywords:["give","giving","share"] }
+{ emoji:"🗣️", canon:"talk", role:"doing", keywords:["talk","talking","say","speak"] }
+{ emoji:"👂", canon:"listen", role:"doing", keywords:["listen","listening","hear"] }
+{ emoji:"🙋", canon:"ask", role:"doing", keywords:["ask","asking","question"] }
+{ emoji:"💤", canon:"sleep", role:"doing", keywords:["sleep","sleeping","slept"] }{ emoji:"💤",_teeth", role:"doing", keywords:["brush","brushing","teeth"] }
+{ emoji:"🚿", canon:"wash", role:"doing", keywords:["wash","washing","clean"] }
+{ emoji:"🍽️", canon:"eat", role:"doing", keywords:["eat","eating","ate"] }
+{ emoji:"🥤", canon:"drink", role:"doing", keywords:["drink","drinking","drank"] }
+{ emoji:"🏠", canon:"home", role:"where", keywords:["home","house"] }
+{ emoji:"🛋️", canon:"living_room", role:"where", keywords:["living room","lounge","sofa"] }
+{ emoji:"🛏️", canon:"bedroom", role:"where", keywords:["bedroom","in bed"] }
+{ emoji:"🚿", canon:"bathroom", role:"where", keywords:["bathroom","toilet","washroom"] }
+{ emoji:"🍽️", canon:"dining_table", role:"where", keywords:["table","dining table"] }
+{ emoji:"🏫", canon:"school", role:"where", keywords:["school","classroom"] }{ emoji:"🏫","class"] }
+{ emoji:"🧸", canon:"nursery", role:"where", keywords:["nursery","playroom"] }
+{ emoji:"🌳", canon:"park", role:"where", keywords:["park","outside","garden"] }
+{ emoji:"🛝", canon:"playground", role:"where", keywords:["playground","park play"] }
+{ emoji:"🏞️", canon:"outside", role:"where", keywords:["outside","nature"] }
+{ emoji:"🚗", canon:"car", role:"where", keywords:["car","inside car"] }
+{ emoji:"🚌", canon:"bus", role:"where", keywords:["bus","on bus"] }
+{ emoji:"🚶", canon:"street", role:"where", keywords:["street","road","outside"] }
+{ emoji:"🏥", canon:"hospital", role:"where", keywords:["hospital","clinic"] }{ emoji:"🏥", canon:"hospital",{ emoji:"🏪", canon:"shop", role:"where", keywords:["shop","store"] }
+{ emoji:"⏰", canon:"now", role:"when", keywords:["now","right now"] }
+{ emoji:"⏳", canon:"soon", role:"when", keywords:["soon","in a bit","short time"] }
+{ emoji:"⏳", canon:"later", role:"when", keywords:["later","after","not now"] }
+{ emoji:"📅", canon:"today", role:"when", keywords:["today"] }
+{ emoji:"📆", canon:"yesterday", role:"when", keywords:["yesterday"] }
+{ emoji:"🌅", canon:"morning", role:"when", keywords:["morning","early"] }
+{ emoji:"🌅", canon:"morning", role:"when", keywords:["morning","early role:"when", keywords:["day","daytime"] }
+{ emoji:"🌇", canon:"evening", role:"when", keywords:["evening"] }
+{ emoji:"🌙", canon:"night", role:"when", keywords:["night","bedtime"] }
+{ emoji:"1️⃣", canon:"first", role:"when", keywords:["first","before"] }
+{ emoji:"2️⃣", canon:"next", role:"when", keywords:["next","then"] }
+{ emoji:"🔚", canon:"end", role:"when", keywords:["last","at the end"] }
+{ emoji:"⏱️", canon:"long_time", role:"when", keywords:["long time","for ages"] }
+{ emoji:"⚡", canon:"quick_time", role:"when", keywords:["quick","quickly","fast time"] }
+{ emoji:"🔁", canon:"every_day", role:"when", keywords:["every day","often","regular"] }
+{ emoji:"🏫", canon:"school_time", role:"when", keywords:["school time","during school"] }
+{ emoji:"🏠", canon:"home_time", role:"when", keywords:["at home","home time"] }
+{ emoji:"🛌", canon:"bedtime", role:"when", keywords:["bedtime","sleep time"] }
+{ emoji:"🍽️", canon:"mealtime", role:"when", keywords:["mealtime","lunch time","dinner time"] }
+{ emoji:"❄️", canon:"winter", role:"when", keywords:["winter","cold time"] }
+{ emoji:"🌸", canon:"spring", role:"when", keywords:["spring"] }
+{ emoji:"☀️", canon:"summer", role:"when", keywords:["summer","hot time"] }
+{ emoji:"🍂", canon:"autumn", role:"when", keywords:["autumn","fall"] }
+{ emoji:"📖", canon:"story_time", role:"when", keywords:["story time","once upon a time"] }
+{ emoji:"⭐", canon:"long_ago", role:"when", keywords:["long ago","a long time ago"] }
+{ emoji:"🦽", canon:"wheelchair", role:"who", keywords:["wheelchair user","uses wheelchair","mobility needs"] }
+{ emoji:"🧑‍🦽", canon:"person_wheelchair", role:"who", keywords:["person in wheelchair","mobility"] }
+{ emoji:"👨‍🦽", canon:"man_wheelchair", role:"who", keywords:["man in wheelchair","mobility"] }
+{ emoji:"👩‍🦽", canon:"woman_wheelchair", role:"who", keywords:["woman in wheelchair","mobility"] }
+
+{ emoji:"🦯", canon:"white_cane", role:"who", keywords:["blind","vision impaired","uses cane"] }
+{ emoji:"🧑‍🦯", canon:"person_cane", role:"who", keywords:["blind person","vision impaired"] }
+{ emoji:"👨‍🦯", canon:"man_cane", role:"who", keywords:["blind man","vision impaired"] }
+{ emoji:"👩‍🦯", canon:"woman_cane", role:"who", keywords:["blind woman","vision impaired"] }
+
+{ emoji:"🦻", canon:"hearing_aid", role:"who", keywords:["hearing aid","hard of hearing"] }
+{ emoji:"🧏", canon:"deaf", role:"who", keywords:["deaf","sign language","hearing impaired"] }
+{ emoji:"🧏🏻", canon:"deaf", role:"who", keywords:["deaf","light skin","sign language"] }
+{ emoji:"🧏🏾", canon:"deaf", role:"who", keywords:["deaf","dark skin","sign language"] }
+
+{ emoji:"🧠", canon:"neurodivergent", role:"who", keywords:["neurodivergent","thinking differently"] }
+{ emoji:"♾️", canon:"neurodiversity", role:"who", keywords:["autism","neurodiversity","invisible disability"] }
+
+{ emoji:"🦾", canon:"prosthetic_arm", role:"who", keywords:["prosthetic arm","amputee"] }
+{ emoji:"🦿", canon:"prosthetic_leg", role:"who", keywords:["prosthetic leg","amputee"] }
+
+{ emoji:"💊", canon:"medication", role:"who", keywords:["medication","medicine","health needs"] }
+{ emoji:"🩺", canon:"medical_support", role:"who", keywords:["medical","health support"] }
+
+{ emoji:"🧕", canon:"headscarf", role:"who", keywords:["headscarf","hijab","head covering"] }
+{ emoji:"🧔", canon:"beard", role:"who", keywords:["beard","facial hair"] }
+{ emoji:"🚶", canon:"travel_walk", role:"doing", keywords:["walk","walking","travel on foot"] }
+{ emoji:"🚗", canon:"drive", role:"doing", keywords:["drive","driving","travel by car"] }
+{ emoji:"🚌", canon:"ride_bus", role:"doing", keywords:["ride bus","travelling by bus"] }
+{ emoji:"🚆", canon:"ride_train", role:"doing", keywords:["ride train","travelling by train"] }
+{ emoji:"🚲", canon:"cycle", role:"doing", keywords:["cycle","cycling","ride bike"] }
+{ emoji:"✈️", canon:"fly", role:"doing", keywords:["fly","flying","travel by plane"] }
+{ emoji:"🚕", canon:"taxi", role:"doing", keywords:["take taxi","travelling by taxi"] }
+{ emoji:"🚢", canon:"boat", role:"doing", keywords:["travel by boat","sailing"] }
+{ emoji:"🛴", canon:"scooter", role:"doing", keywords:["ride scooter","scooting"] }
+{ emoji:"🚶‍➡️", canon:"go", role:"doing", keywords:["go","going","travel"] }
+{ emoji:"🚀", canon:"fast_travel", role:"how", keywords:["fast","quickly"] }
+{ emoji:"🐢", canon:"slow_travel", role:"how", keywords:["slow","slowly"] }
+{ emoji:"🛑", canon:"safe_travel", role:"how", keywords:["safely","carefully"] }
+{ emoji:"⚠️", canon:"unsafe_travel", role:"how", keywords:["dangerously","not safe"] }
+{ emoji:"😄", canon:"happy_travel", role:"how", keywords:["happily","enjoying"] }
+{ emoji:"😰", canon:"worried_travel", role:"how", keywords:["worried","nervously"] }
+{ emoji:"🛣️", canon:"long_journey", role:"how", keywords:["long journey","far"] }
+{ emoji:"⏱️", canon:"short_journey", role:"how", keywords:["short journey","not far"] }
+{ emoji:"🏡", canon:"house", role:"where", keywords:["house","at the house"] }
+{ emoji:"🏘️", canon:"neighbourhood", role:"where", keywords:["neighbourhood","housing area"] }
+{ emoji:"🏚️", canon:"old_house", role:"where", keywords:["old house","empty house"] }
+
+{ emoji:"🛣️", canon:"road", role:"where", keywords:["road","street"] }
+{ emoji:"🌉", canon:"bridge", role:"where", keywords:["bridge","over the river"] }
+{ emoji:"🚦", canon:"crossing", role:"where", keywords:["crossing","traffic lights"] }
+{ emoji:"🅿️", canon:"car_park", role:"where", keywords:["car park","parking"] }
+
+{ emoji:"🌲", canon:"woods", role:"where", keywords:["woods","forest","trees"] }
+{ emoji:"🏕️", canon:"campsite", role:"where", keywords:["campsite","camping"] }
+{ emoji:"⛺", canon:"tent", role:"where", keywords:["tent","camp"] }
+{ emoji:"🏞️", canon:"countryside", role:"where", keywords:["countryside","nature"] }
+
+{ emoji:"🏖️", canon:"beach", role:"where", keywords:["beach","seaside"] }
+{ emoji:"🌊", canon:"sea", role:"where", keywords:["sea","ocean"] }
+{ emoji:"🏝️", canon:"island", role:"where", keywords:["island"] }
+{ emoji:"🏜️", canon:"desert", role:"where", keywords:["desert","sand"] }
+
+{ emoji:"🏙️", canon:"city", role:"where", keywords:["city","town"] }
+{ emoji:"🌆", canon:"town_centre", role:"where", keywords:["town centre","downtown"] }
+{ emoji:"🏢", canon:"office", role:"where", keywords:["office","workplace"] }
+{ emoji:"🏬", canon:"shopping_centre", role:"where", keywords:["shopping centre","mall"] }
+
+{ emoji:"🚏", canon:"bus_stop", role:"where", keywords:["bus stop","waiting for bus"] }
+{ emoji:"🚉", canon:"station", role:"where", keywords:["station","train station"] }
+{ emoji:"🚇", canon:"underground", role:"where", keywords:["underground","subway"] }
+{ emoji:"✈️", canon:"airport", role:"where", keywords:["airport"] }
+{ emoji:"🛫", canon:"departure_gate", role:"where", keywords:["departure gate","airport gate"] }
+
+{ emoji:"🏨", canon:"hotel", role:"where", keywords:["hotel","holiday place"] }
+{ emoji:"🏟️", canon:"stadium", role:"where", keywords:["stadium","sports ground"] }
+{ emoji:"🏛️", canon:"museum", role:"where", keywords:["museum","gallery"] }
+{ emoji:"🏰", canon:"castle", role:"where", keywords:["castle","palace"] }
+
+{ emoji:"🏦", canon:"bank", role:"where", keywords:["bank"] }
+{ emoji:"🏣", canon:"post_office", role:"where", keywords:["post office"] }
+{ emoji:"🛒", canon:"supermarket", role:"where", keywords:["supermarket","food shop"] }
+
+{ emoji:"🧭", canon:"far_away", role:"where", keywords:["far away","somewhere else"] }
+
+{ emoji:"🚪", canon:"doorway", role:"where", keywords:["door","doorway","by the door"] }
+{ emoji:"🪜", canon:"stairs", role:"where", keywords:["stairs","staircase"] }
+{ emoji:"🪟", canon:"window", role:"where", keywords:["window","by the window"] }
+{ emoji:"🛋️", canon:"sofa", role:"where", keywords:["sofa","couch","on the sofa"] }
+{ emoji:"🪑", canon:"chair", role:"where", keywords:["chair","on the chair"] }
+{ emoji:"🛏️", canon:"bed", role:"where", keywords:["bed","on the bed"] }
+{ emoji:"🧸", canon:"floor", role:"where", keywords:["floor","on the floor"] }
+{ emoji:"🍽️", canon:"table", role:"where", keywords:["table","at the table"] }
+{ emoji:"🪞", canon:"mirror", role:"where", keywords:["mirror","by the mirror"] }
+{ emoji:"🧺", canon:"laundry_area", role:"where", keywords:["laundry","washing area"] }
+
+{ emoji:"🏫", canon:"school_building", role:"where", keywords:["school","school building"] }
+{ emoji:"🚪", canon:"classroom", role:"where", keywords:["classroom","class"] }
+{ emoji:"🧑‍🏫", canon:"teacher_area", role:"where", keywords:["teacher area","teacher desk"] }
+{ emoji:"🪑", canon:"carpet_area", role:"where", keywords:["carpet","circle time"] }
+{ emoji:"📚", canon:"library", role:"where", keywords:["library","book corner"] }
+{ emoji:"🖥️", canon:"computer_room", role:"where", keywords:["computer room","ICT room"] }
+{ emoji:"🧪", canon:"science_room", role:"where", keywords:["science room","lab"] }
+{ emoji:"🎨", canon:"art_room", role:"where", keywords:["art room","art area"] }
+{ emoji:"🎵", canon:"music_room", role:"where", keywords:["music room"] }
+{ emoji:"🏀", canon:"sports_hall", role:"where", keywords:["sports hall","gym"] }
+{ emoji:"🍽️", canon:"dining_hall", role:"where", keywords:["dining hall","lunch hall"] }
+{ emoji:"🚻", canon:"school_toilet", role:"where", keywords:["toilet","school toilet"] }
+{ emoji:"🧥", canon:"cloakroom", role:"where", keywords:["cloakroom","coat area"] }
+{ emoji:"🧰", canon:"storage_room", role:"where", keywords:["storage","cupboard"] }
+
+{ emoji:"🛝", canon:"school_playground", role:"where", keywords:["playground","school playground"] }
+{ emoji:"⚽", canon:"playground_field", role:"where", keywords:["field","school field"] }
+{ emoji:"🌳", canon:"school_garden", role:"where", keywords:["school garden","outdoor area"] }
+{ emoji:"🏀", canon:"courtyard", role:"where", keywords:["courtyard","yard"] }
+{ emoji:"🚶", canon:"school_path", role:"where", keywords:["path","walkway"] }
+{ emoji:"🚲", canon:"bike_shed", role:"where", keywords:["bike shed","bike area"] }
+
+{ emoji:"🐄", canon:"cow", role:"who", keywords:["cow","farm animal"] }
+{ emoji:"🐂", canon:"bull", role:"who", keywords:["bull","farm animal"] }
+{ emoji:"🐃", canon:"buffalo", role:"who", keywords:["buffalo","farm animal"] }
+{ emoji:"🐖", canon:"pig", role:"who", keywords:["pig","farm animal"] }
+{ emoji:"🐑", canon:"sheep", role:"who", keywords:["sheep","farm animal"] }
+{ emoji:"🐐", canon:"goat", role:"who", keywords:["goat","farm animal"] }
+{ emoji:"🐎", canon:"horse", role:"who", keywords:["horse","farm animal"] }
+{ emoji:"🐴", canon:"pony", role:"who", keywords:["pony","horse"] }
+{ emoji:"🐓", canon:"rooster", role:"who", keywords:["rooster","chicken","farm animal"] }
+{ emoji:"🐔", canon:"chicken", role:"who", keywords:["chicken","hen","farm animal"] }
+{ emoji:"🐣", canon:"chick", role:"who", keywords:["chick","baby chicken"] }
+{ emoji:"🐥", canon:"baby_bird", role:"who", keywords:["baby bird","chick"] }
+{ emoji:"🦆", canon:"duck", role:"who", keywords:["duck","farm animal"] }
+{ emoji:"🦃", canon:"turkey", role:"who", keywords:["turkey","farm animal"] }
+{ emoji:"🐇", canon:"rabbit", role:"who", keywords:["rabbit","bunny","farm animal"] }
+{ emoji:"🐕‍🦺", canon:"farm_dog", role:"who", keywords:["dog","farm dog"] }
+
+{ emoji:"🐶", canon:"dog", role:"who", keywords:["dog","pet"] }
+{ emoji:"🐕", canon:"dog", role:"who", keywords:["dog","pet"] }
+{ emoji:"🐩", canon:"poodle", role:"who", keywords:["poodle","dog"] }
+{ emoji:"🐺", canon:"wolf_dog", role:"who", keywords:["wolf","dog"] }
+
+{ emoji:"🐱", canon:"cat", role:"who", keywords:["cat","pet"] }
+{ emoji:"🐈", canon:"cat", role:"who", keywords:["cat","pet"] }
+{ emoji:"🐈‍⬛", canon:"black_cat", role:"who", keywords:["black cat","cat"] }
+
+{ emoji:"🐹", canon:"hamster", role:"who", keywords:["hamster","pet"] }
+{ emoji:"🐭", canon:"mouse", role:"who", keywords:["mouse","pet"] }
+{ emoji:"🐰", canon:"pet_rabbit", role:"who", keywords:["rabbit","bunny","pet"] }
+{ emoji:"🐢", canon:"tortoise", role:"who", keywords:["tortoise","turtle","pet"] }
+{ emoji:"🦎", canon:"lizard", role:"who", keywords:["lizard","pet"] }
+{ emoji:"🐍", canon:"snake", role:"who", keywords:["snake","pet"] }
+
+{ emoji:"🐦", canon:"bird", role:"who", keywords:["bird","pet"] }
+{ emoji:"🦜", canon:"parrot", role:"who", keywords:["parrot","pet bird"] }
+{ emoji:"🐠", canon:"fish", role:"who", keywords:["fish","pet"] }
+{ emoji:"🐟", canon:"fish", role:"who", keywords:["fish","pet"] }
+
+{ emoji:"🦁", canon:"lion", role:"who", keywords:["lion","wild animal"] }
+{ emoji:"🐯", canon:"tiger", role:"who", keywords:["tiger","wild animal"] }
+{ emoji:"🐆", canon:"leopard", role:"who", keywords:["leopard","wild animal"] }
+{ emoji:"🐅", canon:"tiger", role:"who", keywords:["tiger","wild animal"] }
+
+{ emoji:"🐘", canon:"elephant", role:"who", keywords:["elephant","wild animal"] }
+{ emoji:"🦏", canon:"rhino", role:"who", keywords:["rhino","rhinoceros","wild animal"] }
+{ emoji:"🦛", canon:"hippo", role:"who", keywords:["hippo","hippopotamus","wild animal"] }
+
+{ emoji:"🐒", canon:"monkey", role:"who", keywords:["monkey","wild animal"] }
+{ emoji:"🦍", canon:"gorilla", role:"who", keywords:["gorilla","ape","wild animal"] }
+{ emoji:"🦧", canon:"orangutan", role:"who", keywords:["orangutan","ape"] }
+
+{ emoji:"🐻", canon:"bear", role:"who", keywords:["bear","wild animal"] }
+{ emoji:"🐻‍❄️", canon:"polar_bear", role:"who", keywords:["polar bear","wild animal"] }
+
+{ emoji:"🦊", canon:"fox", role:"who", keywords:["fox","wild animal"] }
+{ emoji:"🦝", canon:"raccoon", role:"who", keywords:["raccoon","wild animal"] }
+{ emoji:"🐺", canon:"wolf", role:"who", keywords:["wolf","wild animal"] }
+
+{ emoji:"🦌", canon:"deer", role:"who", keywords:["deer","wild animal"] }
+{ emoji:"🐗", canon:"boar", role:"who", keywords:["boar","wild animal"] }
+
+{ emoji:"🦓", canon:"zebra", role:"who", keywords:["zebra","wild animal"] }
+{ emoji:"🦒", canon:"giraffe", role:"who", keywords:["giraffe","wild animal"] }
+
+{ emoji:"🐊", canon:"crocodile", role:"who", keywords:["crocodile","wild animal"] }
+{ emoji:"🐍", canon:"snake", role:"who", keywords:["snake","wild animal"] }
+{ emoji:"🦎", canon:"lizard", role:"who", keywords:["lizard","wild animal"] }
+
+{ emoji:"🦅", canon:"eagle", role:"who", keywords:["eagle","bird","wild animal"] }
+{ emoji:"🦉", canon:"owl", role:"who", keywords:["owl","bird","wild animal"] }
+{ emoji:"🦢", canon:"swan", role:"who", keywords:["swan","bird"] }
+
+{ emoji:"🐬", canon:"dolphin", role:"who", keywords:["dolphin","sea animal"] }
+{ emoji:"🐳", canon:"whale", role:"who", keywords:["whale","sea animal"] }
+{ emoji:"🦈", canon:"shark", role:"who", keywords:["shark","sea animal"] }
+{ emoji:"🐢", canon:"turtle", role:"who", keywords:["turtle","sea animal"] }
+
+{ emoji:"🐄", canon:"cow", role:"what", keywords:["cow","farm animal"] }
+{ emoji:"🐂", canon:"bull", role:"what", keywords:["bull","farm animal"] }
+{ emoji:"🐃", canon:"buffalo", role:"what", keywords:["buffalo","farm animal"] }
+{ emoji:"🐖", canon:"pig", role:"what", keywords:["pig","farm animal"] }
+{ emoji:"🐑", canon:"sheep", role:"what", keywords:["sheep","farm animal"] }
+{ emoji:"🐐", canon:"goat", role:"what", keywords:["goat","farm animal"] }
+{ emoji:"🐎", canon:"horse", role:"what", keywords:["horse","farm animal"] }
+{ emoji:"🐴", canon:"pony", role:"what", keywords:["pony","horse"] }
+{ emoji:"🐓", canon:"rooster", role:"what", keywords:["rooster","chicken","farm animal"] }
+{ emoji:"🐔", canon:"chicken", role:"what", keywords:["chicken","hen","farm animal"] }
+{ emoji:"🐣", canon:"chick", role:"what", keywords:["chick","baby chicken"] }
+{ emoji:"🐥", canon:"baby_bird", role:"what", keywords:["baby bird","chick"] }
+{ emoji:"🦆", canon:"duck", role:"what", keywords:["duck","farm animal"] }
+{ emoji:"🦃", canon:"turkey", role:"what", keywords:["turkey","farm animal"] }
+{ emoji:"🐇", canon:"rabbit", role:"what", keywords:["rabbit","bunny","farm animal"] }
+{ emoji:"🐕‍🦺", canon:"farm_dog", role:"what", keywords:["dog","farm dog"] }
+{ emoji:"🐶", canon:"dog", role:"what", keywords:["dog","pet"] }
+{ emoji:"🐕", canon:"dog", role:"what", keywords:["dog","pet"] }
+{ emoji:"🐩", canon:"poodle", role:"what", keywords:["poodle","dog"] }
+
+{ emoji:"🐱", canon:"cat", role:"what", keywords:["cat","pet"] }
+{ emoji:"🐈", canon:"cat", role:"what", keywords:["cat","pet"] }
+{ emoji:"🐈‍⬛", canon:"black_cat", role:"what", keywords:["black cat","cat"] }
+
+{ emoji:"🐹", canon:"hamster", role:"what", keywords:["hamster","pet"] }
+{ emoji:"🐭", canon:"mouse", role:"what", keywords:["mouse","pet"] }
+{ emoji:"🐰", canon:"pet_rabbit", role:"what", keywords:["rabbit","bunny","pet"] }
+{ emoji:"🐢", canon:"tortoise", role:"what", keywords:["tortoise","turtle","pet"] }
+{ emoji:"🦎", canon:"lizard", role:"what", keywords:["lizard","pet"] }
+{ emoji:"🐍", canon:"snake", role:"what", keywords:["snake","pet"] }
+
+{ emoji:"🐦", canon:"bird", role:"what", keywords:["bird","pet"] }
+{ emoji:"🦜", canon:"parrot", role:"what", keywords:["parrot","pet bird"] }
+{ emoji:"🐠", canon:"fish", role:"what", keywords:["fish","pet"] }
+{ emoji:"🐟", canon:"fish", role:"what", keywords:["fish","pet"] }
+
+{ emoji:"🦁", canon:"lion", role:"what", keywords:["lion","wild animal"] }
+{ emoji:"🐯", canon:"tiger", role:"what", keywords:["tiger","wild animal"] }
+{ emoji:"🐆", canon:"leopard", role:"what", keywords:["leopard","wild animal"] }
+{ emoji:"🐅", canon:"tiger", role:"what", keywords:["tiger","wild animal"] }
+
+{ emoji:"🐘", canon:"elephant", role:"what", keywords:["elephant","wild animal"] }
+{ emoji:"🦏", canon:"rhino", role:"what", keywords:["rhino","rhinoceros","wild animal"] }
+{ emoji:"🦛", canon:"hippo", role:"what", keywords:["hippo","hippopotamus","wild animal"] }
+
+{ emoji:"🐒", canon:"monkey", role:"what", keywords:["monkey","wild animal"] }
+{ emoji:"🦍", canon:"gorilla", role:"what", keywords:["gorilla","ape","wild animal"] }
+{ emoji:"🦧", canon:"orangutan", role:"what", keywords:["orangutan","ape"] }
+
+{ emoji:"🐻", canon:"bear", role:"what", keywords:["bear","wild animal"] }
+{ emoji:"🐻‍❄️", canon:"polar_bear", role:"what", keywords:["polar bear","wild animal"] }
+
+{ emoji:"🦊", canon:"fox", role:"what", keywords:["fox","wild animal"] }
+{ emoji:"🦝", canon:"raccoon", role:"what", keywords:["raccoon","wild animal"] }
+{ emoji:"🐺", canon:"wolf", role:"what", keywords:["wolf","wild animal"] }
+
+{ emoji:"🦌", canon:"deer", role:"what", keywords:["deer","wild animal"] }
+{ emoji:"🐗", canon:"boar", role:"what", keywords:["boar","wild animal"] }
+
+{ emoji:"🦓", canon:"zebra", role:"what", keywords:["zebra","wild animal"] }
+{ emoji:"🦒", canon:"giraffe", role:"what", keywords:["giraffe","wild animal"] }
+
+{ emoji:"🐊", canon:"crocodile", role:"what", keywords:["crocodile","wild animal"] }
+{ emoji:"🐍", canon:"snake", role:"what", keywords:["snake","wild animal"] }
+{ emoji:"🦎", canon:"lizard", role:"what", keywords:["lizard","wild animal"] }
+
+{ emoji:"🦅", canon:"eagle", role:"what", keywords:["eagle","bird","wild animal"] }
+{ emoji:"🦉", canon:"owl", role:"what", keywords:["owl","bird","wild animal"] }
+{ emoji:"🦢", canon:"swan", role:"what", keywords:["swan","bird"] }
+
+{ emoji:"🐬", canon:"dolphin", role:"what", keywords:["dolphin","sea animal"] }
+{ emoji:"🐳", canon:"whale", role:"what", keywords:["whale","sea animal"] }
+{ emoji:"🦈", canon:"shark", role:"what", keywords:["shark","sea animal"] }
+{ emoji:"🐢", canon:"turtle", role:"what", keywords:["turtle","sea animal"] }
+
+{ emoji:"🐜", canon:"ant", role:"who", keywords:["ant","insect"] }
+{ emoji:"🐝", canon:"bee", role:"who", keywords:["bee","insect"] }
+{ emoji:"🪲", canon:"beetle", role:"who", keywords:["beetle","insect"] }
+{ emoji:"🦋", canon:"butterfly", role:"who", keywords:["butterfly","insect"] }
+{ emoji:"🐛", canon:"caterpillar", role:"who", keywords:["caterpillar","insect"] }
+{ emoji:"🦗", canon:"grasshopper", role:"who", keywords:["grasshopper","cricket","insect"] }
+{ emoji:"🕷️", canon:"spider", role:"who", keywords:["spider"] }
+{ emoji:"🦂", canon:"scorpion", role:"who", keywords:["scorpion"] }
+{ emoji:"🪰", canon:"fly", role:"who", keywords:["fly","insect"] }
+{ emoji:"🦟", canon:"mosquito", role:"who", keywords:["mosquito","insect"] }
+{ emoji:"🪳", canon:"cockroach", role:"who", keywords:["cockroach","insect"] }
+{ emoji:"🐞", canon:"ladybird", role:"who", keywords:["ladybird","ladybug","insect"] }
+{ emoji:"🐌", canon:"snail", role:"who", keywords:["snail"] }
+{ emoji:"🪱", canon:"worm", role:"who", keywords:["worm"] }
+
+{ emoji:"🐜", canon:"ant", role:"what", keywords:["ant","insect"] }
+{ emoji:"🐝", canon:"bee", role:"what", keywords:["bee","insect"] }
+{ emoji:"🪲", canon:"beetle", role:"what", keywords:["beetle","insect"] }
+{ emoji:"🦋", canon:"butterfly", role:"what", keywords:["butterfly","insect"] }
+{ emoji:"🐛", canon:"caterpillar", role:"what", keywords:["caterpillar","insect"] }
+{ emoji:"🦗", canon:"grasshopper", role:"what", keywords:["grasshopper","cricket","insect"] }
+{ emoji:"🕷️", canon:"spider", role:"what", keywords:["spider"] }
+{ emoji:"🦂", canon:"scorpion", role:"what", keywords:["scorpion"] }
+{ emoji:"🪰", canon:"fly", role:"what", keywords:["fly","insect"] }
+{ emoji:"🦟", canon:"mosquito", role:"what", keywords:["mosquito","insect"] }
+{ emoji:"🪳", canon:"cockroach", role:"what", keywords:["cockroach","insect"] }
+{ emoji:"🐞", canon:"ladybird", role:"what", keywords:["ladybird","ladybug","insect"] }
+{ emoji:"🐌", canon:"snail", role:"what", keywords:["snail"] }
+{ emoji:"🪱", canon:"worm", role:"what", keywords:["worm"] }
+
+{ emoji:"🔴", canon:"red", role:"what", keywords:["red","colour"] }
+{ emoji:"🟠", canon:"orange", role:"what", keywords:["orange","colour"] }
+{ emoji:"🟡", canon:"yellow", role:"what", keywords:["yellow","colour"] }
+{ emoji:"🟢", canon:"green", role:"what", keywords:["green","colour"] }
+{ emoji:"🔵", canon:"blue", role:"what", keywords:["blue","colour"] }
+{ emoji:"🟣", canon:"purple", role:"what", keywords:["purple","colour"] }
+{ emoji:"⚫", canon:"black", role:"what", keywords:["black","colour"] }
+{ emoji:"⚪", canon:"white", role:"what", keywords:["white","colour"] }
+{ emoji:"🟤", canon:"brown", role:"what", keywords:["brown","colour"] }
+{ emoji:"🌸", canon:"pink", role:"what", keywords:["pink","colour"] }
+{ emoji:"🎨", canon:"multicolour", role:"what", keywords:["colourful","many colours","paint"] }
+{ emoji:"🌑", canon:"dark", role:"what", keywords:["dark","dark colour"] }
+{ emoji:"🌕", canon:"light", role:"what", keywords:["light","light colour"] }
+{ emoji:"✨", canon:"bright", role:"what", keywords:["bright","shiny"] }
+{ emoji:"🌫️", canon:"dull", role:"what", keywords:["dull","pale"] }
+
+{ emoji:"🤕", canon:"hurt", role:"what", keywords:["hurt","injured","pain"] }
+{ emoji:"🩹", canon:"plaster", role:"what", keywords:["plaster","bandage"] }
+{ emoji:"🤒", canon:"ill", role:"what", keywords:["ill","sick","unwell"] }
+{ emoji:"🤧", canon:"cold", role:"what", keywords:["cold","runny nose"] }
+{ emoji:"🤢", canon:"nauseous", role:"what", keywords:["sick","feel sick","nauseous"] }
+{ emoji:"🤮", canon:"vomit", role:"what", keywords:["vomit","being sick"] }
+{ emoji:"🤧", canon:"sneeze", role:"what", keywords:["sneeze","hay fever"] }
+
+{ emoji:"💊", canon:"medicine", role:"what", keywords:["medicine","medication"] }
+{ emoji:"🩺", canon:"checkup", role:"what", keywords:["check up","medical help"] }
+{ emoji:"🏥", canon:"hospital", role:"what", keywords:["hospital","clinic"] }
+
+{ emoji:"😷", canon:"mask", role:"what", keywords:["mask","face mask"] }
+{ emoji:"🧴", canon:"sanitiser", role:"what", keywords:["hand gel","sanitiser"] }
+
+{ emoji:"😴", canon:"rest", role:"what", keywords:["rest","tired","sleep"] }
+{ emoji:"🛏️", canon:"bed_rest", role:"what", keywords:["rest in bed","lie down"] }
+
+{ emoji:"💧", canon:"drink_water", role:"what", keywords:["water","drink","hydration"] }
+{ emoji:"🍎", canon:"healthy_food", role:"what", keywords:["healthy food","fruit"] }
+{ emoji:"🧠", canon:"brain", role:"what", keywords:["brain","head"] }
+{ emoji:"🗣️", canon:"mouth", role:"what", keywords:["mouth","talking","speaking"] }
+{ emoji:"👄", canon:"lips", role:"what", keywords:["lips","mouth"] }
+{ emoji:"🦷", canon:"teeth", role:"what", keywords:["teeth","tooth"] }
+{ emoji:"👅", canon:"tongue", role:"what", keywords:["tongue"] }
+
+{ emoji:"👀", canon:"eyes", role:"what", keywords:["eyes","eye","see"] }
+{ emoji:"👂", canon:"ears", role:"what", keywords:["ears","ear","hear"] }
+{ emoji:"👃", canon:"nose", role:"what", keywords:["nose","smell"] }
+
+{ emoji:"🧍", canon:"body", role:"what", keywords:["body"] }
+{ emoji:"🧒", canon:"head", role:"what", keywords:["head"] }
+{ emoji:"🫀", canon:"heart", role:"what", keywords:["heart"] }
+{ emoji:"🫁", canon:"lungs", role:"what", keywords:["lungs","breathing"] }
+
+{ emoji:"💪", canon:"arm", role:"what", keywords:["arm","arms"] }
+{ emoji:"🦾", canon:"prosthetic_arm", role:"what", keywords:["prosthetic arm","arm"] }
+{ emoji:"🤲", canon:"hands", role:"what", keywords:["hands","hand"] }
+{ emoji:"✋", canon:"hand", role:"what", keywords:["hand","palm"] }
+{ emoji:"🤚", canon:"fingers", role:"what", keywords:["fingers","finger"] }
+{ emoji:"👊", canon:"fist", role:"what", keywords:["fist","hand"] }
+
+{ emoji:"🦵", canon:"leg", role:"what", keywords:["leg","legs"] }
+{ emoji:"🦿", canon:"prosthetic_leg", role:"what", keywords:["prosthetic leg","leg"] }
+{ emoji:"🦶", canon:"foot", role:"what", keywords:["foot","feet"] }
+{ emoji:"👣", canon:"footprints", role:"what", keywords:["feet","footprints"] }
+
+{ emoji:"🧎", canon:"knees", role:"what", keywords:["knees","knee"] }
+{ emoji:"🧍‍♂️", canon:"shoulders", role:"what", keywords:["shoulders","shoulder"] }
+{ emoji:"👕", canon:"chest", role:"what", keywords:["chest","body"] }
+{ emoji:"👖", canon:"waist", role:"what", keywords:["waist","hips"] }
+
+{ emoji:"🦴", canon:"bones", role:"what", keywords:["bone","bones","skeleton"] }
+{ emoji:"🩸", canon:"blood", role:"what", keywords:["blood"] }
+{ emoji:"👀", canon:"sight", role:"what", keywords:["eyes","seeing","sight"] }
+{ emoji:"👂", canon:"hearing", role:"what", keywords:["ears","hearing"] }
+{ emoji:"👃", canon:"smell", role:"what", keywords:["nose","smell"] }
+{ emoji:"👅", canon:"taste", role:"what", keywords:["taste","tongue"] }
+{ emoji:"✋", canon:"touch", role:"what", keywords:["touch","feel","hands"] }
+{ emoji:"🔊", canon:"sound", role:"what", keywords:["sound","noise"] }
+{ emoji:"🎵", canon:"music", role:"what", keywords:["music","sound"] }
+{ emoji:"🌼", canon:"smell_flower", role:"what", keywords:["smell","scent"] }
+{ emoji:"🍋", canon:"taste_sour", role:"what", keywords:["sour","taste"] }
+{ emoji:"🧊", canon:"cold_touch", role:"what", keywords:["cold","cold touch"] }
+{ emoji:"🔥", canon:"hot_touch", role:"what", keywords:["hot","warm"] }
+{ emoji:"🧠", canon:"body_signal", role:"what", keywords:["body feeling","signal"] }
+
+{ emoji:"✋", canon:"grab", role:"doing", keywords:["grab","grabbing","grabbed"] }
+{ emoji:"✋", canon:"take", role:"doing", keywords:["take","taking","took","taken"] }
+{ emoji:"✋", canon:"get", role:"doing", keywords:["get","getting","got"] }
+{ emoji:"🤲", canon:"hold", role:"doing", keywords:["hold","holding","held"] }
+{ emoji:"🫴", canon:"pick_up", role:"doing", keywords:["pick up","picking up","picked up"] }
+{ emoji:"🪢", canon:"pull", role:"doing", keywords:["pull","pulling","pulled","drag","dragging","dragged"] }
+{ emoji:"👉", canon:"push", role:"doing", keywords:["push","pushing","pushed","shove","shoving"] }
+{ emoji:"🫳", canon:"drop", role:"doing", keywords:["drop","dropping","dropped","let go"] }
+
+{ emoji:"🏃", canon:"run", role:"doing", keywords:["run","running","ran","escape"] }
+{ emoji:"🫣", canon:"sneak", role:"doing", keywords:["sneak","sneaking","creep","creeping","crept"] }
+{ emoji:"🧍", canon:"step", role:"doing", keywords:["step","stepping","stepped"] }
+{ emoji:"👣", canon:"stomp", role:"doing", keywords:["stomp","stomping","stomped","stamp","stamping"] }
+{ emoji:"⬇️", canon:"fall", role:"doing", keywords:["fall","falling","fell","tumble","tumbled"] }
+
+{ emoji:"👊", canon:"hit", role:"doing", keywords:["hit","hitting","hit hard"] }
+{ emoji:"👊", canon:"punch", role:"doing", keywords:["punch","punching","punched"] }
+{ emoji:"🦵", canon:"kick", role:"doing", keywords:["kick","kicking","kicked"] }
+{ emoji:"🤜", canon:"strike", role:"doing", keywords:["strike","striking","struck"] }
+{ emoji:"💥", canon:"smash", role:"doing", keywords:["smash","smashing","smashed","break","broke"] }
+
+{ emoji:"🤼", canon:"wrestle", role:"doing", keywords:["wrestle","wrestling","grapple","grappling"] }
+{ emoji:"🫠", canon:"squeeze", role:"doing", keywords:["squeeze","squeezing","squeezed"] }
+{ emoji:"🪰", canon:"attack", role:"doing", keywords:["attack","attacking","attacked"] }
+{ emoji:"🦅", canon:"lunge", role:"doing", keywords:["lunge","lunging","lunged"] }
+{ emoji:"🛑", canon:"block", role:"doing", keywords:["block","blocking","blocked","stop","stopped"] }
+
+{ emoji:"⚔️", canon:"fight", role:"doing", keywords:["fight","fighting","fought"] }
+{ emoji:"🏃", canon:"chase", role:"doing", keywords:["chase","chasing","chased"] }
+{ emoji:"🪤", canon:"trap", role:"doing", keywords:["trap","trapping","trapped","catch","caught"] }
+{ emoji:"🕳️", canon:"hide", role:"doing", keywords:["hide","hiding","hid"] }
+{ emoji:"🔄", canon:"turn", role:"doing", keywords:["turn","turning","turned","twist","twisting"] }
+
+{ emoji:"😱", canon:"scream", role:"doing", keywords:["scream","screaming","screamed","shout","shouting"] }
+{ emoji:"😂", canon:"laugh", role:"doing", keywords:["laugh","laughing","laughed","giggle"] }
+{ emoji:"🗣️", canon:"yell", role:"doing", keywords:["yell","yelling","yelled"] }
+
+{ emoji:"🧠", canon:"plan", role:"doing", keywords:["plan","planning","think","thinking"] }
+{ emoji:"👀", canon:"watch", role:"doing", keywords:["watch","watching","look","looking"] }
+{ emoji:"👂", canon:"listen", role:"doing", keywords:["listen","listening","heard"] }
+
+{ emoji:"🤝", canon:"help", role:"doing", keywords:["help","helping","helped"] }
+{ emoji:"🙏", canon:"beg", role:"doing", keywords:["beg","begging","plead"] }
+{ emoji:"🫶", canon:"protect", role:"doing", keywords:["protect","protecting","defend","defending"] }
+
+{ emoji:"👻", canon:"ghost", role:"who", keywords:["ghost","spirit"] }
+{ emoji:"🧙", canon:"wizard", role:"who", keywords:["wizard","magician"] }
+{ emoji:"🧙‍♀️", canon:"witch", role:"who", keywords:["witch","magic"] }
+{ emoji:"🧝", canon:"elf", role:"who", keywords:["elf","fantasy person"] }
+{ emoji:"🧚", canon:"fairy", role:"who", keywords:["fairy","magic fairy"] }
+{ emoji:"🧛", canon:"vampire", role:"who", keywords:["vampire"] }
+{ emoji:"🧟", canon:"zombie", role:"who", keywords:["zombie","undead"] }
+{ emoji:"🧞", canon:"genie", role:"who", keywords:["genie","magic being"] }
+{ emoji:"👼", canon:"angel", role:"who", keywords:["angel"] }
+{ emoji:"😈", canon:"devil", role:"who", keywords:["devil","evil character"] }
+
+{ emoji:"🐉", canon:"dragon", role:"who", keywords:["dragon","monster"] }
+{ emoji:"🧌", canon:"troll", role:"who", keywords:["troll","giant"] }
+{ emoji:"🦄", canon:"unicorn", role:"who", keywords:["unicorn","magic animal"] }
+{ emoji:"🐲", canon:"magic_dragon", role:"who", keywords:["dragon","magic dragon"] }
+{ emoji:"🐺", canon:"werewolf", role:"who", keywords:["werewolf","wolf man"] }
+
+{ emoji:"🤴", canon:"prince", role:"who", keywords:["prince","royalty"] }
+{ emoji:"👸", canon:"princess", role:"who", keywords:["princess","royalty"] }
+{ emoji:"👑", canon:"king", role:"who", keywords:["king","queen","royalty"] }
+{ emoji:"🛡️", canon:"knight", role:"who", keywords:["knight","soldier"] }
+{ emoji:"🗡️", canon:"warrior", role:"who", keywords:["warrior","fighter"] }
+
+{ emoji:"🦸", canon:"superhero", role:"who", keywords:["superhero","hero"] }
+{ emoji:"🦹", canon:"villain", role:"who", keywords:["villain","bad character"] }
+
+{ emoji:"👽", canon:"alien", role:"who", keywords:["alien","space creature"] }
+{ emoji:"🤖", canon:"robot", role:"who", keywords:["robot","machine"] }
+{ emoji:"🛸", canon:"ufo", role:"who", keywords:["alien ship","ufo"] }
+{ emoji:"🧑‍🚀", canon:"astronaut", role:"who", keywords:["astronaut","space person"] }
+
+{ emoji:"🦠", canon:"space_monster", role:"who", keywords:["monster","alien monster"] }
+{ emoji:"🧠", canon:"alien_mind", role:"who", keywords:["brain alien","mind creature"] }
+
+{ emoji:"🚀", canon:"space_traveller", role:"who", keywords:["space traveller","travelling in space"] }
+{ emoji:"🌌", canon:"space_being", role:"who", keywords:["space being","cosmic character"] }
+{ emoji:"🌠", canon:"star_being", role:"who", keywords:["star being","magic space character"] }
+
+{ emoji:"🪐", canon:"planet_being", role:"who", keywords:["planet creature","space world"] }
+{ emoji:"🤝", canon:"help", role:"doing", keywords:["help","helping","helped"] }
+{ emoji:"🫶", canon:"protect", role:"doing", keywords:["protect","protecting","protected","save","saving"] }
+{ emoji:"🛡️", canon:"defend", role:"doing", keywords:["defend","defending","defended"] }
+{ emoji:"🫂", canon:"comfort", role:"doing", keywords:["comfort","comforting","comforted"] }
+{ emoji:"🙏", canon:"rescue", role:"doing", keywords:["rescue","rescued","saving"] }
+
+{ emoji:"⚔️", canon:"fight", role:"doing", keywords:["fight","fighting","fought"] }
+{ emoji:"👊", canon:"hit", role:"doing", keywords:["hit","hitting","hit"] }
+{ emoji:"👊", canon:"punch", role:"doing", keywords:["punch","punching","punched"] }
+{ emoji:"🦵", canon:"kick", role:"doing", keywords:["kick","kicking","kicked"] }
+{ emoji:"💥", canon:"attack", role:"doing", keywords:["attack","attacking","attacked"] }
+
+{ emoji:"🏃", canon:"chase", role:"doing", keywords:["chase","chasing","chased"] }
+{ emoji:"🦅", canon:"lunge", role:"doing", keywords:["lunge","lunging","lunged"] }
+{ emoji:"🪢", canon:"grab", role:"doing", keywords:["grab","grabbing","grabbed"] }
+{ emoji:"🤲", canon:"hold", role:"doing", keywords:["hold","holding","held"] }
+{ emoji:"🪤", canon:"catch", role:"doing", keywords:["catch","catching","caught","capture","captured"] }
+
+{ emoji:"🛑", canon:"block", role:"doing", keywords:["block","blocking","blocked","stop","stopped"] }
+{ emoji:"👉", canon:"push", role:"doing", keywords:["push","pushing","pushed","shove","shoved"] }
+{ emoji:"🪰", canon:"threaten", role:"doing", keywords:["threaten","threatening","threatened"] }
+
+{ emoji:"🏃", canon:"escape", role:"doing", keywords:["escape","escaping","escaped","get away"] }
+{ emoji:"🕳️", canon:"hide", role:"doing", keywords:["hide","hiding","hid"] }
+{ emoji:"😱", canon:"scream", role:"doing", keywords:["scream","screaming","screamed","shout","shouted"] }
+
+{ emoji:"🏅", canon:"win", role:"doing", keywords:["win","winning","won"] }
+{ emoji:"🔚", canon:"defeat", role:"doing", keywords:["defeat","defeated","beat"] }
+
+{ emoji:"👧", canon:"girl", role:"who", keywords:["girl","child","daughter"] }
+{ emoji:"👧🏻", canon:"girl", role:"who", keywords:["girl","child","light skin"] }
+{ emoji:"👧🏼", canon:"girl", role:"who", keywords:["girl","child","medium light skin"] }
+{ emoji:"👧🏽", canon:"girl", role:"who", keywords:["girl","child","medium skin"] }
+{ emoji:"👧🏾", canon:"girl", role:"who", keywords:["girl","child","medium dark skin"] }
+{ emoji:"👧🏿", canon:"girl", role:"who", keywords:["girl","child","dark skin"] }
+
+{ emoji:"👦", canon:"boy", role:"who", keywords:["boy","child","son"] }
+{ emoji:"👦🏻", canon:"boy", role:"who", keywords:["boy","child","light skin"] }
+{ emoji:"👦🏼", canon:"boy", role:"who", keywords:["boy","child","medium light skin"] }
+{ emoji:"👦🏽", canon:"boy", role:"who", keywords:["boy","child","medium skin"] }
+{ emoji:"👦🏾", canon:"boy", role:"who", keywords:["boy","child","medium dark skin"] }
+{ emoji:"👦🏿", canon:"boy", role:"who", keywords:["boy","child","dark skin"] }
+``
