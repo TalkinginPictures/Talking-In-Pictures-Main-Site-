@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Magic Money</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a5f2a 0%, #2d8a3e 50%, #1a5f2a 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        #header {
+            color: white;
+            text-align: center;
+            padding: 6px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            width: 100%;
+        }
+
+        #instructions {
+            color: #e8f5e9;
+            text-align: center;
+            padding: 4px 20px;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            min-height: 24px;
+        }
+
+        #top-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            padding: 4px 10px;
+            flex-wrap: wrap;
+        }
+
+        #mode-bar {
+            display: flex;
+            gap: 0;
+            background: rgba(0,0,0,0.3);
+            border-radius: 25px;
+            padding: 3px;
+        }
+        .mode-btn {
+            padding: 7px 20px;
+            border: none;
+            border-radius: 22px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: transparent;
+            color: rgba(255,255,255,0.7);
+        }
+        .mode-btn.active {
+            background: #ffd700;
+            color: #1a5f2a;
+            box-shadow: 0 2px 10px rgba(255,215,0,0.4);
+        }
+
+        #audio-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 25px;
+            padding: 4px 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        #audio-toggle:hover { background: rgba(0,0,0,0.5); }
+        #audio-toggle.muted { color: #aaa; }
+        #audio-toggle .audio-icon { font-size: 1.2rem; }
+
+        #game-hud {
+            display: none;
+            width: 100%;
+            max-width: 700px;
+            padding: 5px 15px;
+            background: rgba(0,0,0,0.25);
+            border-radius: 10px;
+            margin-bottom: 5px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+        }
+        #game-hud.visible { display: flex; }
+        .hud-item {
+            color: white;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .hud-item span { color: #ffd700; }
+        #target-display {
+            font-size: 1.2rem;
+            color: #ffd700;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+        }
+        #progress-bar {
+            width: 100%;
+            height: 7px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 3px;
+        }
+        #progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ffed4a);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        #play-area {
+            flex: 1;
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-content: flex-start;
+            gap: 10px;
+            padding: 10px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .coin {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+            user-select: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3), inset 0 -3px 10px rgba(0,0,0,0.2);
+        }
+        .coin:hover { transform: scale(1.05); }
+        .coin:active { transform: scale(0.95); }
+        .coin.selected {
+            box-shadow: 0 0 0 5px #ffd700, 0 4px 15px rgba(0,0,0,0.3);
+            transform: scale(1.1);
+        }
+        .coin img, .coin .placeholder-icon { pointer-events: none; }
+        .coin .value-text {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: rgba(0,0,0,0.7);
+            margin-top: 1px;
+            pointer-events: none;
+            text-shadow: 0 1px 1px rgba(255,255,255,0.3);
+        }
+
+        /* REAL COINS */
+        .coin-1p {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #d4a574, #b87333 40%, #8b5a2b 70%, #5c3a1e 100%);
+            border: 2px solid #6b4423;
+        }
+        .coin-2p {
+            width: 95px; height: 95px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #d4a574, #b87333 40%, #8b5a2b 70%, #5c3a1e 100%);
+            border: 2px solid #6b4423;
+        }
+        .coin-5p {
+            width: 65px; height: 65px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #e8e8e8, #c0c0c0 40%, #a0a0a0 70%, #707070 100%);
+            border: 2px solid #808080;
+        }
+        .coin-10p {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #e8e8e8, #c0c0c0 40%, #a0a0a0 70%, #707070 100%);
+            border: 2px solid #808080;
+        }
+        .coin-20p {
+            width: 80px; height: 80px;
+            clip-path: polygon(50% 0%, 90% 20%, 100% 60%, 75% 100%, 25% 100%, 0% 60%, 10% 20%);
+            background: radial-gradient(circle at 35% 35%, #e8e8e8, #c0c0c0 40%, #a0a0a0 70%, #707070 100%);
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .coin-50p {
+            width: 95px; height: 95px;
+            clip-path: polygon(50% 0%, 90% 20%, 100% 60%, 75% 100%, 25% 100%, 0% 60%, 10% 20%);
+            background: radial-gradient(circle at 35% 35%, #e8e8e8, #c0c0c0 40%, #a0a0a0 70%, #707070 100%);
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .coin-1pound {
+            width: 90px; height: 90px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #ffe066, #ffd700 40%, #daa520 70%, #b8860b 100%);
+            border: 3px solid #b8860b;
+            position: relative;
+        }
+        .coin-1pound::before {
+            content: ''; position: absolute;
+            top: 5px; left: 5px; right: 5px; bottom: 5px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #ffe066, #ffd700 40%, #daa520 70%, #b8860b 100%);
+            border: 2px dashed #b8860b;
+        }
+        .coin-1pound .value-text { position: relative; z-index: 1; color: #5c4033; }
+        .coin-2pound {
+            width: 100px; height: 100px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #e8e8e8, #c0c0c0 35%, #a0a0a0 45%, #daa520 46%, #ffd700 55%, #daa520 70%, #b8860b 100%);
+            border: 2px solid #808080;
+            position: relative;
+        }
+        .coin-2pound::before {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 65%; height: 65%; border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #ffe066, #ffd700 40%, #daa520 70%, #b8860b 100%);
+            border: 2px solid #b8860b;
+        }
+        .coin-2pound .value-text { position: relative; z-index: 1; color: #5c4033; }
+
+        /* INTERMEDIATE / PLACEHOLDER COINS (not real UK coins) */
+        .coin-4p {
+            width: 105px; height: 105px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #c4956a, #a06830 40%, #7a4a20 70%, #4a2a10 100%);
+            border: 3px dashed #8b5a2b;
+            opacity: 0.85;
+        }
+        .coin-4p .value-text { color: #3d2314; font-style: italic; }
+
+        .note {
+            width: 145px; height: 72px; border-radius: 8px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+            user-select: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.4);
+        }
+        .note:hover { transform: scale(1.05); }
+        .note:active { transform: scale(0.95); }
+        .note.selected { box-shadow: 0 0 0 5px #ffd700, 0 4px 15px rgba(0,0,0,0.3); transform: scale(1.05); }
+        .note img { width: 110px; height: 50px; object-fit: contain; pointer-events: none; }
+        .note .placeholder-icon { font-size: 1.6rem; pointer-events: none; }
+        .note .value-text { font-size: 0.85rem; font-weight: bold; color: rgba(0,0,0,0.8); pointer-events: none; }
+
+        .note-5 { background: linear-gradient(145deg, #90EE90, #7FCD7F); border: 2px solid #228B22; }
+        .note-10 { background: linear-gradient(145deg, #FFA07A, #E8967A); border: 2px solid #CD5C5C; }
+        .note-20 { background: linear-gradient(145deg, #DDA0DD, #C585C5); border: 2px solid #8B008B; }
+        .note-50 { background: linear-gradient(145deg, #F08080, #CD5C5C); border: 2px solid #8B0000; }
+
+        .cheque {
+            width: 180px; height: 80px; border-radius: 5px;
+            background: linear-gradient(145deg, #fff8dc, #f5f5dc);
+            border: 2px dashed #8b7355;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .cheque:hover { transform: scale(1.05); }
+        .cheque .placeholder-icon { font-size: 2rem; }
+        .cheque .value-text { font-size: 0.9rem; font-weight: bold; color: #5c4033; }
+
+        #controls {
+            display: flex;
+            gap: 6px;
+            padding: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            background: rgba(0,0,0,0.2);
+        }
+        .btn {
+            padding: 8px 14px;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .btn:active { transform: translateY(0); }
+        .btn-add { background: #4CAF50; color: white; }
+        .btn-combine { background: #FF9800; color: white; }
+        .btn-clear { background: #f44336; color: white; }
+        .btn-speak { background: #2196F3; color: white; }
+        .btn-check { background: #9C27B0; color: white; font-size: 1rem; padding: 9px 24px; }
+        .btn-check.correct { background: #4CAF50; }
+        .btn-check.wrong { background: #f44336; animation: shake 0.5s; }
+        .btn-check:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+        #value-display {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 6px;
+            text-align: center;
+            background: rgba(0,0,0,0.2);
+            width: 100%;
+        }
+
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        #overlay.visible { display: flex; }
+        #score-card {
+            background: linear-gradient(145deg, #fff8dc, #f5f5dc);
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            border: 3px solid #ffd700;
+        }
+        #score-card h2 {
+            color: #1a5f2a;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+        .star-rating {
+            font-size: 2.5rem;
+            margin: 8px 0;
+        }
+        .score-detail {
+            font-size: 1rem;
+            color: #5c4033;
+            margin: 6px 0;
+        }
+        .score-detail span { font-weight: bold; color: #1a5f2a; }
+        #score-card .btn {
+            margin-top: 12px;
+            font-size: 1rem;
+            padding: 10px 24px;
+        }
+
+        #feedback {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 50;
+            text-align: center;
+        }
+        #feedback.show { opacity: 1; }
+
+        @keyframes combineFlash {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .combining { animation: combineFlash 0.4s ease-in-out; }
+
+        @keyframes breakApart {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.8); }
+            100% { transform: scale(1); }
+        }
+        .breaking { animation: breakApart 0.3s ease-in-out; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-10px); }
+            80% { transform: translateX(10px); }
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .pop-in { animation: popIn 0.4s ease-out; }
+
+        @media (max-width: 600px) {
+            .coin-1p, .coin-10p, .coin-20p { width: 60px; height: 60px; }
+            .coin-2p, .coin-50p { width: 70px; height: 70px; }
+            .coin-4p { width: 78px; height: 78px; }
+            .coin-1pound { width: 70px; height: 70px; }
+            .coin-2pound { width: 75px; height: 75px; }
+            .note { width: 110px; height: 55px; }
+            .note .placeholder-icon { font-size: 1.2rem; }
+            #header { font-size: 1.2rem; }
+            .btn { padding: 6px 10px; font-size: 0.8rem; }
+            .btn-check { padding: 7px 16px; font-size: 0.9rem; }
+            #score-card { padding: 15px; }
+            #score-card h2 { font-size: 1.3rem; }
+            .mode-btn { padding: 6px 14px; font-size: 0.85rem; }
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div id="header">🪄 Magic Money</div>
+
+    <div id="top-bar">
+        <div id="mode-bar">
+            <button class="mode-btn active" id="btn-sandbox" onclick="setMode('sandbox')">🏖️ Sandbox</button>
+            <button class="mode-btn" id="btn-game" onclick="setMode('game')">🎮 Game Mode</button>
+        </div>
+        <button id="audio-toggle" onclick="toggleAudio()" title="Toggle Audio">
+            <span class="audio-icon" id="audio-icon">🔊</span>
+            <span id="audio-label">Audio On</span>
+        </button>
+    </div>
+
+    <div id="game-hud">
+        <div class="hud-item">Round: <span id="round-num">1</span> / <span id="total-rounds">24</span></div>
+        <div class="hud-item">Score: <span id="score">0</span></div>
+        <div class="hud-item">Streak: <span id="streak">0</span> 🔥</div>
+        <div style="width:100%">
+            <div id="target-display">Make: <span id="target-amount">2p</span></div>
+            <div id="progress-bar"><div id="progress-fill" style="width:0%"></div></div>
+        </div>
+    </div>
+
+    <div id="instructions">Tap a coin to select it. Tap another same coin to COMBINE. Tap a coin twice to BREAK it apart.</div>
+    <div id="value-display">Total: £0.00</div>
+
+    <div id="play-area"></div>
+
+    <div id="controls">
+        <button class="btn btn-add" onclick="addMoney('1p')">+ 1p</button>
+        <button class="btn btn-add" onclick="addMoney('2p')">+ 2p</button>
+        <button class="btn btn-add" onclick="addMoney('5p')">+ 5p</button>
+        <button class="btn btn-add" onclick="addMoney('10p')">+ 10p</button>
+        <button class="btn btn-add" onclick="addMoney('20p')">+ 20p</button>
+        <button class="btn btn-add" onclick="addMoney('50p')">+ 50p</button>
+        <button class="btn btn-add" onclick="addMoney('£1')">+ £1</button>
+        <button class="btn btn-add" onclick="addMoney('£2')">+ £2</button>
+        <button class="btn btn-add" onclick="addMoney('£5')">+ £5</button>
+        <button class="btn btn-add" onclick="addMoney('£10')">+ £10</button>
+        <button class="btn btn-add" onclick="addMoney('£20')">+ £20</button>
+        <button class="btn btn-add" onclick="addMoney('£50')">+ £50</button>
+        <button class="btn btn-combine" onclick="combineSelected()">🔗 Combine</button>
+        <button class="btn btn-speak" onclick="speakTotal()">🔊 Speak Total</button>
+        <button class="btn btn-clear" onclick="clearAll()">🗑️ Clear</button>
+        <button class="btn btn-check" id="btn-check" onclick="checkAnswer()" style="display:none;">✅ Check Answer</button>
+    </div>
+
+    <div id="feedback"></div>
+
+    <div id="overlay">
+        <div id="score-card">
+            <h2>🎉 Well Done!</h2>
+            <div class="star-rating" id="stars">⭐⭐⭐</div>
+            <div class="score-detail">Final Score: <span id="final-score">0</span></div>
+            <div class="score-detail">Correct Answers: <span id="correct-count">0</span> / <span id="total-q">24</span></div>
+            <div class="score-detail">Best Streak: <span id="best-streak">0</span></div>
+            <div class="score-detail" id="encouragement" style="font-style:italic; color:#8b6914; margin-top:8px;"></div>
+            <button class="btn btn-add" onclick="restartGame()">🔄 Play Again</button>
+            <button class="btn btn-speak" onclick="setMode('sandbox')">🏖️ Back to Sandbox</button>
+        </div>
+    </div>
+
+    <script>
+        // ========== AUDIO SYSTEM ==========
+        let audioEnabled = true;
+        let speechQueue = [];
+        let isSpeaking = false;
+        let speechSupported = false;
+
+        function checkSpeechSupport() {
+            try {
+                speechSupported = !!(window.speechSynthesis && typeof window.speechSynthesis.speak === 'function');
+            } catch (e) {
+                speechSupported = false;
+            }
+            if (!speechSupported) {
+                audioEnabled = false;
+                var btn = document.getElementById('audio-toggle');
+                var icon = document.getElementById('audio-icon');
+                var label = document.getElementById('audio-label');
+                if (btn) {
+                    btn.classList.add('muted');
+                    icon.textContent = '🔇';
+                    label.textContent = 'No Audio';
+                    btn.disabled = true;
+                }
+            }
+            return speechSupported;
+        }
+
+        function toggleAudio() {
+            if (!speechSupported) return;
+            audioEnabled = !audioEnabled;
+            var btn = document.getElementById('audio-toggle');
+            var icon = document.getElementById('audio-icon');
+            var label = document.getElementById('audio-label');
+
+            if (audioEnabled) {
+                btn.classList.remove('muted');
+                icon.textContent = '🔊';
+                label.textContent = 'Audio On';
+                speak('Audio is now on');
+            } else {
+                btn.classList.add('muted');
+                icon.textContent = '🔇';
+                label.textContent = 'Audio Off';
+                safeCancelSpeech();
+                isSpeaking = false;
+                speechQueue = [];
+            }
+        }
+
+        function safeCancelSpeech() {
+            try {
+                if (window.speechSynthesis && typeof window.speechSynthesis.cancel === 'function') {
+                    window.speechSynthesis.cancel();
+                }
+            } catch (e) {}
+        }
+
+        function speak(text, priority) {
+            if (!audioEnabled || !speechSupported || !text) return;
+
+            if (priority) {
+                safeCancelSpeech();
+                speechQueue = [];
+                isSpeaking = false;
+            }
+
+            speechQueue.push(text);
+            processSpeechQueue();
+        }
+
+        function processSpeechQueue() {
+            if (isSpeaking || speechQueue.length === 0 || !speechSupported) return;
+
+            isSpeaking = true;
+            var text = speechQueue.shift();
+
+            try {
+                var utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-GB';
+                utterance.rate = 0.82;
+                utterance.pitch = 1.05;
+                utterance.volume = 1.0;
+
+                utterance.onend = function() {
+                    isSpeaking = false;
+                    setTimeout(processSpeechQueue, 200);
+                };
+
+                utterance.onerror = function() {
+                    isSpeaking = false;
+                    setTimeout(processSpeechQueue, 200);
+                };
+
+                window.speechSynthesis.speak(utterance);
+            } catch (e) {
+                isSpeaking = false;
+                setTimeout(processSpeechQueue, 200);
+            }
+        }
+
+        function speakNow(text) {
+            if (!audioEnabled || !speechSupported) return;
+            safeCancelSpeech();
+            speechQueue = [];
+            isSpeaking = false;
+            speak(text, true);
+        }
+
+        // ========== CONFIGURATION ==========
+        const USE_REAL_IMAGES = false;
+        const IMAGE_PATHS = {
+            '1p': 'images/1p.png', '2p': 'images/2p.png', '4p': 'images/4p.png', '5p': 'images/5p.png',
+            '10p': 'images/10p.png', '20p': 'images/20p.png', '50p': 'images/50p.png',
+            '£1': 'images/1pound.png', '£2': 'images/2pound.png',
+            '£5': 'images/5note.png', '£10': 'images/10note.png',
+            '£20': 'images/20note.png', '£50': 'images/50note.png',
+            'cheque': 'images/cheque.png'
+        };
+
+        // MONEY_TYPES defines the coin system
+        // - value: worth in pence
+        // - next: what you get when combining TWO of this coin
+        // - prev: what you get when breaking this coin apart
+        // - realCoin: true for actual UK coins, false for intermediate placeholders
+        const MONEY_TYPES = {
+            '1p':   { value: 1,    next: '2p',   prev: null, realCoin: true,  type: 'coin',  icon: '🪙', colour: 'coin-1p',    name: 'one penny' },
+            '2p':   { value: 2,    next: '4p',   prev: ['1p','1p'], realCoin: true,  type: 'coin',  icon: '🪙', colour: 'coin-2p',    name: 'two pence' },
+            '4p':   { value: 4,    next: null,   prev: ['2p','2p'], realCoin: false, type: 'coin',  icon: '🔶', colour: 'coin-4p',    name: 'four pence' },
+            '5p':   { value: 5,    next: '10p',  prev: ['2p','2p','1p'], realCoin: true,  type: 'coin',  icon: '🪙', colour: 'coin-5p',    name: 'five pence' },
+            '10p':  { value: 10,   next: '20p',  prev: ['5p','5p'], realCoin: true,  type: 'coin',  icon: '🪙', colour: 'coin-10p',   name: 'ten pence' },
+            '20p':  { value: 20,   next: '50p',  prev: ['10p','10p'], realCoin: true,  type: 'coin',  icon: '🪙', colour: 'coin-20p',   name: 'twenty pence' },
+            '50p':  { value: 50,   next: '£1',   prev: ['20p','20p','10p'], realCoin: true,  type: 'coin',  icon: '🪙', colour: 'coin-50p',   name: 'fifty pence' },
+            '£1':   { value: 100,  next: '£2',   prev: ['50p','50p'], realCoin: true,  type: 'coin',  icon: '💰', colour: 'coin-1pound', name: 'one pound' },
+            '£2':   { value: 200,  next: '£5',   prev: ['£1','£1'], realCoin: true,  type: 'coin',  icon: '💰', colour: 'coin-2pound', name: 'two pounds' },
+            '£5':   { value: 500,  next: '£10',  prev: ['£2','£2','£1'], realCoin: true,  type: 'note',  icon: '💵', colour: 'note-5',     name: 'five pounds' },
+            '£10':  { value: 1000, next: '£20',  prev: ['£5','£5'], realCoin: true,  type: 'note',  icon: '💵', colour: 'note-10',    name: 'ten pounds' },
+            '£20':  { value: 2000, next: '£50',  prev: ['£10','£10'], realCoin: true,  type: 'note',  icon: '💵', colour: 'note-20',    name: 'twenty pounds' },
+            '£50':  { value: 5000, next: 'cheque', prev: ['£20','£20','£10'], realCoin: true,  type: 'note',  icon: '💵', colour: 'note-50',    name: 'fifty pounds' },
+            'cheque': { value: 5000, next: null, prev: ['£50'], realCoin: true,  type: 'cheque', icon: '📝', colour: 'cheque',     name: 'a cheque' }
+        };
+
+        // ========== GAME QUESTIONS ==========
+        // Note: targets must match REAL coin values (not intermediate placeholders)
+        const GAME_SET_1 = [
+            { target: 2,   preset: [],      available: ['1p'],                    hint: 'Tap two 1p coins, then combine them!' },
+            { target: 5,   preset: [],      available: ['1p','2p'],              hint: 'Make 5p using 1p and 2p coins' },
+            { target: 10,  preset: [],      available: ['1p','2p','5p'],         hint: 'Make 10p' },
+            { target: 20,  preset: [],      available: ['1p','2p','5p','10p'],   hint: 'Make 20p' },
+            { target: 50,  preset: [],      available: ['1p','2p','5p','10p','20p'], hint: 'Make 50p' },
+            { target: 100, preset: [],      available: ['1p','2p','5p','10p','20p','50p'], hint: 'Make one pound' },
+            { target: 200, preset: [],      available: ['1p','2p','5p','10p','20p','50p','£1'], hint: 'Make two pounds' },
+            { target: 500, preset: [],      available: ['1p','2p','5p','10p','20p','50p','£1','£2'], hint: 'Make five pounds' },
+        ];
+
+        const GAME_SET_2 = [
+            { target: 1,   preset: ['2p'],   available: ['2p'],                   hint: 'Break the 2p coin to get 1p', breakMode: true },
+            { target: 2,   preset: ['5p'],   available: ['5p'],                   hint: 'Break the 5p to make 2p', breakMode: true },
+            { target: 5,   preset: ['10p'],  available: ['10p'],                hint: 'Break the 10p to make 5p', breakMode: true },
+            { target: 10,  preset: ['20p'],  available: ['20p'],                hint: 'Break the 20p to make 10p', breakMode: true },
+            { target: 20,  preset: ['50p'],  available: ['50p'],                hint: 'Break the 50p to make 20p', breakMode: true },
+            { target: 50,  preset: ['£1'],   available: ['£1'],                 hint: 'Break one pound to make 50p', breakMode: true },
+            { target: 100, preset: ['£2'],   available: ['£2'],                 hint: 'Break two pounds to make one pound', breakMode: true },
+            { target: 200, preset: ['£5'],   available: ['£5'],                 hint: 'Break five pounds to make two pounds', breakMode: true },
+        ];
+
+        const GAME_SET_3 = [
+            { target: 7,   preset: [],      available: ['1p','2p','5p'],         hint: 'Make 7p' },
+            { target: 15,  preset: [],      available: ['1p','2p','5p','10p'],   hint: 'Make 15p' },
+            { target: 35,  preset: [],      available: ['1p','2p','5p','10p','20p'], hint: 'Make 35p' },
+            { target: 75,  preset: [],      available: ['1p','2p','5p','10p','20p','50p'], hint: 'Make 75p' },
+            { target: 150, preset: [],      available: ['1p','2p','5p','10p','20p','50p','£1'], hint: 'Make one pound fifty' },
+            { target: 300, preset: [],      available: ['1p','2p','5p','10p','20p','50p','£1','£2'], hint: 'Make three pounds' },
+            { target: 700, preset: [],      available: ['1p','2p','5p','10p','20p','50p','£1','£2','£5'], hint: 'Make seven pounds' },
+            { target: 5000, preset: [],     available: ['1p','2p','5p','10p','20p','50p','£1','£2','£5','£10','£20','£50'], hint: 'Make fifty pounds!' },
+        ];
+
+        // ========== STATE ==========
+        let items = [];
+        let selectedId = null;
+        let idCounter = 0;
+        let currentMode = 'sandbox';
+        let currentSet = [];
+        let currentRound = 0;
+        let score = 0;
+        let streak = 0;
+        let bestStreak = 0;
+        let correctCount = 0;
+        let currentQuestion = null;
+        let attempts = 0;
+        let isChecking = false;
+        let roundTransitionTimer = null;
+
+        // ========== FORMATTING ==========
+        function formatMoney(pence) {
+            var pounds = Math.floor(pence / 100);
+            var remPence = pence % 100;
+            if (pounds > 0 && remPence > 0) return '£' + pounds + '.' + remPence.toString().padStart(2,'0');
+            if (pounds > 0) return '£' + pounds;
+            return pence + 'p';
+        }
+
+        function speakMoney(pence) {
+            var pounds = Math.floor(pence / 100);
+            var remPence = pence % 100;
+            if (pounds > 0 && remPence > 0) return pounds + ' pound' + (pounds > 1 ? 's' : '') + ' and ' + remPence + ' pence';
+            if (pounds > 0) return pounds + ' pound' + (pounds > 1 ? 's' : '');
+            return pence + ' pence';
+        }
+
+        // ========== MODE MANAGEMENT ==========
+        function setMode(mode) {
+            if (roundTransitionTimer) {
+                clearTimeout(roundTransitionTimer);
+                roundTransitionTimer = null;
+            }
+            isChecking = false;
+
+            currentMode = mode;
+            document.getElementById('btn-sandbox').classList.toggle('active', mode === 'sandbox');
+            document.getElementById('btn-game').classList.toggle('active', mode === 'game');
+            document.getElementById('game-hud').classList.toggle('visible', mode === 'game');
+            document.getElementById('btn-check').style.display = mode === 'game' ? 'inline-block' : 'none';
+            document.getElementById('overlay').classList.remove('visible');
+
+            if (mode === 'sandbox') {
+                document.getElementById('instructions').textContent = 'Tap a coin to select it. Tap another same coin to COMBINE. Tap a coin twice to BREAK it apart.';
+                clearAll();
+                items.push({ id: idCounter++, type: '1p', animating: false });
+                items.push({ id: idCounter++, type: '1p', animating: false });
+                render();
+                speak('Sandbox mode. Explore and play freely. Tap coins to combine them, or tap twice to break them apart.');
+            } else {
+                startGame();
+            }
+        }
+
+        function startGame() {
+            currentSet = GAME_SET_1.concat(GAME_SET_2).concat(GAME_SET_3);
+            currentRound = 0;
+            score = 0;
+            streak = 0;
+            bestStreak = 0;
+            correctCount = 0;
+            isChecking = false;
+            document.getElementById('total-rounds').textContent = currentSet.length;
+
+            speak('Game mode starting. You will have twenty four rounds. Let us begin!');
+            roundTransitionTimer = setTimeout(function() { loadRound(); }, 2500);
+        }
+
+        function loadRound() {
+            roundTransitionTimer = null;
+
+            if (currentRound >= currentSet.length) {
+                setTimeout(function() { showScoreCard(); }, 500);
+                return;
+            }
+
+            currentQuestion = currentSet[currentRound];
+            attempts = 0;
+            items = [];
+            selectedId = null;
+            idCounter = 0;
+            isChecking = false;
+
+            currentQuestion.preset.forEach(function(type) {
+                items.push({ id: idCounter++, type: type, animating: false });
+            });
+
+            document.getElementById('round-num').textContent = currentRound + 1;
+            document.getElementById('score').textContent = score;
+            document.getElementById('streak').textContent = streak;
+            document.getElementById('target-amount').textContent = formatMoney(currentQuestion.target);
+            document.getElementById('progress-fill').style.width = ((currentRound / currentSet.length) * 100) + '%';
+            document.getElementById('instructions').textContent = currentQuestion.hint || ('Make ' + formatMoney(currentQuestion.target));
+
+            var checkBtn = document.getElementById('btn-check');
+            checkBtn.className = 'btn btn-check';
+            checkBtn.textContent = '✅ Check Answer';
+            checkBtn.disabled = false;
+
+            render();
+
+            var targetText = speakMoney(currentQuestion.target);
+            var roundText = 'Round ' + (currentRound + 1) + ' of ' + currentSet.length + '.';
+            var presetText = currentQuestion.preset.length > 0 
+                ? 'You have ' + MONEY_TYPES[currentQuestion.preset[0]].name + '. ' 
+                : '';
+            var hintText = currentQuestion.hint || ('Make ' + targetText + '.');
+
+            speak(roundText + ' ' + presetText + hintText);
+        }
+
+        function checkAnswer() {
+            if (isChecking) return;
+            isChecking = true;
+
+            var totalPence = items.reduce(function(sum, item) { return sum + MONEY_TYPES[item.type].value; }, 0);
+            var checkBtn = document.getElementById('btn-check');
+
+            if (totalPence === currentQuestion.target) {
+                attempts++;
+                correctCount++;
+                streak++;
+                if (streak > bestStreak) bestStreak = streak;
+
+                var roundScore = 100;
+                if (attempts === 1) roundScore += 50;
+                roundScore += (streak - 1) * 20;
+                score += roundScore;
+
+                showFeedback('✅ Correct! Well done!', '#4CAF50');
+
+                var streakMsg = streak > 1 ? ' That is ' + streak + ' in a row!' : '';
+                speakNow('Correct! ' + speakMoney(currentQuestion.target) + '. Great job!' + streakMsg);
+
+                checkBtn.className = 'btn btn-check correct';
+                checkBtn.textContent = '✅ Correct!';
+                checkBtn.disabled = true;
+
+                document.getElementById('score').textContent = score;
+                document.getElementById('streak').textContent = streak;
+
+                roundTransitionTimer = setTimeout(function() {
+                    currentRound++;
+                    loadRound();
+                }, 2500);
+            } else {
+                attempts++;
+                streak = 0;
+                document.getElementById('streak').textContent = streak;
+
+                var diff = currentQuestion.target - totalPence;
+                var msg = '';
+                var speakMsg = '';
+                if (diff > 0) {
+                    msg = '❌ Not enough! You need ' + formatMoney(diff) + ' more.';
+                    speakMsg = 'Not enough. You need ' + speakMoney(diff) + ' more.';
+                } else {
+                    msg = '❌ Too much! You have ' + formatMoney(Math.abs(diff)) + ' extra.';
+                    speakMsg = 'Too much. You have ' + speakMoney(Math.abs(diff)) + ' extra.';
+                }
+
+                showFeedback(msg, '#f44336');
+                speakNow(speakMsg);
+                checkBtn.className = 'btn btn-check wrong';
+                checkBtn.textContent = '❌ Try Again';
+
+                setTimeout(function() {
+                    checkBtn.className = 'btn btn-check';
+                    checkBtn.textContent = '✅ Check Answer';
+                    isChecking = false;
+                }, 1500);
+            }
+        }
+
+        function showFeedback(text, color) {
+            var fb = document.getElementById('feedback');
+            fb.textContent = text;
+            fb.style.color = color;
+            fb.classList.add('show');
+            setTimeout(function() { fb.classList.remove('show'); }, 2000);
+        }
+
+        function showScoreCard() {
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('correct-count').textContent = correctCount;
+            document.getElementById('total-q').textContent = currentSet.length;
+            document.getElementById('best-streak').textContent = bestStreak;
+
+            var pct = correctCount / currentSet.length;
+            var stars = '';
+            var encouragement = '';
+            if (pct >= 0.9) {
+                stars = '⭐⭐⭐';
+                encouragement = 'Outstanding! You are a money master!';
+            } else if (pct >= 0.7) {
+                stars = '⭐⭐';
+                encouragement = 'Great work! Keep practising!';
+            } else if (pct >= 0.5) {
+                stars = '⭐';
+                encouragement = 'Good effort! You are learning!';
+            } else {
+                stars = '🌟';
+                encouragement = 'Keep trying! Practice makes perfect!';
+            }
+            document.getElementById('stars').textContent = stars;
+            document.getElementById('encouragement').textContent = encouragement;
+
+            document.getElementById('overlay').classList.add('visible');
+            speakNow('Game over! Your score is ' + score + ' points. You got ' + correctCount + ' out of ' + currentSet.length + ' correct. ' + encouragement);
+        }
+
+        function restartGame() {
+            document.getElementById('overlay').classList.remove('visible');
+            startGame();
+        }
+
+        // ========== RENDERING ==========
+        function render() {
+            var area = document.getElementById('play-area');
+            area.innerHTML = '';
+
+            items.forEach(function(item) {
+                var def = MONEY_TYPES[item.type];
+                var el = document.createElement('div');
+
+                if (def.type === 'coin') {
+                    el.className = 'coin ' + def.colour + (item.id === selectedId ? ' selected' : '') + (item.animating ? ' combining' : '');
+                } else if (def.type === 'note') {
+                    el.className = 'note ' + def.colour + (item.id === selectedId ? ' selected' : '') + (item.animating ? ' combining' : '');
+                } else {
+                    el.className = 'cheque' + (item.id === selectedId ? ' selected' : '') + (item.animating ? ' combining' : '');
+                }
+
+                el.dataset.id = item.id;
+
+                if (USE_REAL_IMAGES && IMAGE_PATHS[item.type]) {
+                    var img = document.createElement('img');
+                    img.src = IMAGE_PATHS[item.type];
+                    img.alt = def.name;
+                    img.onerror = function() {
+                        this.style.display = 'none';
+                        this.nextElementSibling.style.display = 'block';
+                    };
+                    el.appendChild(img);
+                    var placeholder = document.createElement('div');
+                    placeholder.className = 'placeholder-icon';
+                    placeholder.textContent = def.icon;
+                    placeholder.style.display = 'none';
+                    el.appendChild(placeholder);
+                } else {
+                    var placeholder = document.createElement('div');
+                    placeholder.className = 'placeholder-icon';
+                    placeholder.textContent = def.icon;
+                    el.appendChild(placeholder);
+                }
+
+                var valueText = document.createElement('div');
+                valueText.className = 'value-text';
+                valueText.textContent = item.type === 'cheque' ? '£50 Cheque' : item.type;
+                el.appendChild(valueText);
+
+                el.addEventListener('click', function(e) { handleItemClick(item.id, e); });
+                area.appendChild(el);
+            });
+
+            updateTotal();
+        }
+
+        function updateTotal() {
+            var totalPence = items.reduce(function(sum, item) { return sum + MONEY_TYPES[item.type].value; }, 0);
+            document.getElementById('value-display').textContent = 'Total: ' + formatMoney(totalPence);
+        }
+
+        // ========== INTERACTION ==========
+        function handleItemClick(id, event) {
+            var item = items.find(function(i) { return i.id === id; });
+            if (!item) return;
+
+            var def = MONEY_TYPES[item.type];
+
+            if (selectedId === id) {
+                breakItem(id);
+                return;
+            }
+
+            if (selectedId !== null && selectedId !== id) {
+                var selectedItem = items.find(function(i) { return i.id === selectedId; });
+                if (selectedItem && selectedItem.type === item.type) {
+                    combineItems(selectedId, id);
+                    return;
+                }
+            }
+
+            selectedId = id;
+            speak(def.name);
+            render();
+        }
+
+        function addMoney(type) {
+            if (currentMode === 'game' && currentQuestion && currentQuestion.available.indexOf(type) === -1) {
+                speak('You cannot use that coin in this round');
+                return;
+            }
+            items.push({ id: idCounter++, type: type, animating: false });
+            selectedId = null;
+            var def = MONEY_TYPES[type];
+            speak(def.name);
+            render();
+        }
+
+        function combineItems(id1, id2) {
+            var item1 = items.find(function(i) { return i.id === id1; });
+            var item2 = items.find(function(i) { return i.id === id2; });
+
+            if (!item1 || !item2 || item1.type !== item2.type) return;
+
+            var def = MONEY_TYPES[item1.type];
+            if (!def.next) {
+                speak('Cannot combine ' + def.name + ' further');
+                selectedId = null;
+                render();
+                return;
+            }
+
+            // Check if SOURCE coin is available
+            if (currentMode === 'game' && currentQuestion && currentQuestion.available.indexOf(item1.type) === -1) {
+                speak('You cannot use that coin in this round');
+                selectedId = null;
+                render();
+                return;
+            }
+
+            item1.animating = true;
+            item2.animating = true;
+            render();
+
+            setTimeout(function() {
+                items = items.filter(function(i) { return i.id !== id1 && i.id !== id2; });
+                var newItem = { id: idCounter++, type: def.next, animating: false };
+                items.push(newItem);
+                selectedId = newItem.id;
+
+                var nextDef = MONEY_TYPES[def.next];
+                var nextName = nextDef.realCoin ? nextDef.name : nextDef.name + ' (not a real coin yet)';
+                speak(def.name + ' plus ' + def.name + ' makes ' + nextName);
+
+                render();
+            }, 400);
+        }
+
+        function breakItem(id) {
+            var item = items.find(function(i) { return i.id === id; });
+            if (!item) return;
+
+            var def = MONEY_TYPES[item.type];
+            if (!def.prev) {
+                speak(def.name + ' cannot be broken down');
+                selectedId = null;
+                render();
+                return;
+            }
+
+            item.animating = true;
+            render();
+
+            setTimeout(function() {
+                items = items.filter(function(i) { return i.id !== id; });
+                def.prev.forEach(function(type) {
+                    items.push({ id: idCounter++, type: type, animating: false });
+                });
+                selectedId = null;
+
+                var prevNames = def.prev.map(function(t) { return MONEY_TYPES[t].name; }).join(' and ');
+                speak(def.name + ' breaks into ' + prevNames);
+
+                render();
+            }, 300);
+        }
+
+        function combineSelected() {
+            if (selectedId === null) {
+                speak('Please select a coin first');
+                return;
+            }
+
+            var selected = items.find(function(i) { return i.id === selectedId; });
+            if (!selected) return;
+
+            var match = items.find(function(i) { return i.id !== selectedId && i.type === selected.type; });
+            if (match) {
+                combineItems(selectedId, match.id);
+            } else {
+                speak('You need two ' + MONEY_TYPES[selected.type].name + ' coins to combine');
+            }
+        }
+
+        function speakTotal() {
+            var totalPence = items.reduce(function(sum, item) { return sum + MONEY_TYPES[item.type].value; }, 0);
+            var pounds = Math.floor(totalPence / 100);
+            var pence = totalPence % 100;
+            var text = '';
+            if (pounds > 0 && pence > 0) {
+                text = pounds + ' pound' + (pounds > 1 ? 's' : '') + ' and ' + pence + ' pence';
+            } else if (pounds > 0) {
+                text = pounds + ' pound' + (pounds > 1 ? 's' : '');
+            } else if (pence > 0) {
+                text = pence + ' pence';
+            } else {
+                text = 'nothing';
+            }
+            speak('Total is ' + text);
+        }
+
+        function clearAll() {
+            items = [];
+            selectedId = null;
+            if (currentMode === 'sandbox') {
+                speak('All cleared');
+            }
+            render();
+        }
+
+        // ========== KEYBOARD SUPPORT ==========
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                selectedId = null;
+                render();
+            }
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                if (selectedId !== null) {
+                    breakItem(selectedId);
+                }
+            }
+        });
+
+        // ========== INIT ==========
+        checkSpeechSupport();
+
+        items.push({ id: idCounter++, type: '1p', animating: false });
+        items.push({ id: idCounter++, type: '1p', animating: false });
+        render();
+
+        setTimeout(function() {
+            if (speechSupported) {
+                speak('Welcome to Magic Money. Choose Sandbox to explore freely, or Game Mode to play challenges. Audio is on. Tap the speaker button to turn it off.');
+            }
+        }, 800);
+    </script>
+</body>
+</html>
