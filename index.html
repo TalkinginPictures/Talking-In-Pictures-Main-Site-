@@ -3,12 +3,207 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Talking in Pictures — Visual tools & graded readers for language learning</title>
-<meta name="description" content="Graded readers, AAC tools and adventure games that help every learner talk in pictures." />
+<title>Talking in Pictures — One Story. Every Way to Say It.</title>
+<meta name="description" content="Graded readers, AAC tools and adventure games for SEND, Colourful Semantics and TEACCH." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css" />
+<style>
+  /* ============================================
+     TALKING IN PICTURES — Clean Launcher Homepage
+     ============================================ */
+
+  :root {
+    --ink: #15151c;
+    --ink-soft: #3d3d47;
+    --cream: #fbf5e8;
+    --paper: #fffdf8;
+    --line: #e7ddc6;
+    --gold: #ffc93c;
+    --gold-deep: #e8a317;
+    --radius-lg: 26px;
+    --radius-md: 18px;
+    --shadow-soft: 0 10px 30px rgba(21,21,28,0.10);
+    --shadow-hard: 0 6px 0 rgba(0,0,0,0.18);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Atkinson Hyperlegible', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .display {
+    font-family: 'Baloo 2', system-ui, sans-serif;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+
+  /* ---------- Topbar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(251,245,232,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .topbar-brand {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Baloo 2'; font-weight: 800; font-size: 1.1rem;
+  }
+  .topbar-brand img { width: 34px; height: 34px; border-radius: 50%; }
+  .topnav { display: flex; gap: 6px; flex-wrap: wrap; }
+  .topnav a {
+    font-family: 'Baloo 2'; font-weight: 700; font-size: 0.9rem;
+    padding: 8px 14px; border-radius: 999px;
+    color: var(--ink); transition: background .15s ease;
+  }
+  .topnav a:hover, .topnav a:focus-visible { background: var(--gold); }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    text-align: center;
+    padding: 48px 24px 36px;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin-bottom: 10px;
+  }
+  .hero h1 em { font-style: normal; color: var(--gold-deep); }
+  .hero p {
+    font-size: 1.05rem; line-height: 1.55;
+    color: var(--ink-soft); max-width: 52ch; margin: 0 auto;
+  }
+
+  /* ---------- Section headings ---------- */
+  .section {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+  }
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .line {
+    flex: 1;
+    height: 2px;
+    background: var(--line);
+    border-radius: 1px;
+  }
+
+  /* ---------- Tile Grid ---------- */
+  .tile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
+  }
+  .tile {
+    background: var(--paper);
+    border: 2px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 24px 18px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .tile:hover, .tile:focus {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-soft);
+    border-color: var(--gold);
+    outline: none;
+  }
+  .tile .tile-emoji {
+    font-size: 3.2rem;
+    line-height: 1;
+  }
+  .tile .tile-name {
+    font-family: 'Baloo 2'; font-weight: 800; font-size: 1.05rem;
+    color: var(--ink);
+  }
+  .tile .tile-desc {
+    font-size: 0.85rem; color: var(--ink-soft); line-height: 1.4;
+  }
+  .tile.coming-soon {
+    opacity: 0.55;
+    cursor: default;
+  }
+  .tile.coming-soon:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: var(--line);
+  }
+  .tile-badge {
+    font-family: 'Baloo 2'; font-weight: 700; font-size: 0.65rem;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    background: var(--gold); color: var(--ink);
+    padding: 3px 10px; border-radius: 999px;
+  }
+
+  /* ---------- Support bar ---------- */
+  .support-bar {
+    background: var(--ink); color: #fff;
+    padding: 32px 24px;
+    text-align: center;
+  }
+  .support-bar h2 {
+    font-size: 1.4rem; color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .support-bar p {
+    color: #c9c9d1; font-size: 0.95rem; max-width: 50ch; margin: 0 auto 18px;
+  }
+  .btn {
+    font-family: 'Baloo 2'; font-weight: 700; font-size: 0.95rem;
+    padding: 12px 24px; border-radius: 999px;
+    display: inline-block; border: none; cursor: pointer;
+    transition: opacity .15s, transform .1s;
+  }
+  .btn:hover { opacity: .85; transform: translateY(-2px); }
+  .btn-gold { background: var(--gold); color: var(--ink); }
+  .btn-outline { background: transparent; border: 2px solid #46474f; color: #fff; }
+
+  /* ---------- Footer ---------- */
+  footer {
+    background: #0f0f14; color: #8f8f98;
+    padding: 24px;
+    text-align: center;
+    font-size: 0.85rem;
+  }
+  footer a { color: #c9c9d1; margin: 0 10px; }
+  footer a:hover { color: var(--gold); }
+
+  @media (max-width: 600px) {
+    .tile-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .tile { padding: 18px 12px; }
+    .tile .tile-emoji { font-size: 2.4rem; }
+    .topnav { display: none; }
+  }
+</style>
+<base target="_blank">
 <base target="_blank">
 </head>
 <body>
@@ -21,373 +216,116 @@
       Talking in Pictures
     </div>
     <nav class="topnav">
-      <a href="#secondary">Secondary & SEND</a>
-      <a href="#primary">Primary & Early Years</a>
-      <a href="#tools">Tools & Games</a>
-      <a href="#money">Money & Life Skills</a>
-      <a href="reader.html">Reader</a>
-      <a href="#shop">Shop</a>
+      <a href="#read-play">Read & Play</a>
+      <a href="#teacher-tools">Teacher Tools</a>
+      <a href="#support">Support</a>
     </nav>
   </div>
 </div>
 
 <!-- ========== HERO ========== -->
 <section class="hero">
-  <div class="wrap">
-    <div class="hero-head">
-      <p class="eyebrow">Talking in Pictures</p>
-      <h1>One story. <em>Every</em> way to say it.</h1>
-      <p>Graded readers, AAC tools and adventure games built for tutors and
-        students working through Colourful Semantics, TEACCH and AAC —
-        from first sentences right through to secondary and SEND classrooms.</p>
+  <h1>One story. <em>Every</em> way to say it.</h1>
+  <p>Graded readers, AAC tools and adventure games for tutors and students working through Colourful Semantics, TEACCH and AAC.</p>
+</section>
+
+<!-- ========== READ & PLAY ========== -->
+<section class="section" id="read-play">
+  <h2 class="section-title">
+    <span>📚 Read & Play</span>
+    <span class="line"></span>
+  </h2>
+  <div class="tile-grid">
+
+    <a class="tile" href="reader.html?story=space-adventure">
+      <span class="tile-emoji">🚀</span>
+      <span class="tile-name">Explore Space</span>
+      <span class="tile-desc">A space adventure with graded readers from first words to complex missions.</span>
+      <span class="tile-badge">4 Levels</span>
+    </a>
+
+    <a class="tile" href="resources/magic-money.html">
+      <span class="tile-emoji">🪄</span>
+      <span class="tile-name">Magic Money</span>
+      <span class="tile-desc">Interactive coin & note simulator with 24 challenge rounds and speech.</span>
+      <span class="tile-badge">Game</span>
+    </a>
+
+    <a class="tile" href="resources/lavender-market.html">
+      <span class="tile-emoji">🧺</span>
+      <span class="tile-name">Choose Your Own Adventure</span>
+      <span class="tile-desc">Join Aunt Jas at the market. Make choices, count money, catch the bus home.</span>
+      <span class="tile-badge">Red Level</span>
+    </a>
+
+    <a class="tile" href="reader.html?story=big-picnic">
+      <span class="tile-emoji">🐻</span>
+      <span class="tile-name">Short & Silly Books</span>
+      <span class="tile-desc">The Big Picnic and more playful stories with picture support and word cards.</span>
+      <span class="tile-badge">4 Levels</span>
+    </a>
+
+    <div class="tile coming-soon">
+      <span class="tile-emoji">⌨️</span>
+      <span class="tile-name">The Typing Game</span>
+      <span class="tile-desc">Reading and typing phonics adventure. Coming soon!</span>
+      <span class="tile-badge" style="background:#ddd;color:#888;">Soon</span>
     </div>
 
-    <div class="zone-picker">
-      <a href="#secondary" class="zone-card dark" data-reveal>
-        <img class="zone-logo" src="images/zone-secondary.png" alt="" loading="lazy" />
-        <div class="zone-label">Secondary & SEND</div>
-        <p>Older learners and specialist settings — structured language support with age-appropriate visuals and graded sentence frames.</p>
-        <span class="zone-cta">Explore packages →</span>
-      </a>
-      <a href="#primary" class="zone-card light" data-reveal>
-        <img class="zone-logo" src="images/zone-primary.png" alt="" loading="lazy" />
-        <div class="zone-label">Primary & Early Years</div>
-        <p>First words to full sentences — playful picture stories, AAC boards and games that build confident communicators.</p>
-        <span class="zone-cta">Explore packages →</span>
-      </a>
+    <div class="tile coming-soon">
+      <span class="tile-emoji">🥾</span>
+      <span class="tile-name">Adventure with Dwayne Fields</span>
+      <span class="tile-desc">Explore the outdoors with Dwayne. Coming soon!</span>
+      <span class="tile-badge" style="background:#ddd;color:#888;">Soon</span>
     </div>
+
   </div>
 </section>
 
-<!-- ========== SECONDARY & SEND ========== -->
-<section class="zone zone-dark" id="secondary">
-  <div class="wrap">
-    <div class="zone-heading">
-      <p class="eyebrow">Secondary & SEND</p>
-      <h2>Stories that grow with your learners</h2>
-    </div>
-    <p class="zone-sub">Age-appropriate adventures with structured sentence support. Each pack includes a PDF teaching guide, printable AAC boards and differentiated activities.</p>
+<!-- ========== TEACHER TOOLS ========== -->
+<section class="section" id="teacher-tools">
+  <h2 class="section-title">
+    <span>🍎 Teacher Tools</span>
+    <span class="line"></span>
+  </h2>
+  <div class="tile-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); max-width: 640px;">
 
-    <div class="package-grid">
-      <!-- Featured -->
-      <article class="package featured" data-reveal>
-        <div class="package-cover" style="background: linear-gradient(135deg,#2e86de,#12b8a4);">
-          <span style="font-size:4rem;">🚀</span>
-          <span class="cover-tag">Featured</span>
-        </div>
-        <div class="package-body">
-          <h3>The Mars Mission</h3>
-          <p class="blurb">A sci-fi adventure graded across four levels. Students build complex sentences while following a stranded crew trying to get home. Includes TEACCH-compatible task strips and Colourful Semantics frames.</p>
-          <div class="level-pills">
-            <span class="level-pill lvl-jade">Jade</span>
-            <span class="level-pill lvl-green">Green</span>
-            <span class="level-pill lvl-blue">Blue</span>
-            <span class="level-pill lvl-red">Red</span>
-          </div>
-          <div class="package-actions">
-            <a href="reader.html?story=mars-mission" class="btn-reader">📖 Open Reader</a>
-            <a href="docs/mars-mission-pack.pdf" class="btn-pdf" download>📄 Download Pack</a>
-          </div>
-        </div>
-      </article>
+    <a class="tile" href="docs/emoji-sentences-board.pdf" download>
+      <span class="tile-emoji">😊</span>
+      <span class="tile-name">Emoji Sentences</span>
+      <span class="tile-desc">Build sentences with emoji picture cards. Printable classroom resource.</span>
+      <span class="tile-badge">Printable</span>
+    </a>
 
-      <article class="package" data-reveal>
-        <div class="package-cover" style="background: linear-gradient(135deg,#e4483c,#ff7a33);">
-          <span style="font-size:3rem;">🎭</span>
-        </div>
-        <div class="package-body">
-          <h3>Shakespeare in Shorts</h3>
-          <p class="blurb">Macbeth, Hamlet and Romeo & Juliet retold in 50-word picture sequences. Perfect for KS3/4 learners building confidence with complex narratives.</p>
-          <div class="level-pills">
-            <span class="level-pill lvl-blue">Blue</span>
-            <span class="level-pill lvl-red">Red</span>
-          </div>
-          <div class="package-actions">
-            <a href="reader.html?story=shakespeare-shorts" class="btn-reader">📖 Open Reader</a>
-            <a href="docs/shakespeare-shorts-pack.pdf" class="btn-pdf" download>📄 Download Pack</a>
-          </div>
-        </div>
-      </article>
+    <a class="tile" href="docs/colourful-semantics-board.pdf" download>
+      <span class="tile-emoji">🎨</span>
+      <span class="tile-name">Colourful Semantics</span>
+      <span class="tile-desc">Who / Doing / What / Where boards and expanding sentence mats.</span>
+      <span class="tile-badge">Printable</span>
+    </a>
 
-      <article class="package" data-reveal>
-        <div class="package-cover" style="background: linear-gradient(135deg,#8e5cd9,#2e86de);">
-          <span style="font-size:3rem;">🧪</span>
-        </div>
-        <div class="package-body">
-          <h3>Lab Reports</h3>
-          <p class="blurb">Science practicals told through picture sequences. Students learn to describe methods, results and conclusions using structured sentence scaffolds.</p>
-          <div class="level-pills">
-            <span class="level-pill lvl-green">Green</span>
-            <span class="level-pill lvl-blue">Blue</span>
-          </div>
-          <div class="package-actions">
-            <a href="reader.html?story=lab-reports" class="btn-reader">📖 Open Reader</a>
-            <a href="docs/lab-reports-pack.pdf" class="btn-pdf" download>📄 Download Pack</a>
-          </div>
-        </div>
-      </article>
-
-      <article class="package" data-reveal>
-        <div class="package-cover" style="background: linear-gradient(135deg,#3fa65c,#12b8a4);">
-          <span style="font-size:3rem;">🗺️</span>
-        </div>
-        <div class="package-body">
-          <h3>History Mysteries</h3>
-          <p class="blurb">Investigate the past through visual clues. Each mystery builds questioning and explaining skills with AAC-friendly communication boards.</p>
-          <div class="level-pills">
-            <span class="level-pill lvl-jade">Jade</span>
-            <span class="level-pill lvl-green">Green</span>
-          </div>
-          <div class="package-actions">
-            <a href="reader.html?story=history-mysteries" class="btn-reader">📖 Open Reader</a>
-            <a href="docs/history-mysteries-pack.pdf" class="btn-pdf" download>📄 Download Pack</a>
-          </div>
-        </div>
-      </article>
-    </div>
   </div>
 </section>
 
-<!-- ========== PRIMARY & EARLY YEARS ========== -->
-<section class="zone zone-light" id="primary">
-  <div class="wrap">
-    <div class="zone-heading">
-      <p class="eyebrow">Primary & Early Years</p>
-      <h2>First words to full stories</h2>
-    </div>
-    <p class="zone-sub">Playful picture-led resources for emergent communicators. Each pack includes a printable storybook, AAC board, sentence-building cards and follow-up games.</p>
-
-    <div class="package-grid">
-      <article class="package featured" data-reveal>
-        <div class="package-cover" style="background: linear-gradient(135deg,#ffd23f,#ff7a33);">
-          <img src="images/package-cover-1.jpg" alt="The Big Picnic cover" loading="lazy" />
-          <span class="cover-tag">Most Popular</span>
-        </div>
-        <div class="package-body">
-          <h3>The Big Picnic</h3>
-          <p class="blurb">A hungry bear, a missing sandwich and a surprise ending. Four graded levels take learners from single words to full sentences with Colourful Semantics colour-coding throughout.</p>
-          <div class="level-pills">
-            <span class="level-pill lvl-jade">Jade</span>
-            <span class="level-pill lvl-green">Green</span>
-            <span class="level-pill lvl-blue">Blue</span>
-            <span class="level-pill lvl-red">Red</span>
-          </div>
-          <div class="package-actions">
-            <a href="reader.html?story=big-picnic" class="btn-reader">📖 Open Reader</a>
-            <a href="docs/big-picnic-pack.pdf" class="btn-pdf" download>📄 Download Pack</a>
-          </div>
-        </div>
-      </article>
-
-      <article class="package" data-reveal>
-        <div class="package-cover" style="background: linear-gradient(135deg,#12b8a4,#2e86de);">
-          <span style="font-size:3rem;">🐉</span>
-        </div>
-        <div class="package-body">
-          <h3>Dragon School</h3>
-          <p class="blurb">A friendly dragon learns to share, listen and make friends. Social stories with built-in emotion vocabulary and calming strategy visuals.</p>
-          <div class="level-pills">
-            <span class="level-pill lvl-jade">Jade</span>
-            <span class="level-pill lvl-green">Green</span>
-          </div>
-          <div class="package-actions">
-            <a href="reader.html?story=dragon-school" class="btn-reader">📖 Open Reader</a>
-            <a href="docs/dragon-school-pack.pdf" class="btn-pdf" download>📄 Download Pack</a>
-          </div>
-        </div>
-      </article>
-
-      <article class="package" data-reveal>
-        <div class="package-cover" style="background: linear-gradient(135deg,#e4483c,#ffd23f);">
-          <span style="font-size:3rem;">🚒</span>
-        </div>
-        <div class="package-body">
-          <h3>Fire Station Fred</h3>
-          <p class="blurb">Follow Fred through a busy day at the fire station. High-interest topic vocabulary with vehicle and action word boards.</p>
-          <div class="level-pills">
-            <span class="level-pill lvl-jade">Jade</span>
-            <span class="level-pill lvl-green">Green</span>
-            <span class="level-pill lvl-blue">Blue</span>
-          </div>
-          <div class="package-actions">
-            <a href="reader.html?story=fire-station-fred" class="btn-reader">📖 Open Reader</a>
-            <a href="docs/fire-station-fred-pack.pdf" class="btn-pdf" download>📄 Download Pack</a>
-          </div>
-        </div>
-      </article>
-
-      <article class="package" data-reveal>
-        <div class="package-cover" style="background: linear-gradient(135deg,#8e5cd9,#e4483c);">
-          <img src="images/package-cover-2.jpg" alt="Space Puppies cover" loading="lazy" />
-        </div>
-        <div class="package-body">
-          <h3>Space Puppies</h3>
-          <p class="blurb">Puppies in space suits explore the galaxy. Silly, engaging and packed with positional language and descriptive vocabulary.</p>
-          <div class="level-pills">
-            <span class="level-pill lvl-jade">Jade</span>
-            <span class="level-pill lvl-green">Green</span>
-          </div>
-          <div class="package-actions">
-            <a href="reader.html?story=space-puppies" class="btn-reader">📖 Open Reader</a>
-            <a href="docs/space-puppies-pack.pdf" class="btn-pdf" download>📄 Download Pack</a>
-          </div>
-        </div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- ========== TOOLS & GAMES ========== -->
-<section class="tools" id="tools">
-  <div class="wrap">
-    <div class="zone-heading">
-      <p class="eyebrow">Tools & Games</p>
-      <h2>Ready-to-use classroom resources</h2>
-    </div>
-    <p class="zone-sub">Printable boards, sentence builders and games that slot straight into your existing sessions. No prep, just print and go.</p>
-
-    <div class="tools-groups">
-      <div class="tools-group">
-        <h3>Sentence Building</h3>
-        <a class="tool-link" href="docs/colourful-semantics-board.pdf" download>
-          <span class="emoji">🎨</span> Colourful Semantics Board
-        </a>
-        <a class="tool-link" href="docs/who-doing-what-board.pdf" download>
-          <span class="emoji">👤</span> Who / Doing / What Board
-        </a>
-        <a class="tool-link" href="docs/expanding-sentences-mat.pdf" download>
-          <span class="emoji">📏</span> Expanding Sentences Mat
-        </a>
-      </div>
-      <div class="tools-group">
-        <h3>AAC & Communication</h3>
-        <a class="tool-link" href="docs/core-vocabulary-board.pdf" download>
-          <span class="emoji">💬</span> Core Vocabulary Board
-        </a>
-        <a class="tool-link" href="docs/requesting-choice-board.pdf" download>
-          <span class="emoji">✋</span> Requesting & Choice Board
-        </a>
-        <a class="tool-link" href="docs/emotions-communication-cards.pdf" download>
-          <span class="emoji">😊</span> Emotions Communication Cards
-        </a>
-      </div>
-      <div class="tools-group">
-        <h3>Games & Activities</h3>
-        <a class="tool-link" href="docs/sentence-bingo.pdf" download>
-          <span class="emoji">🎱</span> Sentence Bingo
-        </a>
-        <a class="tool-link" href="docs/story-dice-template.pdf" download>
-          <span class="emoji">🎲</span> Story Dice Template
-        </a>
-        <a class="tool-link" href="docs/picture-sequencing-cards.pdf" download>
-          <span class="emoji">🖼️</span> Picture Sequencing Cards
-        </a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ========== MONEY & LIFE SKILLS ========== -->
-<section class="zone zone-light" id="money">
-  <div class="wrap">
-    <div class="zone-heading">
-      <p class="eyebrow">Money & Life Skills</p>
-      <h2>Real-world money practice</h2>
-    </div>
-    <p class="zone-sub">Interactive games and activities that build confidence with coins, notes, budgeting and everyday transactions — with built-in speech support for every learner.</p>
-
-    <div class="package-grid">
-      <article class="package featured" data-reveal>
-        <div class="package-cover" style="background: linear-gradient(135deg,#1a5f2a,#2d8a3e);">
-          <span style="font-size:4rem;">🪄</span>
-          <span class="cover-tag">Interactive Game</span>
-        </div>
-        <div class="package-body">
-          <h3>Magic Money</h3>
-          <p class="blurb">A hands-on coin and note building simulator. Tap to add coins, combine matching pairs to upgrade, and break them apart to explore values. Includes 24-round challenge mode with speech feedback.</p>
-          <div class="level-pills">
-            <span class="level-pill lvl-jade">Jade</span>
-            <span class="level-pill lvl-green">Green</span>
-            <span class="level-pill lvl-blue">Blue</span>
-            <span class="level-pill lvl-red">Red</span>
-          </div>
-          <div class="package-actions">
-            <a href="resources/magic-money.html" class="btn-reader">🎮 Play Game</a>
-          </div>
-        </div>
-      </article>
-
-      <article class="package" data-reveal>
-        <div class="package-cover" style="background: linear-gradient(135deg,#d98c2b,#a86a1c);">
-          <span style="font-size:3rem;">🧺</span>
-        </div>
-        <div class="package-body">
-          <h3>Lavender Market</h3>
-          <p class="blurb">Choose Your Adventure money mission. Join Aunt Jas at the market, help with the shopping, keep track of your money, and catch the bus home. Multiple endings based on your choices.</p>
-          <div class="level-pills">
-            <span class="level-pill lvl-red">Red</span>
-          </div>
-          <div class="package-actions">
-            <a href="resources/lavender-market.html" class="btn-reader">🎮 Play Adventure</a>
-          </div>
-        </div>
-      </article>
-
-      <article class="package" data-reveal>
-        <div class="package-cover" style="background: linear-gradient(135deg,#5c3a1e,#8b5a2b);">
-          <span style="font-size:3rem;">🛒</span>
-        </div>
-        <div class="package-body">
-          <h3>Going to Market</h3>
-          <p class="blurb">A guided shopping trip with structured sentence support. Coming soon with graded levels from single-item buying to multi-step budgeting.</p>
-          <div class="level-pills">
-            <span class="level-pill lvl-jade">Jade</span>
-            <span class="level-pill lvl-green">Green</span>
-            <span class="level-pill lvl-blue">Blue</span>
-            <span class="level-pill lvl-red">Red</span>
-          </div>
-          <div class="package-actions">
-            <span class="btn-pdf" style="opacity:0.5;cursor:default;border-color:#ccc;color:#999;">Coming Soon</span>
-          </div>
-        </div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- ========== SHOP ========== -->
-<section class="shop" id="shop">
-  <div class="wrap">
-    <div>
-      <h2>Get the complete collection</h2>
-      <p>All packs, tools and games in one place. Instant download, unlimited printing for your setting.</p>
-    </div>
-    <div class="shop-buttons">
-      <a class="btn btn-gold" href="#">Browse the Shop</a>
-      <a class="btn btn-outline" href="mailto:hello@talkinginpictures.co.uk">Contact Us</a>
-    </div>
+<!-- ========== SUPPORT ========== -->
+<section class="support-bar" id="support">
+  <h2>Support Talking in Pictures</h2>
+  <p>Every donation helps us build more free resources for SEND learners, teachers and families.</p>
+  <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+    <a class="btn btn-gold" href="#">💛 Donate</a>
+    <a class="btn btn-outline" href="mailto:hello@talkinginpictures.co.uk">📧 Contact Us</a>
   </div>
 </section>
 
 <!-- ========== FOOTER ========== -->
 <footer>
-  <div class="wrap">
-    <div>© 2025 Talking in Pictures</div>
-    <div class="social">
-      <a href="#">Twitter</a>
-      <a href="#">Instagram</a>
-      <a href="#">Email</a>
-    </div>
+  <div>© 2025 Talking in Pictures</div>
+  <div style="margin-top:8px;">
+    <a href="#">Twitter</a>
+    <a href="#">Instagram</a>
+    <a href="mailto:hello@talkinginpictures.co.uk">Email</a>
   </div>
 </footer>
-
-<!-- Simple scroll reveal -->
-<script>
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('is-visible'); });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
-</script>
 
 </body>
 </html>
