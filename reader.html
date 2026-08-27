@@ -9,7 +9,125 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css" />
+<script src="stories.js"></script>
 <base target="_blank">
+<style>
+  .reader-page {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    background: var(--cream);
+  }
+  .reader-card {
+    background: var(--paper); border-radius: var(--radius-lg);
+    max-width: 720px; width: 100%;
+    display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+  }
+  .reader-top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; border-bottom: 1px solid var(--line);
+  }
+  .reader-top .rt-title {
+    font-family: 'Baloo 2'; font-weight: 800; font-size: 1rem;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .reader-top .rt-title img { width: 28px; height: 28px; border-radius: 50%; }
+  .reader-top a.back-link {
+    font-family: 'Baloo 2'; font-weight: 700; font-size: 0.85rem;
+    color: var(--ink-soft); padding: 6px 12px; border-radius: 999px;
+    background: var(--cream);
+  }
+  .reader-top a.back-link:hover { background: var(--gold); color: var(--ink); }
+  .reader-levels {
+    display: flex; gap: 6px; padding: 10px 18px;
+    border-bottom: 1px solid var(--line); flex-wrap: wrap;
+  }
+  .reader-level-btn {
+    font-family: 'Baloo 2'; font-weight: 700; font-size: 0.85rem;
+    border: 2px solid transparent; background: var(--cream); color: var(--ink-soft);
+    padding: 6px 13px; border-radius: 999px; cursor: pointer;
+  }
+  .reader-level-btn.active { color: #fff; }
+  .reader-level-btn[data-lvl="jade"].active { background: var(--lvl-jade); }
+  .reader-level-btn[data-lvl="green"].active { background: var(--lvl-green); }
+  .reader-level-btn[data-lvl="blue"].active { background: var(--lvl-blue); }
+  .reader-level-btn[data-lvl="red"].active { background: var(--lvl-red); }
+  .reader-body {
+    padding: 24px 24px 12px; overflow-y: auto; flex: 1; text-align: center;
+  }
+  .reader-photo {
+    width: 100%; max-width: 400px; aspect-ratio: 4/3; object-fit: cover;
+    border-radius: 16px; margin: 0 auto 18px; display: block;
+    border: 4px solid var(--cream); box-shadow: var(--shadow-soft);
+  }
+  .reader-heading {
+    font-size: 1.7rem; margin-bottom: 16px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .reader-paragraph {
+    font-size: 1.15rem; line-height: 1.6; color: var(--ink);
+    max-width: 50ch; margin: 0 auto 20px;
+  }
+  .reader-words {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+  }
+  .reader-word {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    background: var(--cream); border-radius: 14px;
+    padding: 12px 16px; min-width: 84px;
+  }
+  .reader-word .rw-emoji { font-size: 2rem; }
+  .reader-word .rw-text { font-family: 'Baloo 2'; font-weight: 700; font-size: 1rem; }
+  .reader-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px; border-top: 1px solid var(--line); gap: 10px;
+  }
+  .reader-nav button {
+    font-family: 'Baloo 2'; font-weight: 700; font-size: 0.95rem;
+    background: var(--ink); color: #fff; border: none; border-radius: 999px;
+    padding: 10px 18px; cursor: pointer;
+  }
+  .reader-nav button:disabled { opacity: 0.35; cursor: default; }
+  .reader-nav button.speak { background: var(--lvl-jade); }
+  .reader-progress {
+    font-family: 'Baloo 2'; font-weight: 700; font-size: 0.85rem; color: var(--ink-soft);
+  }
+
+  /* Story picker for when no story is selected */
+  .story-picker {
+    padding: 40px 24px; text-align: center;
+  }
+  .story-picker h2 {
+    font-size: 1.8rem; margin-bottom: 8px;
+  }
+  .story-picker p {
+    color: var(--ink-soft); margin-bottom: 28px;
+  }
+  .story-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px; max-width: 700px; margin: 0 auto;
+  }
+  .story-card {
+    background: var(--cream); border: 2px solid var(--line);
+    border-radius: var(--radius-lg); padding: 24px;
+    cursor: pointer; transition: transform .15s, box-shadow .15s, border-color .15s;
+    text-decoration: none; color: inherit; display: block;
+  }
+  .story-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-soft);
+    border-color: var(--gold);
+  }
+  .story-card .sc-emoji { font-size: 3rem; margin-bottom: 10px; }
+  .story-card .sc-title {
+    font-family: 'Baloo 2'; font-weight: 800; font-size: 1.2rem;
+  }
+  .story-card .sc-desc {
+    font-size: 0.9rem; color: var(--ink-soft); margin-top: 6px;
+  }
+</style>
 </head>
 <body>
 
@@ -19,13 +137,13 @@
     <div class="reader-top">
       <div class="rt-title">
         <img src="images/logo.png" alt="" />
-        The Big Picnic — Reader
+        <span id="reader-title">Talking in Pictures Reader</span>
       </div>
       <a href="index.html" class="back-link">← Back</a>
     </div>
 
     <!-- Level Switcher -->
-    <div class="reader-levels">
+    <div class="reader-levels" id="level-bar" style="display:none;">
       <button class="reader-level-btn" data-lvl="jade" onclick="setLevel('jade')">Jade — First Words</button>
       <button class="reader-level-btn" data-lvl="green" onclick="setLevel('green')">Green — Short Phrases</button>
       <button class="reader-level-btn active" data-lvl="blue" onclick="setLevel('blue')">Blue — Full Sentences</button>
@@ -34,21 +152,11 @@
 
     <!-- Content -->
     <div class="reader-body" id="reader-body">
-      <img class="reader-photo" src="images/package-cover-1.jpg" alt="Story illustration" />
-      <h2 class="reader-heading" id="story-title">🐻 The Big Picnic</h2>
-      <p class="reader-paragraph" id="story-text">
-        Bear was hungry. He saw a picnic. He wanted the sandwich. But the sandwich was gone! Who took it?
-      </p>
-      <div class="reader-words" id="story-words">
-        <div class="reader-word"><span class="rw-emoji">🐻</span><span class="rw-text">Bear</span></div>
-        <div class="reader-word"><span class="rw-emoji">🥪</span><span class="rw-text">sandwich</span></div>
-        <div class="reader-word"><span class="rw-emoji">🌳</span><span class="rw-text">picnic</span></div>
-        <div class="reader-word"><span class="rw-emoji">❓</span><span class="rw-text">who?</span></div>
-      </div>
+      <!-- Filled by JS -->
     </div>
 
     <!-- Navigation -->
-    <div class="reader-nav">
+    <div class="reader-nav" id="reader-nav" style="display:none;">
       <button id="btn-prev" onclick="prevPage()">← Previous</button>
       <span class="reader-progress" id="progress">Page 1 of 4</span>
       <button class="speak" id="btn-speak" onclick="speakText()">🔊 Read Aloud</button>
@@ -58,80 +166,80 @@
 </div>
 
 <script>
-// Story data for each level
-const stories = {
-  jade: {
-    title: '🐻 The Big Picnic',
-    pages: [
-      { text: 'Bear. Hungry.', words: [{e:'🐻',t:'Bear'},{e:'🍽️',t:'hungry'}] },
-      { text: 'Sandwich. Yum!', words: [{e:'🥪',t:'sandwich'},{e:'😋',t:'yum'}] },
-      { text: 'Gone! Oh no.', words: [{e:'❌',t:'gone'},{e:'😮',t:'oh no'}] },
-      { text: 'Bird. Sorry!', words: [{e:'🐦',t:'bird'},{e:'😊',t:'sorry'}] }
-    ]
-  },
-  green: {
-    title: '🐻 The Big Picnic',
-    pages: [
-      { text: 'Bear is hungry. He sees a picnic.', words: [{e:'🐻',t:'Bear'},{e:'🌳',t:'picnic'},{e:'👀',t:'sees'}] },
-      { text: 'Bear wants the sandwich. It looks yummy.', words: [{e:'🥪',t:'sandwich'},{e:'🤤',t:'wants'},{e:'😋',t:'yummy'}] },
-      { text: 'The sandwich is gone! Where is it?', words: [{e:'❌',t:'gone'},{e:'❓',t:'where?'},{e:'🔍',t:'look'}] },
-      { text: 'A bird took it. Bear is surprised!', words: [{e:'🐦',t:'bird'},{e:'😲',t:'surprised'},{e:'🥪',t:'sandwich'}] }
-    ]
-  },
-  blue: {
-    title: '🐻 The Big Picnic',
-    pages: [
-      { text: 'Bear was hungry. He saw a picnic blanket with a big sandwich on it. He wanted that sandwich very much.', words: [{e:'🐻',t:'Bear'},{e:'🥪',t:'sandwich'},{e:'🌳',t:'picnic'}] },
-      { text: 'But when Bear looked again, the sandwich was gone! Someone had taken it. Bear was confused.', words: [{e:'❌',t:'gone'},{e:'❓',t:'who?'},{e:'😕',t:'confused'}] },
-      { text: 'A little bird flew down with crumbs on her beak. "Sorry Bear," she chirped. "It was just too tasty!"', words: [{e:'🐦',t:'bird'},{e:'😊',t:'sorry'},{e:'🍞',t:'crumbs'}] },
-      { text: 'Bear smiled. He shared his berries with Bird. They had a lovely picnic after all.', words: [{e:'🫐',t:'berries'},{e:'🤝',t:'share'},{e:'😊',t:'happy'}] }
-    ]
-  },
-  red: {
-    title: '🐻 The Big Picnic',
-    pages: [
-      { text: 'One sunny morning, Bear wandered through the forest and caught the most delicious smell drifting through the trees. Someone was having a picnic, and there on the blanket sat the biggest, most beautiful sandwich Bear had ever seen.', words: [{e:'🐻',t:'Bear'},{e:'🌲',t:'forest'},{e:'🥪',t:'sandwich'}] },
-      { text: 'Bear licked his lips and took a step closer. But just as he reached out his paw, the sandwich vanished! Bear blinked. He looked left. He looked right. The sandwich had completely disappeared, and Bear had no idea where it had gone.', words: [{e:'👀',t:'look'},{e:'❌',t:'gone'},{e:'🤔',t:'mystery'}] },
-      { text: 'A tiny bluebird fluttered down from the oak tree above, her beak dusted with breadcrumbs. She looked rather embarrassed. "I am so sorry, Bear," she tweeted. "I saw it sitting there and I simply could not resist. It was the most marvellous sandwich I have ever tasted."', words: [{e:'🐦',t:'bluebird'},{e:'🌳',t:'oak tree'},{e:'😳',t:'sorry'}] },
-      { text: 'Bear thought for a moment, then opened his basket. Inside were plump blueberries, sweet strawberries and crunchy nuts. "Let us share," he said kindly. So Bear and Bluebird sat together in the sunshine, and it turned out to be the best picnic either of them had ever had.', words: [{e:'🫐',t:'blueberries'},{e:'🤝',t:'share'},{e:'☀️',t:'sunshine'}] }
-    ]
+// ========== GET STORY FROM URL ==========
+function getStoryId() {
+  var params = new URLSearchParams(window.location.search);
+  return params.get("story");
+}
+
+var storyId = getStoryId();
+var story = storyId ? STORIES[storyId] : null;
+
+// ========== STORY PICKER (no story selected) ==========
+if (!story) {
+  document.getElementById('reader-title').textContent = "Choose a Story";
+  var pickerHtml = '<div class="story-picker">' +
+    '<h2>📖 Choose a Story</h2>' +
+    '<p>Pick a story to read. Each one has four graded levels.</p>' +
+    '<div class="story-grid">';
+
+  for (var key in STORIES) {
+    var s = STORIES[key];
+    pickerHtml += '<a class="story-card" href="reader.html?story=' + key + '">' +
+      '<div class="sc-emoji">📚</div>' +
+      '<div class="sc-title">' + s.title + '</div>' +
+      '<div class="sc-desc">Tap to read</div>' +
+    '</a>';
   }
-};
+  pickerHtml += '</div></div>';
+  document.getElementById('reader-body').innerHTML = pickerHtml;
+}
 
-let currentLevel = 'blue';
-let currentPage = 0;
+// ========== READER STATE ==========
+var currentLevel = 'blue';
+var currentPage = 0;
 
+// ========== LEVEL SWITCHING ==========
 function setLevel(lvl) {
   currentLevel = lvl;
   currentPage = 0;
-  // Update button states
-  document.querySelectorAll('.reader-level-btn').forEach(btn => {
+  document.querySelectorAll('.reader-level-btn').forEach(function(btn) {
     btn.classList.toggle('active', btn.dataset.lvl === lvl);
   });
   renderPage();
 }
 
+// ========== RENDER PAGE ==========
 function renderPage() {
-  const story = stories[currentLevel];
-  const page = story.pages[currentPage];
+  var levelData = story.levels[currentLevel];
+  var page = levelData.pages[currentPage];
+  var totalPages = levelData.pages.length;
 
-  document.getElementById('story-title').textContent = story.title;
-  document.getElementById('story-text').textContent = page.text;
-  document.getElementById('progress').textContent = `Page ${currentPage + 1} of ${story.pages.length}`;
+  document.getElementById('reader-title').textContent = story.title + " — Reader";
+  document.getElementById('progress').textContent = 'Page ' + (currentPage + 1) + ' of ' + totalPages;
 
   // Build word cards
-  const wordsContainer = document.getElementById('story-words');
-  wordsContainer.innerHTML = page.words.map(w => 
-    `<div class="reader-word"><span class="rw-emoji">${w.e}</span><span class="rw-text">${w.t}</span></div>`
-  ).join('');
+  var wordsHtml = '';
+  for (var i = 0; i < page.words.length; i++) {
+    var w = page.words[i];
+    wordsHtml += '<div class="reader-word"><span class="rw-emoji">' + w.e + '</span><span class="rw-text">' + w.t + '</span></div>';
+  }
+
+  var coverHtml = story.cover ? '<img class="reader-photo" src="' + story.cover + '" alt="Story illustration" />' : '';
+
+  document.getElementById('reader-body').innerHTML =
+    coverHtml +
+    '<h2 class="reader-heading">' + story.title + '</h2>' +
+    '<p class="reader-paragraph" id="story-text">' + page.text + '</p>' +
+    '<div class="reader-words">' + wordsHtml + '</div>';
 
   // Update nav buttons
   document.getElementById('btn-prev').disabled = currentPage === 0;
-  document.getElementById('btn-next').disabled = currentPage === story.pages.length - 1;
+  document.getElementById('btn-next').disabled = currentPage === totalPages - 1;
 }
 
 function nextPage() {
-  const max = stories[currentLevel].pages.length - 1;
+  var max = story.levels[currentLevel].pages.length - 1;
   if (currentPage < max) { currentPage++; renderPage(); }
 }
 
@@ -140,10 +248,10 @@ function prevPage() {
 }
 
 function speakText() {
-  const text = document.getElementById('story-text').textContent;
+  var text = document.getElementById('story-text').textContent;
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
+    var utter = new SpeechSynthesisUtterance(text);
     utter.rate = 0.9;
     utter.pitch = 1.1;
     window.speechSynthesis.speak(utter);
@@ -152,8 +260,12 @@ function speakText() {
   }
 }
 
-// Init
-renderPage();
+// ========== INIT ==========
+if (story) {
+  document.getElementById('level-bar').style.display = 'flex';
+  document.getElementById('reader-nav').style.display = 'flex';
+  renderPage();
+}
 </script>
 
 </body>
