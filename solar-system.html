@@ -14,6 +14,7 @@
     --line: #e7ddc6; --gold: #ffc93c; --gold-deep: #e8a317;
     --lvl-jade: #12b8a4; --lvl-green: #3fa65c;
     --lvl-blue: #2e86de; --lvl-red: #e4483c;
+    --lvl-game: #7b5fd1;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
@@ -83,10 +84,22 @@
   .level-btn[data-lvl="green"].active { background: var(--lvl-green); border-color: var(--lvl-green); }
   .level-btn[data-lvl="blue"].active { background: var(--lvl-blue); border-color: var(--lvl-blue); }
   .level-btn[data-lvl="red"].active { background: var(--lvl-red); border-color: var(--lvl-red); }
+  .level-btn[data-lvl="game"].active { background: var(--lvl-game); border-color: var(--lvl-game); }
   .level-btn .dot {
     width: 10px; height: 10px; border-radius: 50%; background: currentColor; opacity: 0.4;
   }
   .level-btn.active .dot { opacity: 1; background: #fff; }
+
+  /* Secondary bar for the adventure game — visually separate from the graded levels */
+  .level-bar-secondary {
+    padding-top: 2px;
+  }
+  .level-bar-divider {
+    width: 1px; align-self: stretch; background: var(--line); margin: 4px 4px;
+  }
+  @media (max-width: 500px) {
+    .level-bar-divider { display: none; }
+  }
 
   /* PDF viewer area */
   .viewer-wrap {
@@ -197,6 +210,13 @@
   </button>
 </div>
 
+<div class="level-bar level-bar-secondary">
+  <span class="level-bar-divider" aria-hidden="true"></span>
+  <button class="level-btn" data-lvl="game" onclick="setLevel('game')">
+    <span class="dot"></span> 🎮 Adventure Game — 3 Levels
+  </button>
+</div>
+
 <!-- PDF Viewer -->
 <div class="viewer-wrap" id="viewer-wrap">
   <div class="pdf-toolbar" id="toolbar" style="display:none;">
@@ -222,20 +242,17 @@
 <footer>© 2025 Talking in Pictures</footer>
 
 <script>
-  var PDFS = {
-    jade:  "resources/The%20Solar%20System%20TIPS%20Jade%20Level%20Reader%20Booklet.pdf",
-    green: "resources/The%20Solar%20System%20TIPS%20Green%20Level%20Reader%20Booklet.pdf",
-    blue:  "resources/The%20Solar%20System%20TIPS%20Blue%20Level%20Reader.pdf",
-    red:   "resources/The%20Solar%20System%20TIPS%20Red%20Level%20Reader.pdf"
-  };
-  var LABELS = {
-    jade:  "The Solar System — Jade Level",
-    green: "The Solar System — Green Level",
-    blue:  "The Solar System — Blue Level",
-    red:   "The Solar System — Red Level"
+  var RESOURCES = {
+    jade:  { type: 'pdf',  src: "resources/The%20Solar%20System%20TIPS%20Jade%20Level%20Reader%20Booklet.pdf", label: "The Solar System — Jade Level" },
+    green: { type: 'pdf',  src: "resources/The%20Solar%20System%20TIPS%20Green%20Level%20Reader%20Booklet.pdf", label: "The Solar System — Green Level" },
+    blue:  { type: 'pdf',  src: "resources/The%20Solar%20System%20TIPS%20Blue%20Level%20Reader.pdf", label: "The Solar System — Blue Level" },
+    red:   { type: 'pdf',  src: "resources/The%20Solar%20System%20TIPS%20Red%20Level%20Reader.pdf", label: "The Solar System — Red Level" },
+    game:  { type: 'game', src: "resources/The%20Solar%20System%20Adventure%20Game%203%20Levels%20V1.html", label: "The Solar System — Adventure Game" }
   };
 
   function setLevel(lvl) {
+    var res = RESOURCES[lvl];
+
     // Shrink the header/description now that we're actually reading
     document.body.classList.add('is-reading');
 
@@ -246,27 +263,42 @@
 
     // Show toolbar
     document.getElementById('toolbar').style.display = 'flex';
-    document.getElementById('file-name').textContent = LABELS[lvl];
-    document.getElementById('download-link').href = PDFS[lvl];
+    document.getElementById('file-name').textContent = res.label;
 
-    // Embed PDF
+    var downloadLink = document.getElementById('download-link');
+    if (res.type === 'pdf') {
+      downloadLink.href = res.src;
+      downloadLink.style.display = 'inline-flex';
+    } else {
+      // The game isn't a single downloadable PDF — it has its own PDF
+      // export built in (a completion summary), so hide our button here.
+      downloadLink.style.display = 'none';
+    }
+
     var frame = document.getElementById('pdf-frame');
     var isMobile = window.innerWidth < 700;
+
+    if (res.type === 'game') {
+      // Interactive HTML page — embed it directly on every device, no
+      // mobile fallback needed since it's not relying on a native PDF plugin.
+      frame.innerHTML = '<iframe src="' + res.src + '" title="' + res.label + '" allowfullscreen></iframe>';
+      return;
+    }
 
     if (isMobile) {
       // On mobile, show a fallback with a big open button
       frame.innerHTML =
         '<div class="pdf-fallback">' +
           '<div style="font-size:3rem;">📖</div>' +
-          '<h2 style="font-family:Baloo 2;font-size:1.3rem;">' + LABELS[lvl] + '</h2>' +
+          '<h2 style="font-family:Baloo 2;font-size:1.3rem;">' + res.label + '</h2>' +
           '<p>Tap the button below to open the PDF. You can read it in your browser or download it to keep.</p>' +
-          '<a href="' + PDFS[lvl] + '" target="_blank" style="font-family:Baloo 2;font-weight:700;font-size:1rem;background:var(--gold);color:var(--ink);padding:12px 28px;border-radius:999px;text-decoration:none;display:inline-block;">' +
+          '<a href="' + res.src + '" target="_blank" style="font-family:Baloo 2;font-weight:700;font-size:1rem;background:var(--gold);color:var(--ink);padding:12px 28px;border-radius:999px;text-decoration:none;display:inline-block;">' +
             'Open PDF' +
           '</a>' +
         '</div>';
     } else {
       // On desktop, embed the PDF directly
-      frame.innerHTML = '<embed src="' + PDFS[lvl] + '" type="application/pdf" width="100%" height="100%" />';
+      frame.innerHTML = '<embed src="' + res.src + '" type="application/pdf" width="100%" height="100%" />';
     }
   }
 
