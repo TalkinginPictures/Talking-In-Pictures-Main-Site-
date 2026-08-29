@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Lavender Market — Choose Your Adventure</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --bg:        #fdf6ea;
+  --card:      #ffffff;
+  --surface:   #fff2da;
+  --surface2:  #ffe6b8;
+  --gold:      #d98c2b;
+  --gold-dim:  #a86a1c;
+  --text:      #2b2014;
+  --muted:     #8a7860;
+  --border:    rgba(180,100,30,0.16);
+  --red:       #c1272d;
+  --blue:      #2f6f9e;
+  --green:     #3f7d4a;
+  --purple:    #7a4f9e;
+  --amber:     #e8a33d;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html, body {
+  min-height:100%;
+  font-family:'Segoe UI', system-ui, Arial, sans-serif;
+  background:radial-gradient(ellipse at 50% 0%, #fff2da 0%, var(--bg) 75%);
+  color:var(--text);
+  font-size:16px;
+  line-height:1.5;
+}
+.wrap {
+  max-width:880px;
+  margin:0 auto;
+  padding:20px 14px 48px;
+}
+.card {
+  background:var(--card);
+  border-radius:18px;
+  border:1px solid var(--border);
+  box-shadow:0 24px 60px rgba(120,80,30,0.14);
+  padding:24px 24px 20px;
+}
+.game-header {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  margin-bottom:22px;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--border);
+  gap:12px;
+}
+.game-title {
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:0.3px;
+  color:var(--text);
+}
+.lamp {
+  color:var(--gold);
+  animation:lamp-flicker 12s 4s ease-in-out infinite;
+  display:inline;
+}
+@keyframes lamp-flicker {
+  0%,90%,93%,97%,100% { opacity:1 }
+  91%  { opacity:.45 }
+  92%  { opacity:1 }
+  95%  { opacity:.6 }
+  96%  { opacity:1 }
+}
+.game-byline {
+  font-size:11px;
+  color:var(--muted);
+  margin-top:4px;
+  letter-spacing:0.5px;
+}
+.header-right {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:10px;
+  flex-shrink:0;
+}
+.level-badge {
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:6px;
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  color:#fff;
+}
+.level-badge.platinum { background:linear-gradient(135deg,#9ca3af,#6b7280); }
+.level-badge.red      { background:linear-gradient(135deg,#ef4444,#b91c1c); }
+.level-badge.blue     { background:linear-gradient(135deg,#3b82f6,#1d4ed8); }
+.level-badge.green    { background:linear-gradient(135deg,#22c55e,#15803d); }
+.header-controls {
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.speed-btn {
+  padding:7px 11px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.2px;
+  white-space:nowrap;
+}
+.trail { display:flex; gap:6px; align-items:center; }
+.dot {
+  width:9px; height:9px;
+  border-radius:50%;
+  background:rgba(0,0,0,0.08);
+  border:1px solid rgba(0,0,0,0.08);
+  transition:background .3s, box-shadow .3s;
+}
+.dot.done { background:rgba(217,140,43,.4); border-color:rgba(217,140,43,.4); }
+.dot.now  { background:var(--gold); border-color:var(--gold); box-shadow:0 0 9px var(--gold); }
+.btn {
+  padding:10px 16px;
+  border-radius:10px;
+  border:none;
+  cursor:pointer;
+  font-weight:700;
+  font-size:14px;
+  line-height:1;
+  transition:opacity .15s, transform .1s;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.btn:hover  { opacity:.84; transform:translateY(-1px); }
+.btn:active { transform:translateY(0); }
+.btn-primary { background:linear-gradient(135deg,#e8a33d,#c1791f); color:#2b2014; }
+.btn-ghost   { background:rgba(0,0,0,0.045); color:var(--text); border:1px solid var(--border); }
+.btn-icon    { padding:8px 10px; font-size:18px; }
+.level-grid {
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:12px;
+  margin-top:20px;
+}
+.level-card {
+  background:var(--surface);
+  border-radius:12px;
+  border:2px solid transparent;
+  cursor:pointer;
+  padding:20px 16px;
+  text-align:center;
+  transition:transform .15s, box-shadow .15s, border-color .15s;
+}
+.level-card:hover, .level-card:focus {
+  transform:translateY(-4px);
+  box-shadow:0 10px 24px rgba(120,80,30,.18), 0 0 0 1px var(--gold);
+  border-color:var(--gold);
+  outline:none;
+}
+.level-card.active {
+  border-color:var(--gold);
+  box-shadow:0 0 0 2px var(--gold);
+  background:var(--surface2);
+}
+.level-emoji { font-size:42px; display:block; margin-bottom:8px; }
+.level-name { font-size:16px; font-weight:700; color:var(--text); }
+.level-desc { font-size:12px; color:var(--muted); margin-top:4px; }
+.scene-eyebrow {
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  color:var(--gold-dim);
+  font-weight:700;
+  margin-bottom:8px;
+}
+.scene-img-wrap {
+  width:100%;
+  height:140px;
+  border-radius:10px;
+  background:var(--surface2);
+  overflow:hidden;
+  position:relative;
+  margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.scene-emoji-slot {
+  font-size:72px;
+  line-height:1;
+  position:relative;
+  z-index:1;
+  text-align:center;
+}
+.fade {
+  position:absolute;
+  inset:0;
+  background:linear-gradient(0deg, rgba(255,230,184,.92) 0%, rgba(255,230,184,.08) 100%);
+  pointer-events:none;
+}
+.scene-text {
+  font-size:16px;
+  line-height:1.7;
+  color:var(--text);
+  padding:13px 16px;
+  margin-bottom:16px;
+  border-left:3px solid var(--gold);
+  border-radius:0 8px 8px 0;
+  background:rgba(217,140,43,.06);
+}
+.question-label {
+  font-size:19px;
+  font-weight:700;
+  margin-bottom:12px;
+  color:var(--text);
+}
+.opt-grid { display:grid; gap:10px; }
+.opt-card {
+  background:var(--surface);
+  border-radius:10px;
+  border:1px solid rgba(0,0,0,0.06);
+  cursor:pointer;
+  overflow:hidden;
+  transition:transform .15s, box-shadow .15s, border-color .15s;
+  user-select:none;
+}
+.opt-card:hover, .opt-card:focus {
+  transform:translateY(-4px);
+  box-shadow:0 10px 24px rgba(120,80,30,.18), 0 0 0 1px var(--gold);
+  border-color:var(--gold);
+  outline:none;
+}
+.opt-card.escape-card:hover, .opt-card.escape-card:focus {
+  box-shadow:0 10px 24px rgba(193,39,45,.22), 0 0 0 1px var(--red);
+  border-color:var(--red);
+}
+.opt-emoji-box {
+  width:100%;
+  height:88px;
+  background:var(--surface2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:48px;
+  line-height:1;
+}
+.opt-label {
+  padding:8px 8px 10px;
+  font-size:14px;
+  font-weight:700;
+  text-align:center;
+  color:var(--text);
+  line-height:1.25;
+}
+.escape-card .opt-label { color:var(--red); }
+.affirm {
+  min-height:22px;
+  font-size:14px;
+  color:var(--gold-dim);
+  font-style:italic;
+  text-align:center;
+  margin-top:8px;
+}
+.name-screen { text-align:center; padding:34px 16px 24px; }
+.name-screen .hero { font-size:58px; display:block; margin-bottom:14px; }
+.name-screen h2 { font-size:26px; font-weight:900; margin-bottom:10px; }
+.name-screen p {
+  font-size:15px; color:#5c4a36; line-height:1.7;
+  margin-bottom:24px; max-width:440px; margin-left:auto; margin-right:auto;
+}
+.text-input {
+  padding:12px 16px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:rgba(0,0,0,0.03);
+  color:var(--text);
+  font-size:16px;
+  width:260px;
+  max-width:100%;
+  outline:none;
+  display:block;
+  margin:0 auto 16px;
+}
+.text-input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(217,140,43,.16); }
+.custom-prompt {
+  grid-column:1 / -1;
+  text-align:center;
+  padding:22px 10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+}
+.custom-prompt .prompt-q { font-size:17px; color:var(--text); }
+.custom-row { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+.ending-screen { text-align:center; padding:8px 4px; }
+.ending-emoji  { font-size:58px; display:block; margin-bottom:10px; }
+.ending-title  { font-size:25px; font-weight:900; margin-bottom:14px; }
+.ending-text {
+  font-size:16px; line-height:1.8;
+  color:var(--text);
+  max-width:640px; margin:0 auto 20px;
+  padding:18px 22px; border-radius:12px;
+  text-align:left;
+}
+.end-escape  .ending-title { color:var(--red);    }
+.end-hospital .ending-title { color:var(--blue);  }
+.end-school  .ending-title { color:var(--green);  }
+.end-jail    .ending-title { color:var(--purple); }
+.end-custom  .ending-title { color:var(--gold-dim);  }
+.end-escape  .ending-text { background:rgba(193,39,45,.08);   border:1px solid rgba(193,39,45,.22);   }
+.end-hospital .ending-text { background:rgba(47,111,158,.08); border:1px solid rgba(47,111,158,.22); }
+.end-school  .ending-text { background:rgba(63,125,74,.08);  border:1px solid rgba(63,125,74,.22);  }
+.end-jail    .ending-text { background:rgba(122,79,158,.08); border:1px solid rgba(122,79,158,.22); }
+.end-custom  .ending-text { background:rgba(217,140,43,.08);  border:1px solid rgba(217,140,43,.22);  }
+.journey-block { margin:18px 0; text-align:left; }
+.journey-eyebrow {
+  font-size:11px; font-weight:700;
+  text-transform:uppercase; letter-spacing:1.5px;
+  color:var(--muted); margin-bottom:10px;
+}
+.journey-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(145px,1fr));
+  gap:8px;
+}
+.j-card {
+  background:rgba(0,0,0,0.025);
+  border:1px solid rgba(0,0,0,0.06);
+  border-radius:8px;
+  padding:10px 12px;
+}
+.j-scene  { font-size:11px; color:var(--muted); margin-bottom:4px; }
+.j-choice { font-size:14px; font-weight:700; color:var(--text); }
+.btn-row {
+  display:flex; gap:8px; flex-wrap:wrap;
+  justify-content:center; margin-top:18px;
+}
+footer {
+  margin-top:18px;
+  text-align:center;
+  font-size:11px;
+  color:var(--muted);
+  letter-spacing:0.3px;
+}
+</style>
+<base target="_blank">
+<base target="_blank">
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <header class="game-header">
+      <div class="title-block">
+        <div class="game-title"><span class="lamp">Lavender Market</span></div>
+        <div class="game-byline">Choose Your Adventure · Money Skills · <span id="levelBadge" class="level-badge red">Red</span></div>
+      </div>
+      <div class="header-right">
+        <div class="trail" id="trail"></div>
+        <div class="header-controls">
+          <button class="btn btn-ghost speed-btn" id="speedBtn" title="Playback speed: Normal">▶ Normal</button>
+          <button class="btn btn-ghost btn-icon"  id="soundBtn" title="Toggle sound">🔊</button>
+        </div>
+      </div>
+    </header>
+    <main id="stage"></main>
+    <footer>Talking in Pictures · SEND Resource · www.talkinginpictures.co.uk</footer>
+  </div>
+</div>
+
+<script>
+/* ==========================================================
+   EMOJI MAP
+   ========================================================== */
+var EMOJI_MAP = {
+  "market launch": "🧺", "list": "📝", "fruit stall": "🍎",
+  "coins": "🪙", "ten pound note": "💷", "change": "💰",
+  "thief alert": "📢", "bag check": "👜", "aunt": "👩",
+  "market street": "🏪", "bakery": "🥐", "juice": "🧃",
+  "bus stop": "🚌", "oyster card": "💳", "tap in": "✅",
+  "success": "🏆", "helped": "🤝", "custom": "✨",
+  "apples": "🍎", "bananas": "🍌", "bread": "🍞", "drink": "🧃",
+  "shop": "🛒", "money": "💵", "bus": "🚌", "home": "🏠",
+  "count": "🔢", "purse": "👛", "wallet": "💼"
+};
+
+function getEmoji(term) {
+  return EMOJI_MAP[term] || "❓";
+}
+
+function renderEmoji(emoji, size) {
+  size = size || "48px";
+  return '<span style="font-size:' + size + ';line-height:1;display:inline-block;" aria-hidden="true">' + emoji + '</span>';
+}
+
+/* ==========================================================
+   LEVEL CONFIGURATION
+   ========================================================== */
+var LEVELS = {
+  platinum: { label: "Platinum", badgeClass: "platinum", desc: "Highest ability — full coins, notes & change" },
+  red:      { label: "Red",      badgeClass: "red",      desc: "Most able in complex needs — whole pounds only" },
+  blue:     { label: "Blue",     badgeClass: "blue",     desc: "Middle level — shorter, simpler sentences" },
+  green:    { label: "Green",    badgeClass: "green",    desc: "Most complex — symbols, 1-2 choices, SVO sentences" }
+};
+
+/* ==========================================================
+   RED LEVEL — Whole Pounds Only, Number Bonds Within 10
+   ========================================================== */
+var RED_NODES = {
+  start: {
+    id:"start", nodeNum:1,
+    sceneLabel:"Scene 1 — Market Day",
+    sceneText:"{name}, it is Saturday! Aunt Jas takes you to Lavender Market. She gives you £5. You need to buy apples and bread. Then catch the bus home.",
+    question:"What do you do first?",
+    sceneImg:"market launch",
+    options:[
+      { label:"Look at the list", next:"fruit_stall", img:"list",
+        lines:["{name} looks at the list. Good planning!","Smart {name}! The list shows apples and bread."] },
+      { label:"Go to the fruit stall", next:"fruit_stall", img:"fruit stall",
+        lines:["{name} goes to the fruit stall. Great!","{name} finds the fruit stall. Good start!"] }
+    ]
+  },
+  fruit_stall: {
+    id:"fruit_stall", nodeNum:2,
+    sceneLabel:"Scene 2 — Fruit Stall",
+    sceneText:"Apples cost £2. Mr Okafor smiles. You have £5.",
+    question:"How much money left after apples?",
+    sceneImg:"apples",
+    options:[
+      { label:"£3 left", next:"bakery_stall", img:"coins",
+        lines:["Yes! £5 take away £2 is £3. Good counting, {name}!","Spot on! £3 left. Well done, {name}!"] },
+      { label:"£4 left", next:"fruit_recount", img:"coins",
+        lines:["Let's check together, {name}.","Good try — let's count it out."] }
+    ]
+  },
+  fruit_recount: {
+    id:"fruit_recount", nodeNum:2,
+    sceneLabel:"Scene 2 — Count Together",
+    sceneText:"You have £5. Apples cost £2. Count back: 5, 4, 3. That is £3 left.",
+    question:"How much left?",
+    sceneImg:"count",
+    options:[
+      { label:"£3 left!", next:"bakery_stall", img:"coins",
+        lines:["Yes! £3 left. Well done, {name}!","Great counting, {name}!"] }
+    ]
+  },
+  bakery_stall: {
+    id:"bakery_stall", nodeNum:3,
+    sceneLabel:"Scene 3 — Bakery",
+    sceneText:"Bread costs £2. You have £3 left.",
+    question:"Can you buy the bread?",
+    sceneImg:"bread",
+    options:[
+      { label:"Yes! £3 is more than £2", next:"bakery_pay", img:"coins",
+        lines:["Yes! £3 is more than £2. You can buy bread, {name}!","Spot on, {name}! You have enough."] },
+      { label:"No", next:"bakery_recount", img:"coins",
+        lines:["Let's check together, {name}.","Good thinking — let's count."] }
+    ]
+  },
+  bakery_recount: {
+    id:"bakery_recount", nodeNum:3,
+    sceneLabel:"Scene 3 — Check Again",
+    sceneText:"You have £3. Bread costs £2. £3 is more than £2. Yes, you can buy it!",
+    question:"Can you buy it?",
+    sceneImg:"bread",
+    options:[
+      { label:"Yes! £3 more than £2", next:"bakery_pay", img:"coins",
+        lines:["Yes! You can buy it, {name}!","Well done, {name}!"] }
+    ]
+  },
+  bakery_pay: {
+    id:"bakery_pay", nodeNum:3,
+    sceneLabel:"Scene 3 — Pay for Bread",
+    sceneText:"You pay £2 for bread. You had £3.",
+    question:"How much money now?",
+    sceneImg:"money",
+    options:[
+      { label:"£1 left", next:"bus_stop", img:"coins",
+        lines:["Yes! £3 take away £2 is £1. Good counting, {name}!","Spot on, {name}! £1 left."] },
+      { label:"£2 left", next:"bakery_change_recount", img:"coins",
+        lines:["Let's check together, {name}.","Good try — let's count again."] }
+    ]
+  },
+  bakery_change_recount: {
+    id:"bakery_change_recount", nodeNum:3,
+    sceneLabel:"Scene 3 — Count Together",
+    sceneText:"You had £3. You spent £2. Count back: 3, 2, 1. That is £1 left.",
+    question:"How much left?",
+    sceneImg:"count",
+    options:[
+      { label:"£1 left!", next:"bus_stop", img:"coins",
+        lines:["Yes! £1 left. Well done, {name}!","Great counting, {name}!"] }
+    ]
+  },
+  bus_stop: {
+    id:"bus_stop", nodeNum:4,
+    sceneLabel:"Scene 4 — Bus Home",
+    sceneText:"Time for the bus! The bus costs £1. You have £1 left. Aunt Jas is here.",
+    question:"Can you catch the bus?",
+    sceneImg:"bus stop",
+    options:[
+      { label:"Yes! £1 for the bus", next:"ending_success", img:"tap in",
+        lines:["Yes! You have £1. The bus costs £1. Perfect, {name}!","Well done, {name}! You have exactly enough."] },
+      { label:"Ask Aunt Jas to help", next:"ending_helped", img:"aunt",
+        lines:["Aunt Jas helps you. Good asking, {name}!","Smart, {name}! Asking for help is good."] },
+      { label:"Try to walk home", next:"ending_escape", img:"home", isEscape:true,
+        lines:["{name} thinks about walking..."] }
+    ]
+  },
+  ending_success: {
+    id:"ending_success", isEnding:true, endingClass:"school",
+    emoji:"🏆",
+    title:"Market Day Success!",
+    text:"You and Aunt Jas catch the bus home — mission complete! You started with £5. You spent £2 on apples and £2 on bread. You had £1 left for the bus. That is real budgeting, and you did it brilliantly, {name}!"
+  },
+  ending_helped: {
+    id:"ending_helped", isEnding:true, endingClass:"escape",
+    emoji:"🤝",
+    title:"Teamwork Wins!",
+    text:"At the bus stop, you checked in with Aunt Jas. She made sure you had enough for the trip home. Asking a trusted grown-up for help is a smart, sensible choice — well done, {name}!"
+  },
+  ending_escape: {
+    id:"ending_escape", isEnding:true, endingClass:"escape",
+    emoji:"🚶",
+    title:"Walking Home?",
+    text:"{name} thought about walking home, but Aunt Jas reminded you that the bus is safer and faster. You used your £1 for the bus and got home safely. Good thing Aunt Jas was there!"
+  },
+  ending_custom: {
+    id:"ending_custom", isEnding:true, endingClass:"custom",
+    emoji:"✨",
+    title:"Your Story",
+    text:""
+  }
+};
+
+/* ==========================================================
+   PLATINUM LEVEL — Full coins, notes & change (original)
+   ========================================================== */
+var PLATINUM_NODES = {
+  start: {
+    id:"start", nodeNum:1,
+    sceneLabel:"Scene 1 — Market Day",
+    sceneText:"{name}, it's Saturday morning! Aunt Jas takes you to Lavender Market in South London. She gives you a £10 note for the shopping list, plus the £2 coin and 50p already in your purse. That makes £12.50 to spend. Your Oyster card has £3.00 on it for the bus home. Aunt Jas will be nearby at the flower stall if you need her.",
+    question:"Where do you head first?",
+    sceneImg:"market launch",
+    options:[
+      { label:"Straight to the fruit & veg stall", next:"fruit_stall", img:"fruit stall",
+        lines:["{name} heads straight for the fruit and veg stall. Great planning!","Good thinking, {name} — fruit and veg is first on the list!"] },
+      { label:"Check the shopping list first", next:"fruit_stall", img:"list",
+        lines:["{name} reads the list carefully: apples, bananas, a bread roll, and a drink.","Smart move, {name}! Knowing the list helps you plan your spending."] }
+    ]
+  },
+  fruit_stall: {
+    id:"fruit_stall", nodeNum:2,
+    sceneLabel:"Scene 2 — The Fruit & Veg Stall",
+    sceneText:"A bag of apples costs 90p. A bunch of bananas costs £1.10. The stallholder, Mr Okafor, smiles and waits. This stall is cash only — no cards here!",
+    question:"How much will the apples and bananas cost altogether?",
+    sceneImg:"fruit stall",
+    options:[
+      { label:"£2.00", next:"fruit_pay", img:"coins",
+        lines:["Spot on, {name}! 90p plus £1.10 is exactly £2.00. Brilliant adding!","Yes! {name} adds the pence first, then the pounds — perfect £2.00!"] },
+      { label:"£1.90", next:"fruit_recount", img:"coins",
+        lines:["Good try, {name} — let's just check that one together.","Close! Let's line up the pence and recount."] },
+      { label:"£2.10", next:"fruit_recount", img:"coins",
+        lines:["Nearly there, {name} — let's double-check that total.","Good effort! Let's count it again together."] }
+    ]
+  },
+  fruit_recount: {
+    id:"fruit_recount", nodeNum:2,
+    sceneLabel:"Scene 2 — Let's Count Together",
+    sceneText:"No problem at all — let's break it down. 90p and £1.10. First the pence: 90p plus 10p makes £1.00. Then add the pound: £1.00 plus £1.00 makes £2.00.",
+    question:"So the total is...",
+    sceneImg:"coins",
+    options:[
+      { label:"£2.00 — got it!", next:"fruit_pay", img:"coins",
+        lines:["That's it, {name} — £2.00! Well done working it out.","Excellent, {name}! Counting together got us there."] }
+    ]
+  },
+  fruit_pay: {
+    id:"fruit_pay", nodeNum:2,
+    sceneLabel:"Scene 2 — Paying Mr Okafor",
+    sceneText:"You owe £2.00. In your purse you have a £2 coin, and you also have your £10 note.",
+    question:"How do you pay?",
+    sceneImg:"coins",
+    options:[
+      { label:"Hand over the £2 coin exactly", next:"thief_scene", img:"coins",
+        lines:["Perfect, {name} — exact money, no change needed!","Brilliant, {name}! Paying the exact amount saves everyone time."] },
+      { label:"Pay with the £10 note", next:"fruit_change", img:"ten pound note",
+        lines:["{name} hands over the £10 note. Now for the change!","Good choice, {name} — let's work out the change together."] }
+    ]
+  },
+  fruit_change: {
+    id:"fruit_change", nodeNum:2,
+    sceneLabel:"Scene 2 — Working Out Change",
+    sceneText:"You paid with a £10 note for £2.00 of fruit. Mr Okafor needs to give you change.",
+    question:"How much change should you get back?",
+    sceneImg:"change",
+    options:[
+      { label:"£8.00", next:"thief_scene", img:"change",
+        lines:["Exactly right, {name} — £10.00 take away £2.00 is £8.00!","Brilliant subtraction, {name}! £8.00 change, well done."] },
+      { label:"£7.00", next:"fruit_change_recount", img:"change",
+        lines:["Let's check that one together.","Good try — let's count it again."] },
+      { label:"£9.00", next:"fruit_change_recount", img:"change",
+        lines:["Close! Let's recount carefully.","Good effort — let's double-check that."] }
+    ]
+  },
+  fruit_change_recount: {
+    id:"fruit_change_recount", nodeNum:2,
+    sceneLabel:"Scene 2 — Counting Up the Change",
+    sceneText:"Let's count up from £2.00 to £10.00 together. £2.00 plus £8.00 makes £10.00. So your change is £8.00.",
+    question:"So your change is...",
+    sceneImg:"change",
+    options:[
+      { label:"£8.00 — got it!", next:"thief_scene", img:"change",
+        lines:["Brilliant, {name} — £8.00 it is!","Well done, {name}! Counting up really helped there."] }
+    ]
+  },
+  thief_scene: {
+    id:"thief_scene", nodeNum:3,
+    sceneLabel:"Scene 3 — A Market Announcement",
+    sceneText:"As you walk on, a market trader calls out: \"Keep an eye on your bags, everyone — there's been some pickpocketing on the high street today!\" Aunt Jas is at the flower stall, just a few steps away.",
+    question:"What do you do?",
+    sceneImg:"thief alert",
+    options:[
+      { label:"Check your money straight away", next:"money_check", img:"bag check",
+        lines:["Great instinct, {name}! Checking straight away is the safest choice.","Well done, {name} — always good to keep track of your money."] },
+      { label:"Tell Aunt Jas what you heard", next:"money_check", img:"aunt",
+        lines:["{name} tells Aunt Jas right away. She says, \"Well spotted — let's check your money together.\"","Brilliant, {name} — telling a trusted grown-up is always a smart move."] },
+      { label:"Carry on browsing the stalls", next:"money_check", img:"market street",
+        lines:["A moment later, {name} pauses and double-checks the bag is zipped — good thinking!","{name} carries on, then remembers to check everything's safe."] }
+    ]
+  },
+  money_check: {
+    id:"money_check", nodeNum:3,
+    sceneLabel:"Scene 3 — Counting Your Money",
+    sceneText:"Everything is safe! Let's check: you started with £12.50, and you spent £2.00 at the fruit stall.",
+    question:"How much money should you have left?",
+    sceneImg:"bag check",
+    options:[
+      { label:"£10.50", next:"bakery_stall", img:"coins",
+        lines:["Exactly right, {name}! £12.50 take away £2.00 is £10.50. Nothing missing!","Spot on, {name}! Your careful counting kept your money safe."] },
+      { label:"£9.50", next:"money_recount", img:"coins",
+        lines:["Let's check that subtraction together.","Good try — let's recount carefully."] },
+      { label:"£11.50", next:"money_recount", img:"coins",
+        lines:["Close! Let's count it again together.","Good effort — let's double-check that one."] }
+    ]
+  },
+  money_recount: {
+    id:"money_recount", nodeNum:3,
+    sceneLabel:"Scene 3 — Counting Together",
+    sceneText:"Let's count it together: £12.50 minus £2.00. Take away the pounds first: £12 minus £2 is £10. The 50p stays the same. £10 plus 50p makes £10.50.",
+    question:"So you have...",
+    sceneImg:"bag check",
+    options:[
+      { label:"£10.50 — got it!", next:"bakery_stall", img:"coins",
+        lines:["That's it, {name} — £10.50! Brilliant counting.","Well done, {name}! Nothing missing from your purse."] }
+    ]
+  },
+  bakery_stall: {
+    id:"bakery_stall", nodeNum:4,
+    sceneLabel:"Scene 4 — Commotion at the Bakery",
+    sceneText:"At the bakery, you pick out a bread roll for 80p. Suddenly — CRASH! A delivery scooter clips a bin outside. No one is hurt, but everyone stops to look, and the queue gets delayed. Aunt Jas waves over to say she's fine and waiting. While you wait, you decide to get a juice for £1.20 too.",
+    question:"How much do the bread roll and juice cost altogether?",
+    sceneImg:"bakery",
+    options:[
+      { label:"£2.00", next:"bakery_pay", img:"juice",
+        lines:["Yes, {name}! 80p plus £1.20 is exactly £2.00. Great adding, even with all that commotion!","Brilliant, {name} — your maths stayed spot on through the excitement!"] },
+      { label:"£1.90", next:"bakery_recount", img:"juice",
+        lines:["Let's check that one together.","Good try — let's recount it carefully."] },
+      { label:"£2.10", next:"bakery_recount", img:"juice",
+        lines:["Close! Let's double-check that total.","Good effort — let's count it again."] }
+    ]
+  },
+  bakery_recount: {
+    id:"bakery_recount", nodeNum:4,
+    sceneLabel:"Scene 4 — Let's Count Together",
+    sceneText:"Let's line it up: 80p plus £1.20. The pence first: 80p plus 20p makes £1.00. Then add the rest: £1.00 plus £1.00 makes £2.00.",
+    question:"So the total is...",
+    sceneImg:"bakery",
+    options:[
+      { label:"£2.00 — got it!", next:"bakery_pay", img:"juice",
+        lines:["That's it, {name} — £2.00! Well done.","Excellent counting, {name}!"] }
+    ]
+  },
+  bakery_pay: {
+    id:"bakery_pay", nodeNum:4,
+    sceneLabel:"Scene 4 — Paying at the Bakery",
+    sceneText:"You owe £2.00 for the roll and juice. After the fruit stall, you have £10.50 left, made up of your £10 note and some coins.",
+    question:"How will you pay?",
+    sceneImg:"coins",
+    options:[
+      { label:"Count out exact coins", next:"bus_stop", img:"coins",
+        lines:["Well done, {name} — counting out exact coins is great practice!","Perfect, {name}! Exact change, no fuss at all."] },
+      { label:"Pay with the £10 note and work out the change", next:"bakery_change", img:"ten pound note",
+        lines:["Good thinking, {name} — let's work that change out together."] }
+    ]
+  },
+  bakery_change: {
+    id:"bakery_change", nodeNum:4,
+    sceneLabel:"Scene 4 — Working Out Change Again",
+    sceneText:"You pay with the £10 note for your £2.00 bread roll and juice.",
+    question:"How much change should you get?",
+    sceneImg:"change",
+    options:[
+      { label:"£8.00", next:"bus_stop", img:"change",
+        lines:["Exactly right, {name} — £8.00 change!","Brilliant, {name}! You've got change-giving down perfectly now."] },
+      { label:"£6.00", next:"bakery_change_recount", img:"change",
+        lines:["Let's check that one together.","Good try — let's recount it."] },
+      { label:"£9.00", next:"bakery_change_recount", img:"change",
+        lines:["Close! Let's double-check that.","Good effort — let's count it again."] }
+    ]
+  },
+  bakery_change_recount: {
+    id:"bakery_change_recount", nodeNum:4,
+    sceneLabel:"Scene 4 — Counting Up Again",
+    sceneText:"Let's count up from £2.00 to £10.00 again: £2.00 plus £8.00 makes £10.00. So your change is £8.00.",
+    question:"So your change is...",
+    sceneImg:"change",
+    options:[
+      { label:"£8.00 — got it!", next:"bus_stop", img:"change",
+        lines:["Brilliant, {name} — £8.00 it is!","Well done, {name}!"] }
+    ]
+  },
+  bus_stop: {
+    id:"bus_stop", nodeNum:5,
+    sceneLabel:"Scene 5 — The Bus Home",
+    sceneText:"You meet Aunt Jas back at the market entrance. It's time to catch the bus home. The bus fare is £1.75. Your Oyster card has £3.00 on it. Remember — London buses don't take cash, only Oyster or contactless!",
+    question:"What do you do at the bus stop?",
+    sceneImg:"bus stop",
+    options:[
+      { label:"Tap your Oyster card with confidence", next:"oyster_check", img:"tap in",
+        lines:["{name} taps the Oyster card on the yellow reader. Beep — green light!","Great confidence, {name}! Let's see what's left on the card."] },
+      { label:"Count your coins as a backup, just in case", next:"coin_backup", img:"coins",
+        lines:["Good thinking, {name} — it's smart to know exactly what you've got."] },
+      { label:"Try to pay with your coins instead", next:"cash_oops", img:"coins", isEscape:true,
+        lines:["{name} holds out some coins for the driver..."] },
+      { label:"Ask Aunt Jas to check the balance with you", next:"oyster_check_aunt", img:"aunt",
+        lines:["Aunt Jas helps {name} check the Oyster balance together.","Asking for a second pair of eyes is always a smart move, {name}!"] }
+    ]
+  },
+  cash_oops: {
+    id:"cash_oops", nodeNum:5,
+    sceneLabel:"Scene 5 — Buses Are Cashless",
+    sceneText:"The bus driver smiles kindly: \"Sorry, love — this bus is cashless! You'll need your Oyster card or a contactless card.\" Good thing you have one of those!",
+    question:"What now?",
+    sceneImg:"bus stop",
+    options:[
+      { label:"Use the Oyster card instead", next:"oyster_check", img:"tap in",
+        lines:["Good recovery, {name}! Let's check that Oyster balance."] }
+    ]
+  },
+  coin_backup: {
+    id:"coin_backup", nodeNum:5,
+    sceneLabel:"Scene 5 — Just In Case",
+    sceneText:"Good thinking, {name}! Even though buses are cashless, it's smart to know how much cash you have left too. You started with £12.50, and spent £2.00 at the fruit stall and £2.00 at the bakery.",
+    question:"How much cash do you have left?",
+    sceneImg:"coins",
+    options:[
+      { label:"£8.50", next:"ending_close_call", img:"coins",
+        lines:["Spot on, {name}! £12.50 minus £4.00 is £8.50. You kept perfect track all day!"] },
+      { label:"£7.50", next:"coin_backup_recount", img:"coins",
+        lines:["Let's check that one together."] },
+      { label:"£9.50", next:"coin_backup_recount", img:"coins",
+        lines:["Close! Let's recount carefully."] }
+    ]
+  },
+  coin_backup_recount: {
+    id:"coin_backup_recount", nodeNum:5,
+    sceneLabel:"Scene 5 — Counting It All Up",
+    sceneText:"Let's count it together: £12.50 minus £4.00. Pounds first: £12 minus £4 is £8. The 50p stays the same. £8 plus 50p makes £8.50.",
+    question:"So you have...",
+    sceneImg:"coins",
+    options:[
+      { label:"£8.50 — got it!", next:"ending_close_call", img:"coins",
+        lines:["Brilliant, {name} — £8.50! Well done keeping track all day."] }
+    ]
+  },
+  oyster_check: {
+    id:"oyster_check", nodeNum:5,
+    sceneLabel:"Scene 5 — Checking the Oyster Balance",
+    sceneText:"Your Oyster card has £3.00 on it. The bus fare is £1.75.",
+    question:"Is there enough money on the card?",
+    sceneImg:"oyster card",
+    options:[
+      { label:"Yes — £3.00 is more than £1.75", next:"ending_success", img:"success",
+        lines:["Exactly right, {name}! Plenty left for the bus — well done all day!","Brilliant, {name}! £3.00 covers the £1.75 fare easily."] },
+      { label:"I'm not sure — let's check with Aunt Jas", next:"ending_helped", img:"aunt",
+        lines:["Asking for help when you're unsure is always a great choice, {name}."] }
+    ]
+  },
+  oyster_check_aunt: {
+    id:"oyster_check_aunt", nodeNum:5,
+    sceneLabel:"Scene 5 — Counting With Aunt Jas",
+    sceneText:"Aunt Jas helps you check together: £3.00 on the card, and the fare is £1.75.",
+    question:"Together, what do you decide?",
+    sceneImg:"aunt",
+    options:[
+      { label:"There's enough — tap in!", next:"ending_success", img:"success",
+        lines:["Well done, {name}! Working it out together got you there."] },
+      { label:"Top up a little, just in case, with Aunt Jas's help", next:"ending_helped", img:"helped",
+        lines:["Great teamwork, {name}! Aunt Jas is always happy to help."] },
+      { label:"Tell me your own ending!", next:"ending_custom", img:"custom", isCustom:true }
+    ]
+  },
+  ending_success: {
+    id:"ending_success", isEnding:true, endingClass:"school",
+    emoji:"🏆",
+    title:"Market Day Success!",
+    text:"You and Aunt Jas catch the bus home — mission complete! You started with £12.50 in cash and £3.00 on your Oyster card. You spent £2.00 on apples and bananas, and £2.00 on a bread roll and juice, working out the totals and the change every time. Your Oyster card still had enough for the £1.75 fare home. That's real budgeting, and you did it brilliantly!"
+  },
+  ending_close_call: {
+    id:"ending_close_call", isEnding:true, endingClass:"hospital",
+    emoji:"🧮",
+    title:"Careful Counting!",
+    text:"What a busy market day! Even with a scooter clattering into a bin and a pickpocket warning to deal with, you kept careful track of your cash the whole way — from £12.50 down to £8.50 after your shopping. You chose to double-check your coins before getting the bus home, just to be sure. That's exactly the kind of careful counting that keeps your money safe!"
+  },
+  ending_helped: {
+    id:"ending_helped", isEnding:true, endingClass:"escape",
+    emoji:"🤝",
+    title:"Teamwork Wins!",
+    text:"Counting money in a busy, noisy market isn't easy — and you did brilliantly most of the way! At the bus stop, you checked in with Aunt Jas, and together you made sure there was enough for the trip home. Asking a trusted grown-up for a second opinion is a smart, sensible choice — well done for knowing when to ask!"
+  },
+  ending_custom: {
+    id:"ending_custom", isEnding:true, endingClass:"custom",
+    emoji:"✨",
+    title:"Your Market Day",
+    text:""
+  }
+};
+
+/* ==========================================================
+   BLUE LEVEL — Shorter, simpler sentences, medium complexity
+   ========================================================== */
+var BLUE_NODES = {
+  start: {
+    id:"start", nodeNum:1,
+    sceneLabel:"Scene 1 — Market Day",
+    sceneText:"{name}, it is Saturday! Aunt Jas takes you to Lavender Market. She gives you £10. You need apples, bananas, bread and juice. Then catch the bus home.",
+    question:"What do you do first?",
+    sceneImg:"market launch",
+    options:[
+      { label:"Look at the list", next:"fruit_stall", img:"list",
+        lines:["{name} looks at the list. Good planning!","Smart {name}!"] },
+      { label:"Go to the fruit stall", next:"fruit_stall", img:"fruit stall",
+        lines:["{name} goes to the fruit stall. Great!","Good start, {name}!"] }
+    ]
+  },
+  fruit_stall: {
+    id:"fruit_stall", nodeNum:2,
+    sceneLabel:"Scene 2 — Fruit Stall",
+    sceneText:"Apples cost £1. Bananas cost £1. You have £10.",
+    question:"How much for apples and bananas?",
+    sceneImg:"apples",
+    options:[
+      { label:"£2", next:"fruit_pay", img:"coins",
+        lines:["Yes! £1 plus £1 is £2. Good counting, {name}!","Spot on, {name}!"] },
+      { label:"£1", next:"fruit_recount", img:"coins",
+        lines:["Let's check, {name}.","Good try — let's count."] },
+      { label:"£3", next:"fruit_recount", img:"coins",
+        lines:["Close! Let's check, {name}.","Good try."] }
+    ]
+  },
+  fruit_recount: {
+    id:"fruit_recount", nodeNum:2,
+    sceneLabel:"Scene 2 — Count Together",
+    sceneText:"Apples are £1. Bananas are £1. £1 plus £1 is £2.",
+    question:"How much?",
+    sceneImg:"count",
+    options:[
+      { label:"£2!", next:"fruit_pay", img:"coins",
+        lines:["Yes! £2. Well done, {name}!","Great, {name}!"] }
+    ]
+  },
+  fruit_pay: {
+    id:"fruit_pay", nodeNum:2,
+    sceneLabel:"Scene 2 — Pay",
+    sceneText:"You owe £2. You have a £10 note.",
+    question:"How much change?",
+    sceneImg:"ten pound note",
+    options:[
+      { label:"£8", next:"bakery_stall", img:"change",
+        lines:["Yes! £10 minus £2 is £8. Good, {name}!","Spot on, {name}!"] },
+      { label:"£7", next:"fruit_change_recount", img:"change",
+        lines:["Let's check, {name}.","Good try."] },
+      { label:"£9", next:"fruit_change_recount", img:"change",
+        lines:["Close! Let's check, {name}.","Good try."] }
+    ]
+  },
+  fruit_change_recount: {
+    id:"fruit_change_recount", nodeNum:2,
+    sceneLabel:"Scene 2 — Count Change",
+    sceneText:"You paid £10. Fruit is £2. Count back: 10, 9, 8. Change is £8.",
+    question:"How much change?",
+    sceneImg:"change",
+    options:[
+      { label:"£8!", next:"bakery_stall", img:"change",
+        lines:["Yes! £8 change. Well done, {name}!","Great, {name}!"] }
+    ]
+  },
+  bakery_stall: {
+    id:"bakery_stall", nodeNum:3,
+    sceneLabel:"Scene 3 — Bakery",
+    sceneText:"Bread costs £1. Juice costs £1. You have £8.",
+    question:"How much for bread and juice?",
+    sceneImg:"bread",
+    options:[
+      { label:"£2", next:"bakery_pay", img:"juice",
+        lines:["Yes! £1 plus £1 is £2. Good, {name}!","Spot on, {name}!"] },
+      { label:"£1", next:"bakery_recount", img:"juice",
+        lines:["Let's check, {name}.","Good try."] },
+      { label:"£3", next:"bakery_recount", img:"juice",
+        lines:["Close! Let's check, {name}.","Good try."] }
+    ]
+  },
+  bakery_recount: {
+    id:"bakery_recount", nodeNum:3,
+    sceneLabel:"Scene 3 — Count Together",
+    sceneText:"Bread is £1. Juice is £1. £1 plus £1 is £2.",
+    question:"How much?",
+    sceneImg:"count",
+    options:[
+      { label:"£2!", next:"bakery_pay", img:"juice",
+        lines:["Yes! £2. Well done, {name}!","Great, {name}!"] }
+    ]
+  },
+  bakery_pay: {
+    id:"bakery_pay", nodeNum:3,
+    sceneLabel:"Scene 3 — Pay",
+    sceneText:"You owe £2. You have £8.",
+    question:"How much change?",
+    sceneImg:"money",
+    options:[
+      { label:"£6", next:"bus_stop", img:"change",
+        lines:["Yes! £8 minus £2 is £6. Good, {name}!","Spot on, {name}!"] },
+      { label:"£5", next:"bakery_change_recount", img:"change",
+        lines:["Let's check, {name}.","Good try."] },
+      { label:"£7", next:"bakery_change_recount", img:"change",
+        lines:["Close! Let's check, {name}.","Good try."] }
+    ]
+  },
+  bakery_change_recount: {
+    id:"bakery_change_recount", nodeNum:3,
+    sceneLabel:"Scene 3 — Count Change",
+    sceneText:"You had £8. You spent £2. Count back: 8, 7, 6. You have £6.",
+    question:"How much left?",
+    sceneImg:"count",
+    options:[
+      { label:"£6!", next:"bus_stop", img:"change",
+        lines:["Yes! £6 left. Well done, {name}!","Great, {name}!"] }
+    ]
+  },
+  bus_stop: {
+    id:"bus_stop", nodeNum:4,
+    sceneLabel:"Scene 4 — Bus Home",
+    sceneText:"Bus is £1. You have £6. Aunt Jas is here.",
+    question:"Can you get the bus?",
+    sceneImg:"bus stop",
+    options:[
+      { label:"Yes! £6 is more than £1", next:"ending_success", img:"tap in",
+        lines:["Yes! You have enough, {name}!","Well done, {name}!"] },
+      { label:"Ask Aunt Jas", next:"ending_helped", img:"aunt",
+        lines:["Aunt Jas helps. Good asking, {name}!","Smart, {name}!"] },
+      { label:"Walk home", next:"ending_escape", img:"home", isEscape:true,
+        lines:["{name} thinks about walking..."] }
+    ]
+  },
+  ending_success: {
+    id:"ending_success", isEnding:true, endingClass:"school",
+    emoji:"🏆",
+    title:"Well Done!",
+    text:"You and Aunt Jas catch the bus home. You started with £10. You spent £2 on fruit and £2 on bread and juice. You had £6 left. The bus was £1. You did great budgeting, {name}!"
+  },
+  ending_helped: {
+    id:"ending_helped", isEnding:true, endingClass:"escape",
+    emoji:"🤝",
+    title:"Good Teamwork!",
+    text:"You asked Aunt Jas for help at the bus stop. She checked your money. You had enough. Asking for help is smart, {name}!"
+  },
+  ending_escape: {
+    id:"ending_escape", isEnding:true, endingClass:"escape",
+    emoji:"🚶",
+    title:"Walking?",
+    text:"{name} thought about walking. But Aunt Jas said the bus is safer. You had £6. The bus was £1. You got home safely. Good thing Aunt Jas helped!"
+  },
+  ending_custom: {
+    id:"ending_custom", isEnding:true, endingClass:"custom",
+    emoji:"✨",
+    title:"Your Story",
+    text:""
+  }
+};
+
+/* ==========================================================
+   GREEN LEVEL — Symbols, 1-2 choices, SVO sentences
+   ========================================================== */
+var GREEN_NODES = {
+  start: {
+    id:"start", nodeNum:1,
+    sceneLabel:"1 — Market",
+    sceneText:"{name} goes to market. Aunt Jas gives £5.",
+    question:"Go?",
+    sceneImg:"market launch",
+    options:[
+      { label:"Go shop", next:"fruit_stall", img:"shop",
+        lines:["{name} goes to shop."] }
+    ]
+  },
+  fruit_stall: {
+    id:"fruit_stall", nodeNum:2,
+    sceneLabel:"2 — Apples",
+    sceneText:"Apples £2. {name} has £5.",
+    question:"Buy apples?",
+    sceneImg:"apples",
+    options:[
+      { label:"Buy apples", next:"bakery_stall", img:"coins",
+        lines:["{name} buys apples. £3 left."] }
+    ]
+  },
+  bakery_stall: {
+    id:"bakery_stall", nodeNum:3,
+    sceneLabel:"3 — Bread",
+    sceneText:"Bread £2. {name} has £3.",
+    question:"Buy bread?",
+    sceneImg:"bread",
+    options:[
+      { label:"Buy bread", next:"bus_stop", img:"coins",
+        lines:["{name} buys bread. £1 left."] }
+    ]
+  },
+  bus_stop: {
+    id:"bus_stop", nodeNum:4,
+    sceneLabel:"4 — Bus",
+    sceneText:"Bus £1. {name} has £1.",
+    question:"Get bus?",
+    sceneImg:"bus stop",
+    options:[
+      { label:"Get bus", next:"ending_success", img:"bus",
+        lines:["{name} gets bus. Home!"] },
+      { label:"Aunt Jas help", next:"ending_helped", img:"aunt",
+        lines:["Aunt Jas helps."] }
+    ]
+  },
+  ending_success: {
+    id:"ending_success", isEnding:true, endingClass:"school",
+    emoji:"🏆",
+    title:"You did it!",
+    text:"{name} went to market. Bought apples. Bought bread. Got bus home. Well done!"
+  },
+  ending_helped: {
+    id:"ending_helped", isEnding:true, endingClass:"escape",
+    emoji:"🤝",
+    title:"Good help!",
+    text:"{name} asked Aunt Jas. Aunt Jas helped. {name} got bus home. Good asking!"
+  },
+  ending_custom: {
+    id:"ending_custom", isEnding:true, endingClass:"custom",
+    emoji:"✨",
+    title:"You!",
+    text:""
+  }
+};
+
+/* ==========================================================
+   STATE
+   ========================================================== */
+var state   = { name:"", currentNode:"start", choices:[], customDest:"", level:"red" };
+var soundOn = true;
+
+var SPEEDS = [
+  { label: "🐢 Slow",   rate: 0.6,  title: "Slow"   },
+  { label: "▶ Normal",  rate: 0.93, title: "Normal"  },
+  { label: "⚡ Fast",   rate: 1.6,  title: "Fast"    },
+  { label: "🚀 Turbo",  rate: 2.2,  title: "Turbo"   }
+];
+var speedIdx   = 1;
+var speechRate = SPEEDS[speedIdx].rate;
+
+/* ==========================================================
+   DOM REFERENCES
+   ========================================================== */
+var stage     = document.getElementById("stage");
+var trailEl   = document.getElementById("trail");
+var soundBtn  = document.getElementById("soundBtn");
+var speedBtn  = document.getElementById("speedBtn");
+var levelBadge = document.getElementById("levelBadge");
+
+soundBtn.addEventListener("click", function () {
+  soundOn = !soundOn;
+  soundBtn.textContent = soundOn ? "🔊" : "🔇";
+  if (!soundOn && window.speechSynthesis) window.speechSynthesis.cancel();
+});
+
+speedBtn.addEventListener("click", function () {
+  speedIdx   = (speedIdx + 1) % SPEEDS.length;
+  speechRate = SPEEDS[speedIdx].rate;
+  speedBtn.textContent = SPEEDS[speedIdx].label;
+  speedBtn.title = "Playback speed: " + SPEEDS[speedIdx].title;
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+});
+
+/* ==========================================================
+   UTILITIES
+   ========================================================== */
+function safeId(s) {
+  return "opt_" + String(s).replace(/[^a-zA-Z0-9]+/g, "_");
+}
+
+var NODE_ORDERS = {
+  platinum: ["start", "fruit_stall", "thief_scene", "bakery_stall", "bus_stop"],
+  red:      ["start", "fruit_stall", "bakery_stall", "bus_stop"],
+  blue:     ["start", "fruit_stall", "bakery_stall", "bus_stop"],
+  green:    ["start", "fruit_stall", "bakery_stall", "bus_stop"]
+};
+
+function setTrail(nodeId) {
+  var order = NODE_ORDERS[state.level];
+  var idx = order.indexOf(nodeId);
+  if (idx === -1) { trailEl.innerHTML = ""; return; }
+  trailEl.innerHTML = order.map(function (_, i) {
+    var cls = i < idx ? "dot done" : i === idx ? "dot now" : "dot";
+    return '<div class="' + cls + '"></div>';
+  }).join("");
+}
+
+function clearTrail() { trailEl.innerHTML = ""; }
+
+function getNodes() {
+  if (state.level === "platinum") return PLATINUM_NODES;
+  if (state.level === "red") return RED_NODES;
+  if (state.level === "blue") return BLUE_NODES;
+  if (state.level === "green") return GREEN_NODES;
+  return RED_NODES;
+}
+
+function updateLevelBadge() {
+  var lvl = LEVELS[state.level];
+  if (lvl && levelBadge) {
+    levelBadge.textContent = lvl.label;
+    levelBadge.className = "level-badge " + lvl.badgeClass;
+  }
+}
+
+/* ==========================================================
+   SPEECH
+   ========================================================== */
+function speak(text, onEnd) {
+  if (!soundOn || !window.speechSynthesis) {
+    if (onEnd) onEnd();
+    return;
+  }
+  try {
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-GB";
+    u.rate = speechRate;
+
+    var fired = false;
+    var done = function () {
+      if (!fired) { fired = true; if (onEnd) onEnd(); }
+    };
+    u.onend  = done;
+    u.onerror = done;
+    var ms = Math.max(Math.ceil(text.length * 80 / speechRate) + 2000, 3000);
+    setTimeout(done, ms);
+    window.speechSynthesis.speak(u);
+  } catch (e) {
+    console.warn("TTS error:", e);
+    if (onEnd) onEnd();
+  }
+}
+
+/* ==========================================================
+   SCREEN: LEVEL SELECT
+   ========================================================== */
+function renderLevelSelect() {
+  clearTrail();
+  state.name = "";
+  state.currentNode = "start";
+  state.choices = [];
+  state.customDest = "";
+
+  var levelCards = "";
+  var levels = ["platinum", "red", "blue", "green"];
+  for (var i = 0; i < levels.length; i++) {
+    var lvl = levels[i];
+    var info = LEVELS[lvl];
+    var isActive = state.level === lvl ? " active" : "";
+    var emoji = lvl === "platinum" ? "🏆" : lvl === "red" ? "🔴" : lvl === "blue" ? "🔵" : "🟢";
+    levelCards +=
+      '<div class="level-card' + isActive + '" data-level="' + lvl + '" tabindex="0" role="button">' +
+        '<span class="level-emoji">' + emoji + '</span>' +
+        '<div class="level-name">' + info.label + ' Level</div>' +
+        '<div class="level-desc">' + info.desc + '</div>' +
+      '</div>';
+  }
+
+  stage.innerHTML =
+    '<div class="name-screen">' +
+      '<span class="hero">🧺</span>' +
+      '<h2>Choose Your Level</h2>' +
+      '<p>Pick the level that matches your money skills today.</p>' +
+      '<div class="level-grid">' + levelCards + '</div>' +
+      '<div style="margin-top:24px;">' +
+        '<button class="btn btn-primary" id="levelContinue">Continue →</button>' +
+      '</div>' +
+    '</div>';
+
+  var cards = document.querySelectorAll(".level-card");
+  for (var j = 0; j < cards.length; j++) {
+    cards[j].addEventListener("click", function () {
+      state.level = this.getAttribute("data-level");
+      updateLevelBadge();
+      renderLevelSelect();
+    });
+    cards[j].addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        state.level = this.getAttribute("data-level");
+        updateLevelBadge();
+        renderLevelSelect();
+      }
+    });
+  }
+
+  document.getElementById("levelContinue").addEventListener("click", function () {
+    renderWelcome();
+  });
+}
+
+/* ==========================================================
+   SCREEN: WELCOME (Name Entry)
+   ========================================================== */
+function renderWelcome() {
+  clearTrail();
+  state.name = "";
+  state.currentNode = "start";
+  state.choices = [];
+  state.customDest = "";
+
+  var levelInfo = LEVELS[state.level];
+  var levelEmoji = state.level === "platinum" ? "🏆" : state.level === "red" ? "🔴" : state.level === "blue" ? "🔵" : "🟢";
+
+  stage.innerHTML =
+    '<div class="name-screen">' +
+      '<span class="hero">🧺</span>' +
+      '<h2>Lavender Market</h2>' +
+      '<p>' + levelEmoji + ' <strong>' + levelInfo.label + ' Level</strong><br><br>' +
+         "You're off to Lavender Market with Aunt Jas.<br>" +
+         'Help with the shopping.<br>' +
+         'Watch your money carefully.<br>' +
+         'Then catch the bus home!<br><br>' +
+         'What is your name, shopper?</p>' +
+      '<input class="text-input" id="nameIn" placeholder="Enter your name..."' +
+             ' maxlength="30" autocomplete="off"/>' +
+      '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">' +
+        '<button class="btn btn-primary" id="startBtn">Continue →</button>' +
+        '<button class="btn btn-ghost" id="changeLevelBtn">⚙️ Change Level</button>' +
+      '</div>' +
+    '</div>';
+
+  var inp = document.getElementById("nameIn");
+  var btn = document.getElementById("startBtn");
+  var changeBtn = document.getElementById("changeLevelBtn");
+
+  inp.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") btn.click();
+  });
+
+  btn.addEventListener("click", function () {
+    var n = (inp.value || "").trim();
+    if (!n) {
+      inp.focus();
+      inp.style.borderColor = "var(--red)";
+      return;
+    }
+    state.name = n;
+    speak("Welcome, " + n + "! Let the market adventure begin!", function () {
+      renderNode("start");
+    });
+  });
+
+  changeBtn.addEventListener("click", renderLevelSelect);
+}
+
+/* ==========================================================
+   SCREEN: SCENE NODE
+   ========================================================== */
+function renderNode(nodeId) {
+  var nodes = getNodes();
+  var node = nodes[nodeId];
+  if (!node || node.isEnding) return;
+  state.currentNode = nodeId;
+  setTrail(nodeId);
+
+  var n = node.options.length;
+  var cols = n === 4 ? 2 : (n > 3 ? 3 : n);
+  if (state.level === "green") cols = 1;
+
+  var sceneEmojiHtml = renderEmoji(getEmoji(node.sceneImg), "72px");
+
+  var optionsHtml = "";
+  for (var i = 0; i < node.options.length; i++) {
+    var opt = node.options[i];
+    var cls = opt.isEscape ? "opt-card escape-card" : "opt-card";
+    var emojiHtml = renderEmoji(getEmoji(opt.img), "48px");
+    optionsHtml +=
+      '<div class="' + cls + '"' +
+          ' id="' + safeId(opt.label) + '"' +
+          ' tabindex="0" role="button" aria-label="' + opt.label + '">' +
+        '<div class="opt-emoji-box">' + emojiHtml + '</div>' +
+        '<div class="opt-label">' + opt.label + '</div>' +
+      '</div>';
+  }
+
+  var sceneTextFilled = node.sceneText.replace(/\{name\}/g, state.name);
+
+  stage.innerHTML =
+    '<div class="scene-eyebrow">' + node.sceneLabel + '</div>' +
+    '<div class="scene-img-wrap">' +
+      '<div class="scene-emoji-slot">' + sceneEmojiHtml + '</div>' +
+      '<div class="fade"></div>' +
+    '</div>' +
+    '<div class="scene-text">' + sceneTextFilled + '</div>' +
+    '<div class="question-label">' + node.question + '</div>' +
+    '<div class="opt-grid" id="optGrid" style="grid-template-columns:repeat(' + cols + ',1fr)">' +
+      optionsHtml +
+    '</div>' +
+    '<div class="affirm" id="affirm"></div>' +
+    '<div style="text-align:center;margin-top:12px;">' +
+      '<button class="btn btn-ghost" id="changeLevelMid">⚙️ Change Level</button>' +
+    '</div>';
+
+  speak(sceneTextFilled + " " + node.question);
+
+  for (var j = 0; j < node.options.length; j++) {
+    (function (opt) {
+      var el = document.getElementById(safeId(opt.label));
+      if (!el) return;
+      el.onclick = function () { onChoose(opt); };
+      el.onkeydown = function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onChoose(opt);
+        }
+      };
+    })(node.options[j]);
+  }
+
+  var midBtn = document.getElementById("changeLevelMid");
+  if (midBtn) {
+    midBtn.addEventListener("click", function () {
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      renderLevelSelect();
+    });
+  }
+}
+
+/* ==========================================================
+   CHOICE HANDLER
+   ========================================================== */
+function onChoose(opt) {
+  var grid = document.getElementById("optGrid");
+  if (grid) grid.style.pointerEvents = "none";
+
+  if (opt.isCustom) { showCustom(opt); return; }
+
+  var nodes = getNodes();
+  var node = nodes[state.currentNode];
+
+  var rawLines = (opt.lines && opt.lines.length)
+    ? opt.lines
+    : ["You choose: " + opt.label + ".", state.name + " — " + opt.label + "."];
+  var rawMsg = rawLines[Math.floor(Math.random() * rawLines.length)];
+  var msg = rawMsg.replace(/\{name\}/g, state.name);
+
+  state.choices.push({
+    scene: node.sceneLabel,
+    question: node.question,
+    label: opt.label,
+    narrative: msg,
+    sceneText: node.sceneText.replace(/\{name\}/g, state.name)
+  });
+
+  var aff = document.getElementById("affirm");
+  if (aff) aff.textContent = msg;
+
+  speak(msg, function () {
+    setTimeout(function () {
+      if (opt.next.indexOf("ending_") === 0) {
+        renderEnding(opt.next);
+      } else {
+        renderNode(opt.next);
+      }
+    }, 500);
+  });
+}
+
+/* ==========================================================
+   CUSTOM INPUT SCREEN
+   ========================================================== */
+function showCustom(opt) {
+  var nodes = getNodes();
+  var node = nodes[state.currentNode];
+  var isDest = state.currentNode === "oyster_check_aunt";
+
+  var prompts = {
+    "oyster_check_aunt": "How does your market day end?"
+  };
+  var promptText = prompts[state.currentNode] || "What happens next?";
+
+  var grid = document.getElementById("optGrid");
+  if (!grid) return;
+  grid.style.gridTemplateColumns = "1fr";
+  grid.innerHTML =
+    '<div class="custom-prompt">' +
+      '<div class="prompt-q">' + promptText + '</div>' +
+      '<div class="custom-row">' +
+        '<input class="text-input" id="custIn"' +
+               ' placeholder="Type your answer..."' +
+               ' maxlength="60" style="margin:0;width:240px"/>' +
+        '<button class="btn btn-primary" id="custGo">Continue →</button>' +
+      '</div>' +
+    '</div>';
+
+  var inp = document.getElementById("custIn");
+  var go = document.getElementById("custGo");
+  inp.focus();
+
+  inp.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") go.click();
+  });
+
+  go.addEventListener("click", function () {
+    var val = (inp.value || "").trim();
+    if (!val) { inp.focus(); return; }
+
+    var customNarrative = state.name + " decided: " + val + ".";
+
+    state.choices.push({
+      scene: node.sceneLabel,
+      question: node.question,
+      label: val,
+      isCustom: true,
+      narrative: customNarrative,
+      sceneText: node.sceneText.replace(/\{name\}/g, state.name)
+    });
+
+    if (isDest) {
+      state.customDest = val;
+      renderEnding("ending_custom");
+    } else {
+      speak(val + ". Continue.", function () {
+        setTimeout(function () { renderNode(opt.next); }, 400);
+      });
+    }
+  });
+}
+
+/* ==========================================================
+   SCREEN: ENDING
+   ========================================================== */
+function renderEnding(endId) {
+  var nodes = getNodes();
+  var end = nodes[endId];
+  if (!end) return;
+  clearTrail();
+
+  var txt = end.text;
+  if (endId === "ending_custom") {
+    var dest = state.customDest || "a brilliant finish";
+    txt = state.name + " decided how the day ends: " + dest + ". Whatever happens next, " +
+          state.name + " practised counting money and budgeting like a pro all market day!";
+  }
+  txt = txt.replace(/\{name\}/g, state.name);
+
+  var journey = "";
+  for (var ci = 0; ci < state.choices.length; ci++) {
+    var c = state.choices[ci];
+    journey +=
+      '<div class="j-card">' +
+        '<div class="j-scene">' + c.scene + '</div>' +
+        '<div class="j-choice">' + c.label + '</div>' +
+      '</div>';
+  }
+
+  stage.innerHTML =
+    '<div class="ending-screen end-' + end.endingClass + '">' +
+      '<span class="ending-emoji">' + end.emoji + '</span>' +
+      '<div class="ending-title">Ending: ' + end.title + '</div>' +
+      '<div class="ending-text" id="endTxt">' + txt + '</div>' +
+      '<div class="journey-block">' +
+        '<div class="journey-eyebrow">📍 ' + state.name + "'s market day</div>" +
+        '<div class="journey-grid">' + journey + '</div>' +
+      '</div>' +
+      '<div class="btn-row">' +
+        '<button class="btn btn-primary" id="readBtn">🔊 Read Aloud</button>' +
+        '<button class="btn btn-ghost"   id="pdfBtn">📄 Save as PDF</button>' +
+        '<button class="btn btn-ghost"   id="againBtn">🔄 Play Again</button>' +
+        '<button class="btn btn-ghost"   id="changeLevelEnd">⚙️ Change Level</button>' +
+      '</div>' +
+    '</div>';
+
+  speak(end.title + ". " + txt);
+
+  document.getElementById("readBtn").addEventListener("click", function () {
+    speak(state.name + "'s story. " + txt);
+  });
+  document.getElementById("pdfBtn").addEventListener("click", function () {
+    savePDF(end, txt);
+  });
+  document.getElementById("againBtn").addEventListener("click", renderWelcome);
+  document.getElementById("changeLevelEnd").addEventListener("click", renderLevelSelect);
+}
+
+/* ==========================================================
+   PDF EXPORT
+   ========================================================== */
+function savePDF(end, txt) {
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert("PDF library not loaded. Please check your internet connection.");
+    return;
+  }
+  var jsPDF = window.jspdf.jsPDF;
+
+  var doc = new jsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
+  var pageWidth = 595.28;
+  var pageHeight = 841.89;
+  var margin = 54;
+  var contentWidth = pageWidth - (margin * 2);
+
+  doc.setFillColor(253, 246, 234);
+  doc.rect(0, 0, pageWidth, pageHeight, "F");
+
+  doc.setDrawColor(217, 140, 43);
+  doc.setLineWidth(1.5);
+  doc.line(margin, 110, pageWidth - margin, 110);
+  doc.line(margin, pageHeight - 75, pageWidth - margin, pageHeight - 75);
+
+  doc.setFont("Helvetica", "bold");
+  doc.setFontSize(22);
+  doc.setTextColor(43, 32, 20);
+  doc.text("LAVENDER MARKET", margin, 80);
+
+  doc.setFont("Helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(138, 120, 96);
+  doc.text("Choose Your Adventure — Money Skills, TIPS Reader", margin, 98);
+
+  var dateString = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  var metaText = "Shopper: " + state.name + "  |  " + LEVELS[state.level].label + " Level  |  " + dateString;
+  doc.setFont("Helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(43, 32, 20);
+  doc.text(metaText, pageWidth - margin, 98, { align: "right" });
+
+  var paragraphs = [];
+  for (var ci = 0; ci < state.choices.length; ci++) {
+    var c = state.choices[ci];
+    paragraphs.push(c.sceneText + " " + c.narrative);
+  }
+
+  var endingTitle = "ENDING: " + end.title.toUpperCase();
+  var endingBody = txt;
+
+  var fontSize = 10.5;
+  var lineSpacing = 15;
+  var paraSpacing = 11;
+  var startY = 140;
+  var maxY = 745;
+
+  var wrappedParas = [];
+  var wrappedEnding = [];
+  var totalHeight = 0;
+
+  function computeLayout(fSize, lSpacing, pSpacing) {
+    doc.setFontSize(fSize);
+    doc.setFont("Helvetica", "normal");
+    var h = 0;
+    wrappedParas = [];
+    for (var i = 0; i < paragraphs.length; i++) {
+      var lines = doc.splitTextToSize(paragraphs[i], contentWidth);
+      wrappedParas.push(lines);
+      h += lines.length * lSpacing;
+      if (i < paragraphs.length - 1) h += pSpacing;
+    }
+    h += 25;
+    h += 18;
+    wrappedEnding = doc.splitTextToSize(endingBody, contentWidth);
+    h += wrappedEnding.length * lSpacing;
+    return h;
+  }
+
+  totalHeight = computeLayout(fontSize, lineSpacing, paraSpacing);
+  while (startY + totalHeight > maxY && fontSize > 8) {
+    fontSize -= 0.5;
+    lineSpacing -= 0.7;
+    paraSpacing -= 0.5;
+    totalHeight = computeLayout(fontSize, lineSpacing, paraSpacing);
+  }
+
+  var currY = startY;
+  doc.setFontSize(fontSize);
+  doc.setTextColor(43, 32, 20);
+
+  for (var i = 0; i < paragraphs.length; i++) {
+    var lines = wrappedParas[i];
+    doc.setFont("Helvetica", "normal");
+    for (var l = 0; l < lines.length; l++) {
+      doc.text(lines[l], margin, currY);
+      currY += lineSpacing;
+    }
+    if (i < paragraphs.length - 1) currY += paraSpacing;
+  }
+
+  currY += paraSpacing + 4;
+  doc.setFont("Helvetica", "bold");
+  doc.setFontSize(fontSize + 1);
+  doc.setTextColor(217, 140, 43);
+  doc.text("•   •   •", pageWidth / 2, currY, { align: "center" });
+  currY += 20;
+
+  doc.setFont("Helvetica", "bold");
+  doc.setFontSize(fontSize);
+  doc.setTextColor(217, 140, 43);
+  doc.text(endingTitle, margin, currY);
+  currY += 15;
+
+  doc.setFont("Helvetica", "normal");
+  doc.setTextColor(43, 32, 20);
+  for (var l = 0; l < wrappedEnding.length; l++) {
+    doc.text(wrappedEnding[l], margin, currY);
+    currY += lineSpacing;
+  }
+
+  doc.setFont("Helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(138, 120, 96);
+  var footerText = "Talking in Pictures  |  SEND Resource  |  www.talkinginpictures.co.uk";
+  doc.text(footerText, margin, pageHeight - 55);
+
+  var fileBase = (state.name || "shopper").replace(/[^a-z0-9]/gi, "_").toLowerCase();
+  doc.save(fileBase + "_lavender_market_adventure.pdf");
+}
+
+/* ==========================================================
+   BOOT
+   ========================================================== */
+updateLevelBadge();
+renderLevelSelect();
+</script>
+</body>
+</html>
