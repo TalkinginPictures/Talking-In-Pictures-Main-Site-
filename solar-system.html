@@ -47,17 +47,30 @@
   /* Header */
   .story-header {
     text-align: center; padding: 18px 20px 12px; flex-shrink: 0;
+    transition: padding .15s ease;
   }
-  .story-header .emoji { font-size: 2.4rem; display: block; margin-bottom: 4px; }
-  .story-header h1 { font-size: 1.5rem; margin-bottom: 4px; }
-  .story-header p { color: var(--ink-soft); font-size: 0.9rem; max-width: 50ch; margin: 0 auto; }
+  .story-header .emoji { font-size: 2.4rem; display: block; margin-bottom: 4px; transition: font-size .15s ease; }
+  .story-header h1 { font-size: 1.5rem; margin-bottom: 4px; transition: font-size .15s ease; }
+  .story-header p { color: var(--ink-soft); font-size: 0.9rem; max-width: 50ch; margin: 0 auto; transition: opacity .15s ease, max-height .15s ease; overflow: hidden; }
+
+  /* Once a level is picked, shrink the header right down so the reader gets the room */
+  body.is-reading .story-header { padding: 8px 20px 4px; }
+  body.is-reading .story-header .emoji { font-size: 1.4rem; margin-bottom: 0; }
+  body.is-reading .story-header h1 { font-size: 1.1rem; margin-bottom: 0; }
+  body.is-reading .story-header p { opacity: 0; max-height: 0; margin: 0; }
 
   /* Level picker */
   .level-bar {
     display: flex; gap: 10px; justify-content: center;
     padding: 0 20px 14px; flex-wrap: wrap; flex-shrink: 0;
+    transition: padding .15s ease;
+  }
+  body.is-reading .level-bar { padding: 0 20px 8px; }
+  body.is-reading .level-btn {
+    padding: 6px 14px; font-size: 0.85rem;
   }
   .level-btn {
+    transition: padding .15s ease, font-size .15s ease;
     font-family: 'Baloo 2'; font-weight: 700; font-size: 0.95rem;
     border: 2px solid transparent; background: var(--paper);
     color: var(--ink-soft); padding: 10px 20px; border-radius: 999px;
@@ -197,6 +210,9 @@
   };
 
   function setLevel(lvl) {
+    // Shrink the header/description now that we're actually reading
+    document.body.classList.add('is-reading');
+
     // Update buttons
     document.querySelectorAll('.level-btn').forEach(function(btn) {
       btn.classList.toggle('active', btn.dataset.lvl === lvl);
