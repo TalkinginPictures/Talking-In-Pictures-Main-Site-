@@ -1,0 +1,1814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>The Solar System — Choose Your Adventure</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --bg:        #0a0a1a;
+  --card:      #12122a;
+  --surface:   #1a1a3e;
+  --surface2:  #0d0d24;
+  --gold:      #f0c040;
+  --gold-dim:  #a08020;
+  --text:      #f0ece0;
+  --muted:     #5e5a6e;
+  --border:    rgba(240,192,64,0.13);
+  --red:       #e84343;
+  --blue:      #3a9fd1;
+  --green:     #4caf7d;
+  --purple:    #9b6bd4;
+  --amber:     #f0a830;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html, body {
+  min-height:100%;
+  font-family:'Segoe UI', system-ui, Arial, sans-serif;
+  background:radial-gradient(ellipse at 50% 0%, #1a1a3e 0%, var(--bg) 75%);
+  color:var(--text);
+  font-size:16px;
+  line-height:1.5;
+}
+.wrap {
+  max-width:880px;
+  margin:0 auto;
+  padding:20px 14px 48px;
+}
+.card {
+  background:var(--card);
+  border-radius:18px;
+  border:1px solid var(--border);
+  box-shadow:0 28px 80px rgba(0,0,0,0.7);
+  padding:24px 24px 20px;
+}
+.game-header {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  margin-bottom:22px;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--border);
+  gap:12px;
+}
+.game-title {
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:0.3px;
+  color:var(--text);
+}
+.lamp {
+  color:var(--gold);
+  animation:lamp-flicker 12s 4s ease-in-out infinite;
+  display:inline;
+}
+@keyframes lamp-flicker {
+  0%,90%,93%,97%,100% { opacity:1 }
+  91%  { opacity:.45 }
+  92%  { opacity:1 }
+  95%  { opacity:.6 }
+  96%  { opacity:1 }
+}
+.game-byline {
+  font-size:11px;
+  color:var(--muted);
+  margin-top:4px;
+  letter-spacing:0.5px;
+}
+.header-right {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:10px;
+  flex-shrink:0;
+}
+.header-controls {
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.speed-btn {
+  padding:7px 11px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.2px;
+  white-space:nowrap;
+}
+.trail { display:flex; gap:6px; align-items:center; }
+.dot {
+  width:9px; height:9px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.08);
+  transition:background .3s, box-shadow .3s;
+}
+.dot.done { background:rgba(240,192,64,.35); border-color:rgba(240,192,64,.35); }
+.dot.now  { background:var(--gold); border-color:var(--gold); box-shadow:0 0 9px var(--gold); }
+.btn {
+  padding:10px 16px;
+  border-radius:10px;
+  border:none;
+  cursor:pointer;
+  font-weight:700;
+  font-size:14px;
+  line-height:1;
+  transition:opacity .15s, transform .1s;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.btn:hover  { opacity:.84; transform:translateY(-1px); }
+.btn:active { transform:translateY(0); }
+.btn-primary { background:linear-gradient(135deg,#f0c040,#c8a020); color:#07060a; }
+.btn-ghost   { background:rgba(255,255,255,0.05); color:var(--text); border:1px solid var(--border); }
+.btn-icon    { padding:8px 10px; font-size:18px; }
+.level-grid {
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:12px;
+  margin-top:20px;
+}
+.level-card {
+  background:var(--surface);
+  border-radius:12px;
+  border:2px solid transparent;
+  cursor:pointer;
+  padding:20px 16px;
+  text-align:center;
+  transition:transform .15s, box-shadow .15s, border-color .15s;
+}
+.level-card:hover, .level-card:focus {
+  transform:translateY(-4px);
+  box-shadow:0 10px 30px rgba(0,0,0,.5), 0 0 0 1px var(--gold);
+  border-color:var(--gold);
+  outline:none;
+}
+.level-emoji { font-size:42px; display:block; margin-bottom:8px; }
+.level-name { font-size:16px; font-weight:700; color:var(--text); }
+.level-desc { font-size:12px; color:var(--muted); margin-top:4px; }
+.scene-eyebrow {
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  color:var(--gold);
+  font-weight:700;
+  margin-bottom:8px;
+}
+.scene-img-wrap {
+  width:100%;
+  height:140px;
+  border-radius:10px;
+  background:var(--surface2);
+  overflow:hidden;
+  position:relative;
+  margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.scene-emoji-slot {
+  font-size:72px;
+  line-height:1;
+  position:relative;
+  z-index:1;
+  text-align:center;
+}
+.fade {
+  position:absolute;
+  inset:0;
+  background:linear-gradient(0deg, rgba(10,10,26,.92) 0%, rgba(10,10,26,.1) 100%);
+  pointer-events:none;
+}
+.scene-text {
+  font-size:16px;
+  line-height:1.7;
+  color:#ddd6c8;
+  padding:13px 16px;
+  margin-bottom:16px;
+  border-left:3px solid var(--gold);
+  border-radius:0 8px 8px 0;
+  background:rgba(240,192,64,.04);
+}
+.question-label {
+  font-size:19px;
+  font-weight:700;
+  margin-bottom:12px;
+  color:var(--text);
+}
+.opt-grid { display:grid; gap:10px; }
+.opt-card {
+  background:var(--surface);
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.05);
+  cursor:pointer;
+  overflow:hidden;
+  transition:transform .15s, box-shadow .15s, border-color .15s;
+  user-select:none;
+}
+.opt-card:hover, .opt-card:focus {
+  transform:translateY(-4px);
+  box-shadow:0 10px 30px rgba(0,0,0,.5), 0 0 0 1px var(--gold);
+  border-color:var(--gold);
+  outline:none;
+}
+.opt-card.escape-card:hover, .opt-card.escape-card:focus {
+  box-shadow:0 10px 30px rgba(232,67,67,.3), 0 0 0 1px var(--red);
+  border-color:var(--red);
+}
+.opt-emoji-box {
+  width:100%;
+  height:88px;
+  background:var(--surface2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:48px;
+  line-height:1;
+}
+.opt-label {
+  padding:8px 8px 10px;
+  font-size:14px;
+  font-weight:700;
+  text-align:center;
+  color:var(--text);
+  line-height:1.25;
+}
+.escape-card .opt-label { color:#ff9090; }
+.affirm {
+  min-height:22px;
+  font-size:14px;
+  color:var(--gold);
+  font-style:italic;
+  text-align:center;
+  margin-top:8px;
+}
+.name-screen { text-align:center; padding:34px 16px 24px; }
+.name-screen .hero { font-size:58px; display:block; margin-bottom:14px; }
+.name-screen h2 { font-size:26px; font-weight:900; margin-bottom:10px; }
+.name-screen p {
+  font-size:15px; color:#b0a898; line-height:1.7;
+  margin-bottom:24px; max-width:440px; margin-left:auto; margin-right:auto;
+}
+.text-input {
+  padding:12px 16px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,0.04);
+  color:var(--text);
+  font-size:16px;
+  width:260px;
+  max-width:100%;
+  outline:none;
+  display:block;
+  margin:0 auto 16px;
+}
+.text-input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(240,192,64,.14); }
+.custom-prompt {
+  grid-column:1 / -1;
+  text-align:center;
+  padding:22px 10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+}
+.custom-prompt .prompt-q { font-size:17px; color:var(--text); }
+.custom-row { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+.ending-screen { text-align:center; padding:8px 4px; }
+.ending-emoji  { font-size:58px; display:block; margin-bottom:10px; }
+.ending-title  { font-size:25px; font-weight:900; margin-bottom:14px; }
+.ending-text {
+  font-size:16px; line-height:1.8;
+  max-width:640px; margin:0 auto 20px;
+  padding:18px 22px; border-radius:12px;
+  text-align:left;
+}
+.end-escape  .ending-title { color:var(--red);    }
+.end-hospital .ending-title { color:var(--blue);  }
+.end-school  .ending-title { color:var(--green);  }
+.end-jail    .ending-title { color:var(--purple); }
+.end-custom  .ending-title { color:var(--gold);  }
+.end-escape  .ending-text { background:rgba(232,67,67,.07);   border:1px solid rgba(232,67,67,.2);   }
+.end-hospital .ending-text { background:rgba(58,159,209,.07); border:1px solid rgba(58,159,209,.2); }
+.end-school  .ending-text { background:rgba(76,175,125,.07);  border:1px solid rgba(76,175,125,.2);  }
+.end-jail    .ending-text { background:rgba(155,107,212,.07); border:1px solid rgba(155,107,212,.2); }
+.end-custom  .ending-text { background:rgba(240,192,64,.07);  border:1px solid rgba(240,192,64,.2);  }
+.journey-block { margin:18px 0; text-align:left; }
+.journey-eyebrow {
+  font-size:11px; font-weight:700;
+  text-transform:uppercase; letter-spacing:1.5px;
+  color:var(--muted); margin-bottom:10px;
+}
+.journey-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(145px,1fr));
+  gap:8px;
+}
+.j-card {
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px;
+  padding:10px 12px;
+}
+.j-scene  { font-size:11px; color:var(--muted); margin-bottom:4px; }
+.j-choice { font-size:14px; font-weight:700; color:var(--text); }
+.btn-row {
+  display:flex; gap:8px; flex-wrap:wrap;
+  justify-content:center; margin-top:18px;
+}
+footer {
+  margin-top:18px;
+  text-align:center;
+  font-size:11px;
+  color:var(--muted);
+  letter-spacing:0.3px;
+}
+</style>
+<base target="_blank">
+<base target="_blank">
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <header class="game-header">
+      <div class="title-block">
+        <div class="game-title">The <span class="lamp">Solar System</span></div>
+        <div class="game-byline">Choose Your Adventure &middot; Based on the TIPS Reader</div>
+      </div>
+      <div class="header-right">
+        <div class="trail" id="trail"></div>
+        <div class="header-controls">
+          <button class="btn btn-ghost speed-btn" id="speedBtn" title="Playback speed: Normal">▶ Normal</button>
+          <button class="btn btn-ghost btn-icon"  id="soundBtn" title="Toggle sound">🔊</button>
+        </div>
+      </div>
+    </header>
+    <main id="stage"></main>
+    <footer>Talking in Pictures &middot; SEND Resource &middot; www.talkinginpictures.co.uk</footer>
+  </div>
+</div>
+
+<script>
+/* ==========================================================
+   EMOJI MAP
+   ========================================================== */
+var EMOJI_MAP = {
+  "earth launch": "🌍", "rocket launch": "🚀", "mercury planet": "☿️",
+  "venus planet": "♀️", "mars planet": "♂️", "jupiter planet": "♃",
+  "saturn planet": "♄", "uranus planet": "♅", "neptune planet": "♆",
+  "pluto dwarf": "🔭", "space journey": "🌌", "earth return": "🏠",
+  "orbit": "🛰️", "land": "🚀", "flyby": "✈️", "probe": "🔬",
+  "skip": "⏭️", "return": "🏠", "sun": "☀️", "stars": "⭐",
+  "telescope": "🔭", "satellite": "📡", "astronaut": "👨‍🚀",
+  "space suit": "👩‍🚀", "spaceship": "🛸", "planet": "🪐",
+  "comet": "☄️", "moon": "🌙", "galaxy": "🌌", "alien": "👽",
+  "robot": "🤖", "success": "🏆", "partial": "⚠️",
+  "rescue": "🛟", "lost": "❄️", "custom": "✨"
+};
+
+function getEmoji(term) {
+  return EMOJI_MAP[term] || "❓";
+}
+
+function renderEmoji(emoji, size) {
+  size = size || "48px";
+  return '<span style="font-size:' + size + ';line-height:1;display:inline-block;" aria-hidden="true">' + emoji + '</span>';
+}
+
+/* ==========================================================
+   RED LEVEL — Real branching consequences
+   ========================================================== */
+var RED_NODES = {
+  start: {
+    id:"start", nodeNum:1,
+    sceneLabel:"Scene 1 — Mission Launch",
+    sceneText:"You are a space explorer. Your ship can visit three planets before returning to Earth. The Sun shines bright. Choose wisely!",
+    question:"Where do you want to go first?",
+    sceneImg:"rocket launch",
+    options:[
+      { label:"Orbit Mercury", next:"mercury_orbit", img:"orbit",
+        lines:["{name} sets course for Mercury. The closest planet to the Sun!","The ship speeds toward Mercury. It will be very hot there!"] },
+      { label:"Visit Venus", next:"venus_visit", img:"probe",
+        lines:["{name} aims for Venus. The hottest planet with thick clouds!","Venus awaits. Its clouds trap heat, making it very warm."] },
+      { label:"Fly to Mars", next:"mars_visit", img:"flyby",
+        lines:["{name} chooses Mars. The Red Planet with dust storms!","Mars is calling. Maybe there was water there long ago."] }
+    ]
+  },
+  mercury_orbit: {
+    id:"mercury_orbit", nodeNum:2,
+    sceneLabel:"Scene 2 — Mercury",
+    sceneText:"You arrive at Mercury. It is very hot and close to the Sun. There is no air to breathe. You can orbit safely, or try to land on the surface.",
+    question:"What do you do?",
+    sceneImg:"mercury planet",
+    options:[
+      { label:"Orbit safely", next:"jupiter_choice", img:"orbit",
+        lines:["{name} orbits Mercury. Safe and smart! The heat is intense but the ship is protected.","Good choice! Orbiting lets you study the planet from above."] },
+      { label:"Try to land", next:"mercury_crash", img:"land",
+        lines:["{name} tries to land on Mercury. The heat is too much!","The ship is burning up! This was a bad idea!"] },
+      { label:"Send a probe", next:"jupiter_choice", img:"probe",
+        lines:["{name} sends a probe down to Mercury.","A probe can explore where it is too dangerous to land."] }
+    ]
+  },
+  mercury_crash: {
+    id:"mercury_crash", nodeNum:2,
+    sceneLabel:"Scene 2 — Mercury Disaster",
+    sceneText:"Your ship is too hot! Mercury has no air and the surface is burning. Mission Control is calling.",
+    question:"What happens now?",
+    sceneImg:"sun",
+    options:[
+      { label:"Emergency escape", next:"ending_rescue", img:"rescue",
+        lines:["{name} escapes! Mission Control sends a rescue ship.","You learned: Mercury is too hot to land on!"] }
+    ]
+  },
+  venus_visit: {
+    id:"venus_visit", nodeNum:2,
+    sceneLabel:"Scene 2 — Venus",
+    sceneText:"You arrive at Venus. Thick clouds cover the planet. It is the hottest planet. You cannot see the surface.",
+    question:"What do you do?",
+    sceneImg:"venus planet",
+    options:[
+      { label:"Orbit above clouds", next:"jupiter_choice", img:"orbit",
+        lines:["{name} orbits above the clouds. Safe!","Good choice! The clouds are too thick to fly through."] },
+      { label:"Fly through clouds", next:"venus_stuck", img:"land",
+        lines:["{name} tries to fly through the clouds. The heat is trapped!","The ship is overheating! Venus is too hot inside!"] },
+      { label:"Send a probe", next:"jupiter_choice", img:"probe",
+        lines:["{name} sends a probe through the clouds.","A probe can explore where it is too dangerous to go."] }
+    ]
+  },
+  venus_stuck: {
+    id:"venus_stuck", nodeNum:2,
+    sceneLabel:"Scene 2 — Venus Trap",
+    sceneText:"Your ship is trapped in Venus clouds! The heat is building up. The clouds are too thick to escape.",
+    question:"What happens now?",
+    sceneImg:"sun",
+    options:[
+      { label:"Call for help", next:"ending_rescue", img:"rescue",
+        lines:["{name} calls Mission Control. A rescue ship is coming!","You learned: Venus clouds trap heat!"] }
+    ]
+  },
+  mars_visit: {
+    id:"mars_visit", nodeNum:2,
+    sceneLabel:"Scene 2 — Mars",
+    sceneText:"You arrive at Mars. It is the Red Planet. Dust storms swirl on the surface. You can orbit, land, or send a probe.",
+    question:"What do you do?",
+    sceneImg:"mars planet",
+    options:[
+      { label:"Orbit Mars", next:"jupiter_choice", img:"orbit",
+        lines:["{name} orbits Mars. The red surface looks amazing!","From orbit, you can see the dust storms from above."] },
+      { label:"Land on Mars", next:"jupiter_choice", img:"land",
+        lines:["{name} lands on Mars! The dust is everywhere.","You put on a space suit and step onto the red ground."] },
+      { label:"Send a rover", next:"jupiter_choice", img:"probe",
+        lines:["{name} sends a rover to explore Mars.","The rover drives across the red rocks and dust."] }
+    ]
+  },
+  jupiter_choice: {
+    id:"jupiter_choice", nodeNum:3,
+    sceneLabel:"Scene 3 — Second Planet",
+    sceneText:"Your ship has fuel for two more planets. You can visit a gas giant, a planet with rings, or a cold far planet. Remember: gas giants have no solid ground!",
+    question:"Which planet do you visit next?",
+    sceneImg:"jupiter planet",
+    options:[
+      { label:"Visit Jupiter", next:"jupiter_visit", img:"jupiter planet",
+        lines:["{name} heads to Jupiter. The biggest planet!","Jupiter is a gas giant. No solid ground to land on."] },
+      { label:"See Saturn rings", next:"saturn_visit", img:"saturn planet",
+        lines:["{name} travels to Saturn. Beautiful rings of ice and rock!","Saturn is a gas giant with stunning rings."] },
+      { label:"Go to Neptune", next:"neptune_visit", img:"neptune planet",
+        lines:["{name} sets course for Neptune. The farthest planet!","Neptune is deep blue with strong winds. Very far away!"] }
+    ]
+  },
+  jupiter_visit: {
+    id:"jupiter_visit", nodeNum:3,
+    sceneLabel:"Scene 3 — Jupiter",
+    sceneText:"You arrive at Jupiter. It is huge! The Great Red Spot spins like a giant storm. But Jupiter is a gas giant — there is no ground to land on.",
+    question:"What do you do?",
+    sceneImg:"jupiter planet",
+    options:[
+      { label:"Orbit Jupiter", next:"third_choice", img:"orbit",
+        lines:["{name} orbits Jupiter. The Great Red Spot is huge!","Smart! Gas giants have no solid ground."] },
+      { label:"Try to land", next:"jupiter_fall", img:"land",
+        lines:["{name} tries to land on Jupiter. There is no ground!","The ship sinks into the gas! This is dangerous!"] },
+      { label:"Study the storm", next:"third_choice", img:"probe",
+        lines:["{name} studies the Great Red Spot from orbit.","The storm is bigger than Earth! Amazing!"] }
+    ]
+  },
+  jupiter_fall: {
+    id:"jupiter_fall", nodeNum:3,
+    sceneLabel:"Scene 3 — Jupiter Fall",
+    sceneText:"Your ship is sinking into Jupiter gas! There is no ground to stop you. The pressure is crushing the ship.",
+    question:"What happens now?",
+    sceneImg:"sun",
+    options:[
+      { label:"Emergency boost", next:"ending_rescue", img:"rescue",
+        lines:["{name} uses emergency boost! Mission Control helps!","You learned: Gas giants have no solid ground!"] }
+    ]
+  },
+  saturn_visit: {
+    id:"saturn_visit", nodeNum:3,
+    sceneLabel:"Scene 3 — Saturn",
+    sceneText:"You arrive at Saturn. The rings are beautiful! They are made of ice and rock. But Saturn is a gas giant too.",
+    question:"What do you do?",
+    sceneImg:"saturn planet",
+    options:[
+      { label:"Orbit outside rings", next:"third_choice", img:"orbit",
+        lines:["{name} orbits outside the rings. Safe and beautiful!","Smart! The rings are made of ice and rock chunks."] },
+      { label:"Fly through rings", next:"saturn_crash", img:"land",
+        lines:["{name} tries to fly through the rings. Ice chunks hit the ship!","The rings are dangerous! Ice and rock everywhere!"] },
+      { label:"Study the rings", next:"third_choice", img:"probe",
+        lines:["{name} studies the rings from a safe distance.","The rings are made of ice and rock. Stunning!"] }
+    ]
+  },
+  saturn_crash: {
+    id:"saturn_crash", nodeNum:3,
+    sceneLabel:"Scene 3 — Saturn Crash",
+    sceneText:"Your ship is hit by ice chunks in Saturn rings! The ship is damaged. You are spinning out of control.",
+    question:"What happens now?",
+    sceneImg:"sun",
+    options:[
+      { label:"Mayday call", next:"ending_rescue", img:"rescue",
+        lines:["{name} calls for help! Mission Control sends rescue!","You learned: Saturn rings are made of ice and rock!"] }
+    ]
+  },
+  neptune_visit: {
+    id:"neptune_visit", nodeNum:3,
+    sceneLabel:"Scene 3 — Neptune",
+    sceneText:"You arrive at Neptune. It is deep blue and very far from the Sun. Strong winds blow across the planet.",
+    question:"What do you do?",
+    sceneImg:"neptune planet",
+    options:[
+      { label:"Orbit Neptune", next:"third_choice", img:"orbit",
+        lines:["{name} orbits Neptune. The blue planet is beautiful!","Neptune is far away and very windy."] },
+      { label:"Try to land", next:"neptune_fall", img:"land",
+        lines:["{name} tries to land. Neptune is a gas giant!","No ground! The ship is sinking into blue gas!"] },
+      { label:"Study the wind", next:"third_choice", img:"probe",
+        lines:["{name} studies the strong winds from orbit.","Neptune has the strongest winds in the solar system!"] }
+    ]
+  },
+  neptune_fall: {
+    id:"neptune_fall", nodeNum:3,
+    sceneLabel:"Scene 3 — Neptune Fall",
+    sceneText:"Your ship is sinking into Neptune! The blue gas swallows you up. There is no solid ground to land on.",
+    question:"What happens now?",
+    sceneImg:"sun",
+    options:[
+      { label:"Emergency escape", next:"ending_rescue", img:"rescue",
+        lines:["{name} escapes! Mission Control sends help!","You learned: Neptune is a gas giant with no ground!"] }
+    ]
+  },
+  third_choice: {
+    id:"third_choice", nodeNum:4,
+    sceneLabel:"Scene 4 — Third Planet",
+    sceneText:"One more planet to visit! You could see a planet that spins on its side, or visit the dwarf planet far away. Be careful — Pluto is very far and uses lots of fuel!",
+    question:"Where do you go?",
+    sceneImg:"uranus planet",
+    options:[
+      { label:"Visit Uranus", next:"uranus_visit", img:"uranus planet",
+        lines:["{name} visits Uranus. It spins on its side!","Uranus is very cold and spins differently."] },
+      { label:"Fly to Pluto", next:"pluto_visit", img:"pluto dwarf",
+        lines:["{name} heads to Pluto. A small dwarf planet!","Pluto is far, small, and very cold. A long journey!"] },
+      { label:"Return to Earth", next:"earth_early", img:"earth return",
+        lines:["{name} decides to head home early.","Earth is our home. Sometimes it is best to return!"] }
+    ]
+  },
+  uranus_visit: {
+    id:"uranus_visit", nodeNum:4,
+    sceneLabel:"Scene 4 — Uranus",
+    sceneText:"You arrive at Uranus. It is very cold and spins on its side! The planet looks smooth and blue-green.",
+    question:"What do you do?",
+    sceneImg:"uranus planet",
+    options:[
+      { label:"Orbit Uranus", next:"return_home", img:"orbit",
+        lines:["{name} orbits Uranus. It spins on its side!","Uranus is a gas giant. Very cold and unique!"] },
+      { label:"Try to land", next:"uranus_fall", img:"land",
+        lines:["{name} tries to land. No ground!","Uranus is a gas giant. You cannot land!"] },
+      { label:"Study the spin", next:"return_home", img:"probe",
+        lines:["{name} studies how Uranus spins on its side.","No other planet spins like this! Amazing!"] }
+    ]
+  },
+  uranus_fall: {
+    id:"uranus_fall", nodeNum:4,
+    sceneLabel:"Scene 4 — Uranus Fall",
+    sceneText:"Your ship sinks into Uranus gas! There is no solid ground. The cold is freezing your systems.",
+    question:"What happens now?",
+    sceneImg:"sun",
+    options:[
+      { label:"Emergency boost", next:"ending_rescue", img:"rescue",
+        lines:["{name} uses emergency boost! Mission Control helps!","You learned: Uranus is a gas giant with no ground!"] }
+    ]
+  },
+  pluto_visit: {
+    id:"pluto_visit", nodeNum:4,
+    sceneLabel:"Scene 4 — Pluto",
+    sceneText:"You arrive at Pluto. It is a small dwarf planet. Very far from the Sun. Very cold. But your fuel is getting low!",
+    question:"What do you do?",
+    sceneImg:"pluto dwarf",
+    options:[
+      { label:"Orbit Pluto", next:"return_home", img:"orbit",
+        lines:["{name} orbits Pluto. Small and cold!","Pluto is a dwarf planet. Very far away!"] },
+      { label:"Land on Pluto", next:"return_home", img:"land",
+        lines:["{name} lands on Pluto! The ground is frozen.","Pluto is small and icy. You can stand here!"] },
+      { label:"Stay too long", next:"pluto_lost", img:"probe",
+        lines:["{name} stays too long. Fuel is low!","You used too much fuel getting here!"] }
+    ]
+  },
+  pluto_lost: {
+    id:"pluto_lost", nodeNum:4,
+    sceneLabel:"Scene 4 — Lost Fuel",
+    sceneText:"You used too much fuel reaching Pluto! Now you do not have enough to get home. You are drifting in space.",
+    question:"What happens now?",
+    sceneImg:"sun",
+    options:[
+      { label:"Drift and wait", next:"ending_lost", img:"lost",
+        lines:["{name} drifts in space. Mission Control is searching!","You learned: Pluto is very far and uses lots of fuel!"] }
+    ]
+  },
+  earth_early: {
+    id:"earth_early", nodeNum:4,
+    sceneLabel:"Scene 4 — Early Return",
+    sceneText:"You decide to return to Earth early. You did not visit three planets, but you are safe.",
+    question:"How do you feel?",
+    sceneImg:"earth return",
+    options:[
+      { label:"Happy to be safe", next:"ending_partial", img:"partial",
+        lines:["{name} is happy to be home.","Safe on Earth! But you missed some planets."] },
+      { label:"Want to go back", next:"ending_custom", img:"custom",
+        lines:["{name} wants to explore more!","The solar system is big!"] }
+    ]
+  },
+  return_home: {
+    id:"return_home", nodeNum:5,
+    sceneLabel:"Scene 5 — Journey Home",
+    sceneText:"It is time to return to Earth. You look back at the planets you visited. Did you make good choices?",
+    question:"How do you feel about your mission?",
+    sceneImg:"space journey",
+    options:[
+      { label:"Proud and happy", next:"ending_success", img:"success",
+        lines:["{name} feels proud. The mission was a success!","You learned so much about the solar system!"] },
+      { label:"A bit unsure", next:"ending_partial", img:"partial",
+        lines:["{name} wonders if they could have done better.","Not every mission is perfect. You still learned!"] },
+      { label:"I want more!", next:"ending_custom", img:"custom",
+        lines:["{name} is not ready to stop exploring!","There is so much more to see in space!"] }
+    ]
+  },
+  ending_success: {
+    id:"ending_success", isEnding:true, endingClass:"school",
+    emoji:"🏆",
+    title:"Mission Success!",
+    text:"You visited planets and returned safely to Earth! You learned that Mercury is very hot with no air, Venus has thick clouds and is the hottest planet, Mars is the Red Planet with dust storms, Jupiter is the biggest gas giant with the Great Red Spot, Saturn has beautiful rings of ice and rock, Uranus spins on its side and is very cold, Neptune is far and blue with strong winds, and Pluto is a small dwarf planet far from the Sun. The solar system is amazing!"
+  },
+  ending_partial: {
+    id:"ending_partial", isEnding:true, endingClass:"hospital",
+    emoji:"⚠️",
+    title:"Partial Success",
+    text:"You visited some planets and made it back to Earth. Not every choice was perfect, but you still learned a lot! Remember: gas giants like Jupiter, Saturn, Uranus, and Neptune have no solid ground. Venus is the hottest planet with thick clouds. And Pluto is a dwarf planet, small and far away. Keep exploring!"
+  },
+  ending_rescue: {
+    id:"ending_rescue", isEnding:true, endingClass:"escape",
+    emoji:"🛟",
+    title:"Rescue Mission",
+    text:"Oh no! You made a dangerous choice! Mission Control had to rescue you. Remember: Mercury is too hot to land on. Venus clouds trap heat. And gas giants like Jupiter, Saturn, Uranus, and Neptune have no solid ground to land on. But you learned an important lesson!"
+  },
+  ending_lost: {
+    id:"ending_lost", isEnding:true, endingClass:"jail",
+    emoji:"❄️",
+    title:"Lost in Space",
+    text:"You ran out of fuel! Pluto is very far away, and it takes a long time and lots of fuel to travel there. You drifted in space until Mission Control found you. Remember: the farther a planet is from the Sun, the longer and more fuel it takes to get there!"
+  },
+  ending_custom: {
+    id:"ending_custom", isEnding:true, endingClass:"custom",
+    emoji:"✨",
+    title:"Your Adventure",
+    text:""
+  }
+};
+
+/* ==========================================================
+   BLUE LEVEL — Real branching consequences
+   ========================================================== */
+var BLUE_NODES = {
+  start: {
+    id:"start", nodeNum:1,
+    sceneLabel:"Scene 1 — Launch",
+    sceneText:"You are a space explorer. Visit three planets. Then go home to Earth.",
+    question:"Where do you go first?",
+    sceneImg:"rocket launch",
+    options:[
+      { label:"Mercury", next:"mercury_orbit", img:"mercury planet",
+        lines:["{name} goes to Mercury. Close to the Sun!","Mercury is very hot."] },
+      { label:"Venus", next:"venus_visit", img:"venus planet",
+        lines:["{name} goes to Venus. Very hot!","Venus has thick clouds."] },
+      { label:"Mars", next:"mars_visit", img:"mars planet",
+        lines:["{name} goes to Mars. The Red Planet!","Mars has dust storms."] }
+    ]
+  },
+  mercury_orbit: {
+    id:"mercury_orbit", nodeNum:2,
+    sceneLabel:"Scene 2 — Mercury",
+    sceneText:"You are at Mercury. Very hot. No air. What do you do?",
+    question:"Choose:",
+    sceneImg:"mercury planet",
+    options:[
+      { label:"Orbit", next:"jupiter_choice", img:"orbit",
+        lines:["{name} orbits. Safe!","Orbiting is safe."] },
+      { label:"Land", next:"mercury_crash", img:"land",
+        lines:["{name} tries to land. Too hot!","The ship burns!"] }
+    ]
+  },
+  mercury_crash: {
+    id:"mercury_crash", nodeNum:2,
+    sceneLabel:"Scene 2 — Hot!",
+    sceneText:"Your ship is too hot! Mercury is burning.",
+    question:"Now what?",
+    sceneImg:"sun",
+    options:[
+      { label:"Escape", next:"ending_rescue", img:"rescue",
+        lines:["{name} escapes! Help is coming!","Mercury is too hot!"] }
+    ]
+  },
+  venus_visit: {
+    id:"venus_visit", nodeNum:2,
+    sceneLabel:"Scene 2 — Venus",
+    sceneText:"You are at Venus. Thick clouds. Very hot.",
+    question:"Choose:",
+    sceneImg:"venus planet",
+    options:[
+      { label:"Orbit", next:"jupiter_choice", img:"orbit",
+        lines:["{name} orbits. Safe!","Clouds are too thick."] },
+      { label:"Fly through", next:"venus_stuck", img:"land",
+        lines:["{name} tries to fly through. Too hot!","Trapped in clouds!"] }
+    ]
+  },
+  venus_stuck: {
+    id:"venus_stuck", nodeNum:2,
+    sceneLabel:"Scene 2 — Trapped!",
+    sceneText:"Your ship is stuck in Venus clouds! Too hot!",
+    question:"Now what?",
+    sceneImg:"sun",
+    options:[
+      { label:"Call help", next:"ending_rescue", img:"rescue",
+        lines:["{name} calls for help. Rescue coming!","Venus clouds trap heat!"] }
+    ]
+  },
+  mars_visit: {
+    id:"mars_visit", nodeNum:2,
+    sceneLabel:"Scene 2 — Mars",
+    sceneText:"You are at Mars. Red. Dust storms.",
+    question:"Choose:",
+    sceneImg:"mars planet",
+    options:[
+      { label:"Orbit", next:"jupiter_choice", img:"orbit",
+        lines:["{name} orbits Mars.","Red and dusty!"] },
+      { label:"Land", next:"jupiter_choice", img:"land",
+        lines:["{name} lands on Mars!","Dust everywhere!"] }
+    ]
+  },
+  jupiter_choice: {
+    id:"jupiter_choice", nodeNum:3,
+    sceneLabel:"Scene 3 — Next Planet",
+    sceneText:"Two more planets. Choose a big planet or a far planet. Remember: gas giants have no ground!",
+    question:"Which planet?",
+    sceneImg:"jupiter planet",
+    options:[
+      { label:"Jupiter", next:"jupiter_visit", img:"jupiter planet",
+        lines:["{name} goes to Jupiter. Biggest planet!","Jupiter is a gas giant."] },
+      { label:"Saturn", next:"saturn_visit", img:"saturn planet",
+        lines:["{name} goes to Saturn. It has rings!","Saturn has rings of ice."] },
+      { label:"Neptune", next:"neptune_visit", img:"neptune planet",
+        lines:["{name} goes to Neptune. Far away!","Neptune is blue and windy."] }
+    ]
+  },
+  jupiter_visit: {
+    id:"jupiter_visit", nodeNum:3,
+    sceneLabel:"Scene 3 — Jupiter",
+    sceneText:"You are at Jupiter. Big. Gas giant. No ground.",
+    question:"Choose:",
+    sceneImg:"jupiter planet",
+    options:[
+      { label:"Orbit", next:"third_choice", img:"orbit",
+        lines:["{name} orbits. Smart!","Gas giants have no ground."] },
+      { label:"Land", next:"jupiter_fall", img:"land",
+        lines:["{name} tries to land. No ground!","Sinking into gas!"] }
+    ]
+  },
+  jupiter_fall: {
+    id:"jupiter_fall", nodeNum:3,
+    sceneLabel:"Scene 3 — Falling!",
+    sceneText:"Your ship is sinking into Jupiter gas! No ground!",
+    question:"Now what?",
+    sceneImg:"sun",
+    options:[
+      { label:"Boost out", next:"ending_rescue", img:"rescue",
+        lines:["{name} boosts out! Help coming!","Gas giants have no ground!"] }
+    ]
+  },
+  saturn_visit: {
+    id:"saturn_visit", nodeNum:3,
+    sceneLabel:"Scene 3 — Saturn",
+    sceneText:"You are at Saturn. Rings. Ice. Gas giant.",
+    question:"Choose:",
+    sceneImg:"saturn planet",
+    options:[
+      { label:"Orbit", next:"third_choice", img:"orbit",
+        lines:["{name} orbits outside rings. Safe!","Rings are ice and rock."] },
+      { label:"Fly through", next:"saturn_crash", img:"land",
+        lines:["{name} tries to fly through. Ice hits!","Rings are dangerous!"] }
+    ]
+  },
+  saturn_crash: {
+    id:"saturn_crash", nodeNum:3,
+    sceneLabel:"Scene 3 — Hit!",
+    sceneText:"Ice chunks hit your ship! Spinning out!",
+    question:"Now what?",
+    sceneImg:"sun",
+    options:[
+      { label:"Mayday", next:"ending_rescue", img:"rescue",
+        lines:["{name} calls for help. Rescue coming!","Saturn rings are ice and rock!"] }
+    ]
+  },
+  neptune_visit: {
+    id:"neptune_visit", nodeNum:3,
+    sceneLabel:"Scene 3 — Neptune",
+    sceneText:"You are at Neptune. Blue. Wind.",
+    question:"Choose:",
+    sceneImg:"neptune planet",
+    options:[
+      { label:"Orbit", next:"third_choice", img:"orbit",
+        lines:["{name} orbits.","Far and windy!"] },
+      { label:"Land", next:"neptune_fall", img:"land",
+        lines:["{name} tries to land. No ground!","Neptune is a gas giant!"] }
+    ]
+  },
+  neptune_fall: {
+    id:"neptune_fall", nodeNum:3,
+    sceneLabel:"Scene 3 — Sink!",
+    sceneText:"Your ship sinks into Neptune! No ground!",
+    question:"Now what?",
+    sceneImg:"sun",
+    options:[
+      { label:"Escape", next:"ending_rescue", img:"rescue",
+        lines:["{name} escapes! Help coming!","Neptune is a gas giant!"] }
+    ]
+  },
+  third_choice: {
+    id:"third_choice", nodeNum:4,
+    sceneLabel:"Scene 4 — Last Planet",
+    sceneText:"One more planet. Choose. Be careful — Pluto is far and uses lots of fuel!",
+    question:"Where?",
+    sceneImg:"uranus planet",
+    options:[
+      { label:"Uranus", next:"uranus_visit", img:"uranus planet",
+        lines:["{name} goes to Uranus. Spins on side!","Uranus is very cold."] },
+      { label:"Pluto", next:"pluto_visit", img:"pluto dwarf",
+        lines:["{name} goes to Pluto. Dwarf planet!","Pluto is small and far."] },
+      { label:"Earth", next:"earth_early", img:"earth return",
+        lines:["{name} goes home.","Earth is home."] }
+    ]
+  },
+  uranus_visit: {
+    id:"uranus_visit", nodeNum:4,
+    sceneLabel:"Scene 4 — Uranus",
+    sceneText:"You are at Uranus. Spins on side. Cold.",
+    question:"Choose:",
+    sceneImg:"uranus planet",
+    options:[
+      { label:"Orbit", next:"return_home", img:"orbit",
+        lines:["{name} orbits.","Uranus is a gas giant."] },
+      { label:"Land", next:"uranus_fall", img:"land",
+        lines:["{name} tries to land. No ground!","Uranus is a gas giant!"] }
+    ]
+  },
+  uranus_fall: {
+    id:"uranus_fall", nodeNum:4,
+    sceneLabel:"Scene 4 — Fall!",
+    sceneText:"Your ship sinks into Uranus! No ground! Cold!",
+    question:"Now what?",
+    sceneImg:"sun",
+    options:[
+      { label:"Boost", next:"ending_rescue", img:"rescue",
+        lines:["{name} boosts out! Help coming!","Uranus is a gas giant!"] }
+    ]
+  },
+  pluto_visit: {
+    id:"pluto_visit", nodeNum:4,
+    sceneLabel:"Scene 4 — Pluto",
+    sceneText:"You are at Pluto. Small. Far. Cold. Low fuel!",
+    question:"Choose:",
+    sceneImg:"pluto dwarf",
+    options:[
+      { label:"Orbit", next:"return_home", img:"orbit",
+        lines:["{name} orbits Pluto.","Small and far!"] },
+      { label:"Land", next:"return_home", img:"land",
+        lines:["{name} lands on Pluto!","Frozen ground!"] },
+      { label:"Stay long", next:"pluto_lost", img:"probe",
+        lines:["{name} stays too long. Fuel low!","Too much fuel used!"] }
+    ]
+  },
+  pluto_lost: {
+    id:"pluto_lost", nodeNum:4,
+    sceneLabel:"Scene 4 — No Fuel!",
+    sceneText:"You used too much fuel! Not enough to get home!",
+    question:"Now what?",
+    sceneImg:"sun",
+    options:[
+      { label:"Drift", next:"ending_lost", img:"lost",
+        lines:["{name} drifts in space. Searching!","Pluto is very far!"] }
+    ]
+  },
+  earth_early: {
+    id:"earth_early", nodeNum:4,
+    sceneLabel:"Scene 4 — Home Early",
+    sceneText:"You go home early. Safe. But missed planets.",
+    question:"Feel?",
+    sceneImg:"earth return",
+    options:[
+      { label:"Happy", next:"ending_partial", img:"partial",
+        lines:["{name} is happy.","Safe on Earth!"] },
+      { label:"Want more", next:"ending_custom", img:"custom",
+        lines:["{name} wants more!","Space is big!"] }
+    ]
+  },
+  return_home: {
+    id:"return_home", nodeNum:5,
+    sceneLabel:"Scene 5 — Home",
+    sceneText:"Time to go home. Think about your trip.",
+    question:"Feel?",
+    sceneImg:"space journey",
+    options:[
+      { label:"Happy", next:"ending_success", img:"success",
+        lines:["{name} is happy!","Good trip!"] },
+      { label:"Not sure", next:"ending_partial", img:"partial",
+        lines:["{name} is not sure.","That is okay."] },
+      { label:"More", next:"ending_custom", img:"custom",
+        lines:["{name} wants more!","Space is big!"] }
+    ]
+  },
+  ending_success: {
+    id:"ending_success", isEnding:true, endingClass:"school",
+    emoji:"🏆",
+    title:"Great Job!",
+    text:"You visited planets and came home! You learned about the solar system. Mercury is hot. Venus has clouds. Mars is red. Jupiter is big. Saturn has rings. Uranus spins on its side. Neptune is far and blue. Pluto is a dwarf planet. Well done!"
+  },
+  ending_partial: {
+    id:"ending_partial", isEnding:true, endingClass:"hospital",
+    emoji:"⚠️",
+    title:"Good Try",
+    text:"You visited some planets. Not all choices were right, but you learned! Gas giants have no ground. Venus is very hot. Pluto is far and small. Keep learning!"
+  },
+  ending_rescue: {
+    id:"ending_rescue", isEnding:true, endingClass:"escape",
+    emoji:"🛟",
+    title:"Rescue!",
+    text:"You tried to land on a gas giant or a too-hot planet. No ground! Mission Control saved you. Gas giants: Jupiter, Saturn, Uranus, Neptune. No landing. Mercury Venus too hot. But you learned!"
+  },
+  ending_lost: {
+    id:"ending_lost", isEnding:true, endingClass:"jail",
+    emoji:"❄️",
+    title:"Lost!",
+    text:"No fuel. Pluto is very far. Mission Control found you. Far planets take longer and more fuel!"
+  },
+  ending_custom: {
+    id:"ending_custom", isEnding:true, endingClass:"custom",
+    emoji:"✨",
+    title:"Your Story",
+    text:""
+  }
+};
+
+/* ==========================================================
+   GREEN LEVEL — Real branching consequences
+   ========================================================== */
+var GREEN_NODES = {
+  start: {
+    id:"start", nodeNum:1,
+    sceneLabel:"Scene 1 — Go!",
+    sceneText:"Space explorer. Visit planets. Go home.",
+    question:"First planet?",
+    sceneImg:"rocket launch",
+    options:[
+      { label:"Mercury", next:"mercury_orbit", img:"mercury planet",
+        lines:["{name} to Mercury.","Hot!"] },
+      { label:"Venus", next:"venus_visit", img:"venus planet",
+        lines:["{name} to Venus.","Clouds!"] },
+      { label:"Mars", next:"mars_visit", img:"mars planet",
+        lines:["{name} to Mars.","Red!"] }
+    ]
+  },
+  mercury_orbit: {
+    id:"mercury_orbit", nodeNum:2,
+    sceneLabel:"Scene 2 — Mercury",
+    sceneText:"At Mercury. Hot. No air.",
+    question:"What?",
+    sceneImg:"mercury planet",
+    options:[
+      { label:"Orbit", next:"jupiter_choice", img:"orbit",
+        lines:["{name} orbits.","Safe."] },
+      { label:"Land", next:"mercury_crash", img:"land",
+        lines:["{name} lands.","Hot!"] }
+    ]
+  },
+  mercury_crash: {
+    id:"mercury_crash", nodeNum:2,
+    sceneLabel:"Scene 2 — Hot!",
+    sceneText:"Ship too hot! Burning!",
+    question:"Now?",
+    sceneImg:"sun",
+    options:[
+      { label:"Escape", next:"ending_rescue", img:"rescue",
+        lines:["{name} escapes!","Help!"] }
+    ]
+  },
+  venus_visit: {
+    id:"venus_visit", nodeNum:2,
+    sceneLabel:"Scene 2 — Venus",
+    sceneText:"At Venus. Clouds. Hot.",
+    question:"What?",
+    sceneImg:"venus planet",
+    options:[
+      { label:"Orbit", next:"jupiter_choice", img:"orbit",
+        lines:["{name} orbits.","Safe."] },
+      { label:"Fly in", next:"venus_stuck", img:"land",
+        lines:["{name} flies in.","Hot!"] }
+    ]
+  },
+  venus_stuck: {
+    id:"venus_stuck", nodeNum:2,
+    sceneLabel:"Scene 2 — Stuck!",
+    sceneText:"Stuck in clouds! Hot!",
+    question:"Now?",
+    sceneImg:"sun",
+    options:[
+      { label:"Help", next:"ending_rescue", img:"rescue",
+        lines:["{name} calls help.","Coming!"] }
+    ]
+  },
+  mars_visit: {
+    id:"mars_visit", nodeNum:2,
+    sceneLabel:"Scene 2 — Mars",
+    sceneText:"At Mars. Red. Dust.",
+    question:"What?",
+    sceneImg:"mars planet",
+    options:[
+      { label:"Orbit", next:"jupiter_choice", img:"orbit",
+        lines:["{name} orbits.","Red!"] },
+      { label:"Land", next:"jupiter_choice", img:"land",
+        lines:["{name} lands.","Dust!"] }
+    ]
+  },
+  jupiter_choice: {
+    id:"jupiter_choice", nodeNum:3,
+    sceneLabel:"Scene 3 — Next",
+    sceneText:"More planets. Choose. Gas giants = no ground!",
+    question:"Which?",
+    sceneImg:"jupiter planet",
+    options:[
+      { label:"Jupiter", next:"jupiter_visit", img:"jupiter planet",
+        lines:["{name} to Jupiter.","Big!"] },
+      { label:"Saturn", next:"saturn_visit", img:"saturn planet",
+        lines:["{name} to Saturn.","Rings!"] },
+      { label:"Neptune", next:"neptune_visit", img:"neptune planet",
+        lines:["{name} to Neptune.","Far!"] }
+    ]
+  },
+  jupiter_visit: {
+    id:"jupiter_visit", nodeNum:3,
+    sceneLabel:"Scene 3 — Jupiter",
+    sceneText:"At Jupiter. Big. No ground.",
+    question:"What?",
+    sceneImg:"jupiter planet",
+    options:[
+      { label:"Orbit", next:"third_choice", img:"orbit",
+        lines:["{name} orbits.","Smart!"] },
+      { label:"Land", next:"jupiter_fall", img:"land",
+        lines:["{name} lands.","No ground!"] }
+    ]
+  },
+  jupiter_fall: {
+    id:"jupiter_fall", nodeNum:3,
+    sceneLabel:"Scene 3 — Fall!",
+    sceneText:"Sinking! No ground!",
+    question:"Now?",
+    sceneImg:"sun",
+    options:[
+      { label:"Out", next:"ending_rescue", img:"rescue",
+        lines:["{name} gets out!","Help!"] }
+    ]
+  },
+  saturn_visit: {
+    id:"saturn_visit", nodeNum:3,
+    sceneLabel:"Scene 3 — Saturn",
+    sceneText:"At Saturn. Rings. Ice.",
+    question:"What?",
+    sceneImg:"saturn planet",
+    options:[
+      { label:"Orbit", next:"third_choice", img:"orbit",
+        lines:["{name} orbits.","Safe!"] },
+      { label:"In rings", next:"saturn_crash", img:"land",
+        lines:["{name} in rings.","Ice!"] }
+    ]
+  },
+  saturn_crash: {
+    id:"saturn_crash", nodeNum:3,
+    sceneLabel:"Scene 3 — Hit!",
+    sceneText:"Ice hits! Spinning!",
+    question:"Now?",
+    sceneImg:"sun",
+    options:[
+      { label:"Help", next:"ending_rescue", img:"rescue",
+        lines:["{name} calls help.","Coming!"] }
+    ]
+  },
+  neptune_visit: {
+    id:"neptune_visit", nodeNum:3,
+    sceneLabel:"Scene 3 — Neptune",
+    sceneText:"At Neptune. Blue. Wind.",
+    question:"What?",
+    sceneImg:"neptune planet",
+    options:[
+      { label:"Orbit", next:"third_choice", img:"orbit",
+        lines:["{name} orbits.","Wind!"] },
+      { label:"Land", next:"neptune_fall", img:"land",
+        lines:["{name} lands.","No ground!"] }
+    ]
+  },
+  neptune_fall: {
+    id:"neptune_fall", nodeNum:3,
+    sceneLabel:"Scene 3 — Sink!",
+    sceneText:"Sinking! No ground!",
+    question:"Now?",
+    sceneImg:"sun",
+    options:[
+      { label:"Out", next:"ending_rescue", img:"rescue",
+        lines:["{name} gets out!","Help!"] }
+    ]
+  },
+  third_choice: {
+    id:"third_choice", nodeNum:4,
+    sceneLabel:"Scene 4 — Last",
+    sceneText:"One more. Choose. Pluto = far. Low fuel!",
+    question:"Where?",
+    sceneImg:"uranus planet",
+    options:[
+      { label:"Uranus", next:"uranus_visit", img:"uranus planet",
+        lines:["{name} to Uranus.","Side!"] },
+      { label:"Pluto", next:"pluto_visit", img:"pluto dwarf",
+        lines:["{name} to Pluto.","Dwarf!"] },
+      { label:"Earth", next:"earth_early", img:"earth return",
+        lines:["{name} home.","Safe."] }
+    ]
+  },
+  uranus_visit: {
+    id:"uranus_visit", nodeNum:4,
+    sceneLabel:"Scene 4 — Uranus",
+    sceneText:"At Uranus. Side. Cold.",
+    question:"What?",
+    sceneImg:"uranus planet",
+    options:[
+      { label:"Orbit", next:"return_home", img:"orbit",
+        lines:["{name} orbits.","Cold!"] },
+      { label:"Land", next:"uranus_fall", img:"land",
+        lines:["{name} lands.","No ground!"] }
+    ]
+  },
+  uranus_fall: {
+    id:"uranus_fall", nodeNum:4,
+    sceneLabel:"Scene 4 — Fall!",
+    sceneText:"Sinking! No ground! Cold!",
+    question:"Now?",
+    sceneImg:"sun",
+    options:[
+      { label:"Out", next:"ending_rescue", img:"rescue",
+        lines:["{name} gets out!","Help!"] }
+    ]
+  },
+  pluto_visit: {
+    id:"pluto_visit", nodeNum:4,
+    sceneLabel:"Scene 4 — Pluto",
+    sceneText:"At Pluto. Small. Far. Cold. Low fuel!",
+    question:"What?",
+    sceneImg:"pluto dwarf",
+    options:[
+      { label:"Orbit", next:"return_home", img:"orbit",
+        lines:["{name} orbits.","Far!"] },
+      { label:"Land", next:"return_home", img:"land",
+        lines:["{name} lands.","Ice!"] },
+      { label:"Stay", next:"pluto_lost", img:"probe",
+        lines:["{name} stays.","No fuel!"] }
+    ]
+  },
+  pluto_lost: {
+    id:"pluto_lost", nodeNum:4,
+    sceneLabel:"Scene 4 — No Fuel!",
+    sceneText:"No fuel! Cannot go home!",
+    question:"Now?",
+    sceneImg:"sun",
+    options:[
+      { label:"Drift", next:"ending_lost", img:"lost",
+        lines:["{name} drifts.","Searching!"] }
+    ]
+  },
+  earth_early: {
+    id:"earth_early", nodeNum:4,
+    sceneLabel:"Scene 4 — Home Early",
+    sceneText:"Home early. Safe. Missed planets.",
+    question:"Feel?",
+    sceneImg:"earth return",
+    options:[
+      { label:"Happy", next:"ending_partial", img:"partial",
+        lines:["{name} happy.","Safe!"] },
+      { label:"More", next:"ending_custom", img:"custom",
+        lines:["{name} wants more!","Space!"] }
+    ]
+  },
+  return_home: {
+    id:"return_home", nodeNum:5,
+    sceneLabel:"Scene 5 — Home",
+    sceneText:"Go home. Done.",
+    question:"Feel?",
+    sceneImg:"space journey",
+    options:[
+      { label:"Happy", next:"ending_success", img:"success",
+        lines:["{name} happy!","Good!"] },
+      { label:"Not sure", next:"ending_partial", img:"partial",
+        lines:["{name} unsure.","Okay."] },
+      { label:"More", next:"ending_custom", img:"custom",
+        lines:["{name} wants more!","Space!"] }
+    ]
+  },
+  ending_success: {
+    id:"ending_success", isEnding:true, endingClass:"school",
+    emoji:"🏆",
+    title:"Great!",
+    text:"You did it! Mercury hot. Venus clouds. Mars red. Jupiter big. Saturn rings. Uranus side. Neptune far. Pluto dwarf. Good job!"
+  },
+  ending_partial: {
+    id:"ending_partial", isEnding:true, endingClass:"hospital",
+    emoji:"⚠️",
+    title:"Okay",
+    text:"Some good. Some not. Gas giants no land. Venus hot. Pluto far. Keep going!"
+  },
+  ending_rescue: {
+    id:"ending_rescue", isEnding:true, endingClass:"escape",
+    emoji:"🛟",
+    title:"Help!",
+    text:"Gas giant or hot planet! No land. Saved! Jupiter Saturn Uranus Neptune. No landing. Mercury Venus too hot. Learned!"
+  },
+  ending_lost: {
+    id:"ending_lost", isEnding:true, endingClass:"jail",
+    emoji:"❄️",
+    title:"Lost!",
+    text:"No fuel. Pluto far. Found! Far = long time. Learned!"
+  },
+  ending_custom: {
+    id:"ending_custom", isEnding:true, endingClass:"custom",
+    emoji:"✨",
+    title:"You!",
+    text:""
+  }
+};
+
+var NODE_ORDER = ["start", "mercury_orbit", "jupiter_choice", "third_choice", "return_home"];
+
+/* ==========================================================
+   STATE
+   ========================================================== */
+var state   = { name:"", currentNode:"start", choices:[], customDest:"", level:"red" };
+var soundOn = true;
+
+var SPEEDS = [
+  { label: "🐢 Slow",   rate: 0.6,  title: "Slow"   },
+  { label: "▶ Normal",  rate: 0.93, title: "Normal"  },
+  { label: "⚡ Fast",   rate: 1.6,  title: "Fast"    },
+  { label: "🚀 Turbo",  rate: 2.2,  title: "Turbo"   }
+];
+var speedIdx   = 1;
+var speechRate = SPEEDS[speedIdx].rate;
+
+/* ==========================================================
+   DOM REFERENCES
+   ========================================================== */
+var stage    = document.getElementById("stage");
+var trailEl  = document.getElementById("trail");
+var soundBtn = document.getElementById("soundBtn");
+var speedBtn = document.getElementById("speedBtn");
+
+soundBtn.addEventListener("click", function () {
+  soundOn = !soundOn;
+  soundBtn.textContent = soundOn ? "🔊" : "🔇";
+  if (!soundOn && window.speechSynthesis) window.speechSynthesis.cancel();
+});
+
+speedBtn.addEventListener("click", function () {
+  speedIdx   = (speedIdx + 1) % SPEEDS.length;
+  speechRate = SPEEDS[speedIdx].rate;
+  speedBtn.textContent = SPEEDS[speedIdx].label;
+  speedBtn.title = "Playback speed: " + SPEEDS[speedIdx].title;
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+});
+
+/* ==========================================================
+   UTILITIES
+   ========================================================== */
+function safeId(s) {
+  return "opt_" + String(s).replace(/[^a-zA-Z0-9]+/g, "_");
+}
+
+function setTrail(nodeId) {
+  var idx = NODE_ORDER.indexOf(nodeId);
+  if (idx === -1) { trailEl.innerHTML = ""; return; }
+  trailEl.innerHTML = NODE_ORDER.map(function (_, i) {
+    var cls = i < idx ? "dot done" : i === idx ? "dot now" : "dot";
+    return '<div class="' + cls + '"></div>';
+  }).join("");
+}
+
+function clearTrail() { trailEl.innerHTML = ""; }
+
+function getNodes() {
+  if (state.level === "blue") return BLUE_NODES;
+  if (state.level === "green") return GREEN_NODES;
+  return RED_NODES;
+}
+
+/* ==========================================================
+   SPEECH
+   ========================================================== */
+function speak(text, onEnd) {
+  if (!soundOn || !window.speechSynthesis) {
+    if (onEnd) onEnd();
+    return;
+  }
+  try {
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-GB";
+    u.rate = speechRate;
+
+    var fired = false;
+    var done = function () {
+      if (!fired) { fired = true; if (onEnd) onEnd(); }
+    };
+    u.onend  = done;
+    u.onerror = done;
+    var ms = Math.max(Math.ceil(text.length * 80 / speechRate) + 2000, 3000);
+    setTimeout(done, ms);
+    window.speechSynthesis.speak(u);
+  } catch (e) {
+    console.warn("TTS error:", e);
+    if (onEnd) onEnd();
+  }
+}
+
+/* ==========================================================
+   SCREEN: WELCOME (Name Entry)
+   ========================================================== */
+function renderWelcome() {
+  clearTrail();
+  state.name = "";
+  state.currentNode = "start";
+  state.choices = [];
+  state.customDest = "";
+  state.level = "red";
+
+  stage.innerHTML =
+    '<div class="name-screen">' +
+      '<span class="hero">🚀</span>' +
+      '<h2>The Solar System</h2>' +
+      '<p>Choose Your Adventure!<br><br>' +
+         'You are a space explorer.<br>' +
+         'Visit three planets.<br>' +
+         'Then return to Earth.<br><br>' +
+         'What is your name, explorer?</p>' +
+      '<input class="text-input" id="nameIn" placeholder="Enter your name..."' +
+             ' maxlength="30" autocomplete="off"/>' +
+      '<button class="btn btn-primary" id="startBtn">Continue →</button>' +
+    '</div>';
+
+  var inp = document.getElementById("nameIn");
+  var btn = document.getElementById("startBtn");
+
+  inp.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") btn.click();
+  });
+
+  btn.addEventListener("click", function () {
+    var n = (inp.value || "").trim();
+    if (!n) {
+      inp.focus();
+      inp.style.borderColor = "var(--red)";
+      return;
+    }
+    state.name = n;
+    speak("Welcome, " + n + "!", function () {
+      renderLevelSelect();
+    });
+  });
+}
+
+/* ==========================================================
+   SCREEN: LEVEL SELECTOR
+   ========================================================== */
+function renderLevelSelect() {
+  clearTrail();
+  stage.innerHTML =
+    '<div class="name-screen">' +
+      '<span class="hero">🚀</span>' +
+      '<h2>Hello, ' + state.name + '!</h2>' +
+      '<p>Choose your reading level to begin your space adventure.</p>' +
+      '<div class="level-grid">' +
+        '<div class="level-card" id="levelRed" tabindex="0" role="button" aria-label="Red Level">' +
+          '<span class="level-emoji">🔴</span>' +
+          '<div class="level-name">Red Level</div>' +
+          '<div class="level-desc">Full sentences &amp; detail</div>' +
+        '</div>' +
+        '<div class="level-card" id="levelBlue" tabindex="0" role="button" aria-label="Blue Level">' +
+          '<span class="level-emoji">🔵</span>' +
+          '<div class="level-name">Blue Level</div>' +
+          '<div class="level-desc">Simple sentences</div>' +
+        '</div>' +
+        '<div class="level-card" id="levelGreen" tabindex="0" role="button" aria-label="Green Level">' +
+          '<span class="level-emoji">🟢</span>' +
+          '<div class="level-name">Green Level</div>' +
+          '<div class="level-desc">Words &amp; pictures</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  document.getElementById("levelRed").onclick = function() { selectLevel("red"); };
+  document.getElementById("levelRed").onkeydown = function(e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectLevel("red"); } };
+  document.getElementById("levelBlue").onclick = function() { selectLevel("blue"); };
+  document.getElementById("levelBlue").onkeydown = function(e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectLevel("blue"); } };
+  document.getElementById("levelGreen").onclick = function() { selectLevel("green"); };
+  document.getElementById("levelGreen").onkeydown = function(e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectLevel("green"); } };
+}
+
+function selectLevel(level) {
+  state.level = level;
+  var levelLabel = level === "red" ? "Red" : level === "blue" ? "Blue" : "Green";
+  speak(levelLabel + " Level. Let the adventure begin!", function () {
+    renderNode("start");
+  });
+}
+
+/* ==========================================================
+   SCREEN: SCENE NODE
+   ========================================================== */
+function renderNode(nodeId) {
+  var nodes = getNodes();
+  var node = nodes[nodeId];
+  if (!node || node.isEnding) return;
+  state.currentNode = nodeId;
+  setTrail(nodeId);
+
+  var n = node.options.length;
+  var cols = n === 4 ? 2 : (n > 3 ? 3 : n);
+
+  var sceneEmojiHtml = renderEmoji(getEmoji(node.sceneImg), "72px");
+
+  var optionsHtml = "";
+  for (var i = 0; i < node.options.length; i++) {
+    var opt = node.options[i];
+    var cls = opt.isEscape ? "opt-card escape-card" : "opt-card";
+    var emojiHtml = renderEmoji(getEmoji(opt.img), "48px");
+    optionsHtml +=
+      '<div class="' + cls + '"' +
+          ' id="' + safeId(opt.label) + '"' +
+          ' tabindex="0" role="button" aria-label="' + opt.label + '">' +
+        '<div class="opt-emoji-box">' + emojiHtml + '</div>' +
+        '<div class="opt-label">' + opt.label + '</div>' +
+      '</div>';
+  }
+
+  stage.innerHTML =
+    '<div class="scene-eyebrow">' + node.sceneLabel + '</div>' +
+    '<div class="scene-img-wrap">' +
+      '<div class="scene-emoji-slot">' + sceneEmojiHtml + '</div>' +
+      '<div class="fade"></div>' +
+    '</div>' +
+    '<div class="scene-text">' + node.sceneText + '</div>' +
+    '<div class="question-label">' + node.question + '</div>' +
+    '<div class="opt-grid" id="optGrid" style="grid-template-columns:repeat(' + cols + ',1fr)">' +
+      optionsHtml +
+    '</div>' +
+    '<div class="affirm" id="affirm"></div>';
+
+  speak(node.sceneText + " " + node.question);
+
+  for (var j = 0; j < node.options.length; j++) {
+    (function (opt) {
+      var el = document.getElementById(safeId(opt.label));
+      if (!el) return;
+      el.onclick = function () { onChoose(opt); };
+      el.onkeydown = function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onChoose(opt);
+        }
+      };
+    })(node.options[j]);
+  }
+}
+
+/* ==========================================================
+   CHOICE HANDLER
+   ========================================================== */
+function onChoose(opt) {
+  var grid = document.getElementById("optGrid");
+  if (grid) grid.style.pointerEvents = "none";
+
+  if (opt.isCustom) { showCustom(opt); return; }
+
+  var nodes = getNodes();
+  var node = nodes[state.currentNode];
+
+  var rawLines = (opt.lines && opt.lines.length)
+    ? opt.lines
+    : ["You choose: " + opt.label + ".", state.name + " — " + opt.label + "."];
+  var rawMsg = rawLines[Math.floor(Math.random() * rawLines.length)];
+  var msg = rawMsg.replace(/\{name\}/g, state.name);
+
+  state.choices.push({
+    scene: node.sceneLabel,
+    question: node.question,
+    label: opt.label,
+    narrative: msg,
+    sceneText: node.sceneText
+  });
+
+  var aff = document.getElementById("affirm");
+  if (aff) aff.textContent = msg;
+
+  speak(msg, function () {
+    setTimeout(function () {
+      if (opt.next.indexOf("ending_") === 0) {
+        renderEnding(opt.next);
+      } else {
+        renderNode(opt.next);
+      }
+    }, 500);
+  });
+}
+
+/* ==========================================================
+   CUSTOM INPUT SCREEN
+   ========================================================== */
+function showCustom(opt) {
+  var nodes = getNodes();
+  var node = nodes[state.currentNode];
+  var isDest = state.currentNode === "return_home";
+
+  var prompts = {
+    "start": "What else?",
+    "mercury_orbit": "What else?",
+    "venus_visit": "What else?",
+    "mars_visit": "What else?",
+    "jupiter_choice": "Where else?",
+    "jupiter_visit": "What else?",
+    "saturn_visit": "What else?",
+    "neptune_visit": "What else?",
+    "third_choice": "What else?",
+    "uranus_visit": "What else?",
+    "pluto_visit": "What else?",
+    "earth_early": "What else?",
+    "return_home": "Where else?"
+  };
+  var promptText = prompts[state.currentNode] || "What else?";
+
+  var grid = document.getElementById("optGrid");
+  if (!grid) return;
+  grid.style.gridTemplateColumns = "1fr";
+  grid.innerHTML =
+    '<div class="custom-prompt">' +
+      '<div class="prompt-q">' + promptText + '</div>' +
+      '<div class="custom-row">' +
+        '<input class="text-input" id="custIn"' +
+               ' placeholder="Type your answer..."' +
+               ' maxlength="60" style="margin:0;width:240px"/>' +
+        '<button class="btn btn-primary" id="custGo">Continue →</button>' +
+      '</div>' +
+    '</div>';
+
+  var inp = document.getElementById("custIn");
+  var go = document.getElementById("custGo");
+  inp.focus();
+
+  inp.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") go.click();
+  });
+
+  go.addEventListener("click", function () {
+    var val = (inp.value || "").trim();
+    if (!val) { inp.focus(); return; }
+
+    var customNarrative = state.name + " chose " + val + ".";
+
+    state.choices.push({
+      scene: node.sceneLabel,
+      question: node.question,
+      label: val,
+      isCustom: true,
+      narrative: customNarrative,
+      sceneText: node.sceneText
+    });
+
+    if (isDest) {
+      state.customDest = val;
+      renderEnding("ending_custom");
+    } else {
+      speak(val + ". Continue.", function () {
+        setTimeout(function () { renderNode(opt.next); }, 400);
+      });
+    }
+  });
+}
+
+/* ==========================================================
+   SCREEN: ENDING
+   ========================================================== */
+function renderEnding(endId) {
+  var nodes = getNodes();
+  var end = nodes[endId];
+  if (!end) return;
+  clearTrail();
+
+  var txt = end.text;
+  if (endId === "ending_custom") {
+    var dest = state.customDest || "somewhere special";
+    txt = state.name + " flew to " + dest + ". The solar system is big and amazing. " +
+          state.name + " explored space and learned about planets. What a great adventure!";
+  }
+
+  var journey = "";
+  for (var ci = 0; ci < state.choices.length; ci++) {
+    var c = state.choices[ci];
+    journey +=
+      '<div class="j-card">' +
+        '<div class="j-scene">' + c.scene + '</div>' +
+        '<div class="j-choice">' + c.label + '</div>' +
+      '</div>';
+  }
+
+  stage.innerHTML =
+    '<div class="ending-screen end-' + end.endingClass + '">' +
+      '<span class="ending-emoji">' + end.emoji + '</span>' +
+      '<div class="ending-title">Ending: ' + end.title + '</div>' +
+      '<div class="ending-text" id="endTxt">' + txt + '</div>' +
+      '<div class="journey-block">' +
+        '<div class="journey-eyebrow">📍 ' + state.name + "&#39;s journey</div>" +
+        '<div class="journey-grid">' + journey + '</div>' +
+      '</div>' +
+      '<div class="btn-row">' +
+        '<button class="btn btn-primary" id="readBtn">🔊 Read Aloud</button>' +
+        '<button class="btn btn-ghost"   id="pdfBtn">📄 Save as PDF</button>' +
+        '<button class="btn btn-ghost"   id="againBtn">🔄 Play Again</button>' +
+      '</div>' +
+    '</div>';
+
+  speak(end.title + ". " + txt);
+
+  document.getElementById("readBtn").addEventListener("click", function () {
+    speak(state.name + "'s story. " + txt);
+  });
+  document.getElementById("pdfBtn").addEventListener("click", function () {
+    savePDF(end, txt);
+  });
+  document.getElementById("againBtn").addEventListener("click", renderWelcome);
+}
+
+/* ==========================================================
+   PDF EXPORT
+   ========================================================== */
+function savePDF(end, txt) {
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert("PDF library not loaded. Please check your internet connection.");
+    return;
+  }
+  var jsPDF = window.jspdf.jsPDF;
+
+  var doc = new jsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
+  var pageWidth = 595.28;
+  var pageHeight = 841.89;
+  var margin = 54;
+  var contentWidth = pageWidth - (margin * 2);
+
+  doc.setFillColor(250, 248, 245);
+  doc.rect(0, 0, pageWidth, pageHeight, "F");
+
+  doc.setDrawColor(240, 192, 64);
+  doc.setLineWidth(1.5);
+  doc.line(margin, 110, pageWidth - margin, 110);
+  doc.line(margin, pageHeight - 75, pageWidth - margin, pageHeight - 75);
+
+  doc.setFont("Helvetica", "bold");
+  doc.setFontSize(22);
+  doc.setTextColor(17, 17, 32);
+  doc.text("THE SOLAR SYSTEM", margin, 80);
+
+  doc.setFont("Helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(94, 90, 78);
+  doc.text("Choose Your Adventure — TIPS Reader", margin, 98);
+
+  var dateString = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  var levelLabel = state.level === "red" ? "Red" : state.level === "blue" ? "Blue" : "Green";
+  var metaText = "Explorer: " + state.name + "  |  " + levelLabel + " Level  |  " + dateString;
+  doc.setFont("Helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(17, 17, 32);
+  doc.text(metaText, pageWidth - margin, 98, { align: "right" });
+
+  var paragraphs = [];
+  for (var ci = 0; ci < state.choices.length; ci++) {
+    var c = state.choices[ci];
+    paragraphs.push(c.sceneText + " " + c.narrative);
+  }
+
+  var endingTitle = "ENDING: " + end.title.toUpperCase();
+  var endingBody = txt;
+
+  var fontSize = 10.5;
+  var lineSpacing = 15;
+  var paraSpacing = 11;
+  var startY = 140;
+  var maxY = 745;
+
+  var wrappedParas = [];
+  var wrappedEnding = [];
+  var totalHeight = 0;
+
+  function computeLayout(fSize, lSpacing, pSpacing) {
+    doc.setFontSize(fSize);
+    doc.setFont("Helvetica", "normal");
+    var h = 0;
+    wrappedParas = [];
+    for (var i = 0; i < paragraphs.length; i++) {
+      var lines = doc.splitTextToSize(paragraphs[i], contentWidth);
+      wrappedParas.push(lines);
+      h += lines.length * lSpacing;
+      if (i < paragraphs.length - 1) h += pSpacing;
+    }
+    h += 25;
+    h += 18;
+    wrappedEnding = doc.splitTextToSize(endingBody, contentWidth);
+    h += wrappedEnding.length * lSpacing;
+    return h;
+  }
+
+  totalHeight = computeLayout(fontSize, lineSpacing, paraSpacing);
+  while (startY + totalHeight > maxY && fontSize > 8) {
+    fontSize -= 0.5;
+    lineSpacing -= 0.7;
+    paraSpacing -= 0.5;
+    totalHeight = computeLayout(fontSize, lineSpacing, paraSpacing);
+  }
+
+  var currY = startY;
+  doc.setFontSize(fontSize);
+  doc.setTextColor(17, 17, 32);
+
+  for (var i = 0; i < paragraphs.length; i++) {
+    var lines = wrappedParas[i];
+    doc.setFont("Helvetica", "normal");
+    for (var l = 0; l < lines.length; l++) {
+      doc.text(lines[l], margin, currY);
+      currY += lineSpacing;
+    }
+    if (i < paragraphs.length - 1) currY += paraSpacing;
+  }
+
+  currY += paraSpacing + 4;
+  doc.setFont("Helvetica", "bold");
+  doc.setFontSize(fontSize + 1);
+  doc.setTextColor(240, 192, 64);
+  doc.text("•   •   •", pageWidth / 2, currY, { align: "center" });
+  currY += 20;
+
+  doc.setFont("Helvetica", "bold");
+  doc.setFontSize(fontSize);
+  doc.setTextColor(240, 192, 64);
+  doc.text(endingTitle, margin, currY);
+  currY += 15;
+
+  doc.setFont("Helvetica", "normal");
+  doc.setTextColor(17, 17, 32);
+  for (var l = 0; l < wrappedEnding.length; l++) {
+    doc.text(wrappedEnding[l], margin, currY);
+    currY += lineSpacing;
+  }
+
+  doc.setFont("Helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(94, 90, 78);
+  var footerText = "Talking in Pictures  |  SEND Resource  |  www.talkinginpictures.co.uk";
+  doc.text(footerText, margin, pageHeight - 55);
+
+  var fileBase = (state.name || "explorer").replace(/[^a-z0-9]/gi, "_").toLowerCase();
+  doc.save(fileBase + "_solar_system_adventure.pdf");
+}
+
+/* ==========================================================
+   BOOT
+   ========================================================== */
+renderWelcome();
+</script>
+</body>
+</html>
