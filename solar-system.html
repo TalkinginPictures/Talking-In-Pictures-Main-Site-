@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Solar System — Talking in Pictures Reader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #15151c; --ink-soft: #3d3d47;
+    --cream: #fbf5e8; --paper: #fffdf8;
+    --line: #e7ddc6; --gold: #ffc93c; --gold-deep: #e8a317;
+    --lvl-jade: #12b8a4; --lvl-green: #3fa65c;
+    --lvl-blue: #2e86de; --lvl-red: #e4483c;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Atkinson Hyperlegible', system-ui, sans-serif;
+    background: var(--cream); color: var(--ink);
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+  h1, h2, h3 { font-family: 'Baloo 2', sans-serif; font-weight: 800; }
+
+  /* Top bar */
+  .topbar {
+    background: var(--paper); border-bottom: 1px solid var(--line);
+    padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+  }
+  .topbar-brand {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Baloo 2'; font-weight: 800; font-size: 1.05rem;
+  }
+  .topbar-brand img { width: 32px; height: 32px; border-radius: 50%; }
+  .back-link {
+    font-family: 'Baloo 2'; font-weight: 700; font-size: 0.9rem;
+    color: var(--ink-soft); padding: 8px 14px; border-radius: 999px;
+    background: var(--cream); text-decoration: none;
+  }
+  .back-link:hover { background: var(--gold); color: var(--ink); }
+
+  /* Header */
+  .story-header {
+    text-align: center; padding: 32px 20px 20px;
+  }
+  .story-header .emoji { font-size: 3.5rem; display: block; margin-bottom: 8px; }
+  .story-header h1 { font-size: 1.9rem; margin-bottom: 6px; }
+  .story-header p { color: var(--ink-soft); font-size: 1rem; max-width: 50ch; margin: 0 auto; }
+
+  /* Level picker */
+  .level-bar {
+    display: flex; gap: 10px; justify-content: center;
+    padding: 0 20px 20px; flex-wrap: wrap;
+  }
+  .level-btn {
+    font-family: 'Baloo 2'; font-weight: 700; font-size: 0.95rem;
+    border: 2px solid transparent; background: var(--paper);
+    color: var(--ink-soft); padding: 10px 20px; border-radius: 999px;
+    cursor: pointer; transition: all .15s ease; border: 2px solid var(--line);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .level-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
+  .level-btn.active { color: #fff; transform: translateY(-2px); }
+  .level-btn[data-lvl="jade"].active { background: var(--lvl-jade); border-color: var(--lvl-jade); }
+  .level-btn[data-lvl="green"].active { background: var(--lvl-green); border-color: var(--lvl-green); }
+  .level-btn[data-lvl="blue"].active { background: var(--lvl-blue); border-color: var(--lvl-blue); }
+  .level-btn[data-lvl="red"].active { background: var(--lvl-red); border-color: var(--lvl-red); }
+  .level-btn .dot {
+    width: 10px; height: 10px; border-radius: 50%; background: currentColor; opacity: 0.4;
+  }
+  .level-btn.active .dot { opacity: 1; background: #fff; }
+
+  /* PDF viewer area */
+  .viewer-wrap {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 0 20px 20px; min-height: 0;
+  }
+  .pdf-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 10px 14px; background: var(--paper);
+    border: 1px solid var(--line); border-bottom: none;
+    border-radius: 14px 14px 0 0; flex-wrap: wrap;
+  }
+  .pdf-toolbar .file-name {
+    font-family: 'Baloo 2'; font-weight: 700; font-size: 0.9rem;
+  }
+  .pdf-toolbar .download-btn {
+    font-family: 'Baloo 2'; font-weight: 700; font-size: 0.85rem;
+    background: var(--gold); color: var(--ink);
+    padding: 7px 16px; border-radius: 999px;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+    transition: opacity .15s;
+  }
+  .pdf-toolbar .download-btn:hover { opacity: 0.85; }
+  .pdf-frame {
+    flex: 1; border: 1px solid var(--line); border-radius: 0 0 14px 14px;
+    background: var(--paper); min-height: 500px;
+  }
+  .pdf-frame iframe, .pdf-frame embed {
+    width: 100%; height: 100%; border: none; border-radius: 0 0 14px 14px;
+  }
+  .pdf-fallback {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; padding: 40px; text-align: center; gap: 16px;
+  }
+  .pdf-fallback p { color: var(--ink-soft); max-width: 40ch; }
+
+  /* No-js / initial state */
+  .pick-prompt {
+    text-align: center; padding: 60px 20px; color: var(--ink-soft);
+  }
+  .pick-prompt .big-emoji { font-size: 4rem; margin-bottom: 16px; }
+  .pick-prompt h2 { font-size: 1.4rem; color: var(--ink); margin-bottom: 8px; }
+
+  footer {
+    background: #0f0f14; color: #8f8f98;
+    padding: 18px; text-align: center; font-size: 0.8rem;
+  }
+
+  @media (max-width: 600px) {
+    .story-header h1 { font-size: 1.5rem; }
+    .pdf-toolbar { border-radius: 12px 12px 0 0; }
+    .pdf-frame { min-height: 350px; border-radius: 0 0 12px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <img src="images/logo.png" alt="" />
+    Talking in Pictures
+  </div>
+  <a href="index.html" class="back-link">← Back</a>
+</div>
+
+<!-- Story header -->
+<div class="story-header">
+  <span class="emoji">🚀</span>
+  <h1>The Solar System</h1>
+  <p>Explore the planets, the Sun and everything in between. Choose your level below to read and download.</p>
+</div>
+
+<!-- Level picker -->
+<div class="level-bar">
+  <button class="level-btn" data-lvl="jade" onclick="setLevel('jade')">
+    <span class="dot"></span> Jade — First Words
+  </button>
+  <button class="level-btn" data-lvl="green" onclick="setLevel('green')">
+    <span class="dot"></span> Green — Short Phrases
+  </button>
+  <button class="level-btn" data-lvl="blue" onclick="setLevel('blue')">
+    <span class="dot"></span> Blue — Full Sentences
+  </button>
+  <button class="level-btn" data-lvl="red" onclick="setLevel('red')">
+    <span class="dot"></span> Red — Complex Story
+  </button>
+</div>
+
+<!-- PDF Viewer -->
+<div class="viewer-wrap">
+  <div class="pdf-toolbar" id="toolbar" style="display:none;">
+    <span class="file-name" id="file-name">Solar System</span>
+    <a class="download-btn" id="download-link" href="#" download>
+      📄 Download PDF
+    </a>
+  </div>
+  <div class="pdf-frame" id="pdf-frame">
+    <div class="pick-prompt" id="prompt">
+      <div class="big-emoji">🪐</div>
+      <h2>Pick a level to start reading</h2>
+      <p>Tap Jade, Green, Blue or Red above. The booklet will open right here.</p>
+    </div>
+  </div>
+</div>
+
+<footer>© 2025 Talking in Pictures</footer>
+
+<script>
+  var PDFS = {
+    jade:  "resources/The%20Solar%20System%20TIPS%20Jade%20Level%20Reader%20Booklet.pdf",
+    green: "resources/The%20Solar%20System%20TIPS%20Green%20Level%20Reader%20Booklet.pdf",
+    blue:  "resources/The%20Solar%20System%20TIPS%20Blue%20Level%20Reader.pdf",
+    red:   "resources/The%20Solar%20System%20TIPS%20Red%20Level%20Reader.pdf"
+  };
+  var LABELS = {
+    jade:  "The Solar System — Jade Level",
+    green: "The Solar System — Green Level",
+    blue:  "The Solar System — Blue Level",
+    red:   "The Solar System — Red Level"
+  };
+
+  function setLevel(lvl) {
+    // Update buttons
+    document.querySelectorAll('.level-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.dataset.lvl === lvl);
+    });
+
+    // Show toolbar
+    document.getElementById('toolbar').style.display = 'flex';
+    document.getElementById('file-name').textContent = LABELS[lvl];
+    document.getElementById('download-link').href = PDFS[lvl];
+
+    // Embed PDF
+    var frame = document.getElementById('pdf-frame');
+    var isMobile = window.innerWidth < 700;
+
+    if (isMobile) {
+      // On mobile, show a fallback with a big open button
+      frame.innerHTML =
+        '<div class="pdf-fallback">' +
+          '<div style="font-size:3rem;">📖</div>' +
+          '<h2 style="font-family:Baloo 2;font-size:1.3rem;">' + LABELS[lvl] + '</h2>' +
+          '<p>Tap the button below to open the PDF. You can read it in your browser or download it to keep.</p>' +
+          '<a href="' + PDFS[lvl] + '" target="_blank" style="font-family:Baloo 2;font-weight:700;font-size:1rem;background:var(--gold);color:var(--ink);padding:12px 28px;border-radius:999px;text-decoration:none;display:inline-block;">' +
+            'Open PDF' +
+          '</a>' +
+        '</div>';
+    } else {
+      // On desktop, embed the PDF directly
+      frame.innerHTML = '<embed src="' + PDFS[lvl] + '" type="application/pdf" width="100%" height="100%" />';
+    }
+  }
+</script>
+
+</body>
+</html>
