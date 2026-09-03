@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Adventure Builder — Solid Editable Build</title>
+
+<!-- jsPDF for PDF export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+  :root{ --bg:#0b2340; --card:#062135; --accent:#6fb3ff; --text:#eaf4ff; --muted:#9fc6ff; }
+  html,body{height:100%; margin:0; font-family:Inter,Arial,sans-serif; background:linear-gradient(180deg,#041227 0%,#072a45 100%); color:var(--text)}
+  .wrap{max-width:980px;margin:28px auto;padding:14px}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06)); border-radius:12px; padding:16px; border:1px solid rgba(255,255,255,0.03)}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  h1{margin:0;font-size:20px}
+  .controls{display:flex;gap:8px;align-items:center}
+  #progress{color:var(--muted);font-size:13px}
+  .screen{padding:8px}
+  input[type="text"]{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--text);width:240px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+  @media(max-width:920px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:560px){ .grid{grid-template-columns:repeat(1,1fr);} }
+  .option{background:#071525;border-radius:10px;padding:10px;text-align:center;cursor:pointer;border:1px solid rgba(255,255,255,0.03); transition:transform .12s, box-shadow .12s}
+  .option:hover{transform:translateY(-6px); box-shadow:0 12px 30px rgba(0,0,0,0.45)}
+  .option img{width:100%; height:110px; object-fit:contain; border-radius:8px; background:#081327}
+  .label{margin-top:8px; font-weight:700; color:#e8f4ff}
+  .loading{height:110px;display:flex;align-items:center;justify-content:center;background:#021827;color:#9fc6ff;border-radius:8px}
+  .affirm{margin-top:12px;color:#cfe8ff;min-height:36px}
+  .summaryGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+  @media(max-width:920px){ .summaryGrid{ grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:560px){ .summaryGrid{ grid-template-columns:repeat(1,1fr);} }
+  .sumCard{background:#071525;border-radius:10px;padding:8px;text-align:center;border:1px solid rgba(255,255,255,0.03)}
+  .sumCard img{width:100%; height:100px; object-fit:contain; border-radius:8px; background:#091022}
+  .storyText{margin-top:12px;color:#dfe8ff;line-height:1.5;text-align:left;padding:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.03));border-radius:8px}
+  .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
+  .primary{background:linear-gradient(135deg,#5f89ff,#7aa2ff); color:#07102a}
+  .ghost{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.06)}
+  footer{margin-top:14px;color:#a7d4ff;font-size:13px;text-align:center}
+  small.hint{color:#9fc6ff; display:block; margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <header>
+      <h1>Adventure Builder</h1>
+      <div class="controls">
+        <div id="progress">Step —</div>
+        <button id="soundToggle" class="btn ghost">Sound On</button>
+      </div>
+    </header>
+
+    <main id="stage" class="screen center">
+      <div>Loading…</div>
+    </main>
+
+    <footer>
+      <small class="hint">ARASAAC symbols preferred; Pixabay fallback is thematic. PDF image embedding depends on image CORS.</small>
+    </footer>
+  </div>
+</div>
+
+<script>
+/* =========================
+   EDITABLE QUESTIONS BLOCK
+   Change wording or options here only
+   ========================= */
+const PIXABAY_KEY = '49978957-7f3f3c500656460c1f5b4026f';
+
+/* 8 classic questions. Each item: id, title, options (array of strings). */
+const QUESTIONS = [
+  { id:'hero', title: "Who will you be dressed as?", options: ['Knight','Wizard','Fairy','Dragon','Samurai','Trickster','Pirate','Robot','Elf'] },
+  { id:'companion', title: "What will be your trusty companion?", options: ['Loyal Dog','Mischievous Cat','Fierce Dragon','Wise Owl','Cheeky Monkey','Brave Horse','Helpful Robot','Magical Unicorn','Giant Snail'] },
+  { id:'tool', title: "What weapon or tool will you take?", options: ['Magic Wand','Sword','Bow & Arrow','Shield','Laser Blaster','Slingshot','Fishing Net','Spell Book','Frying Pan'] },
+  { id:'music', title: "What's your favourite music?", options: ['K-Pop','Hip Hop','R&B','Pop','Rock','Reggae','Afrobeat','Jazz','Classical'] },
+  { id:'enemy', title: "Who will be your main enemy?", options: ['Evil Wizard','Sneaky Thief','Ferocious Dragon','Giant Troll','Alien Overlord','Angry Pirate','Mad Scientist','Mischievous Ghost','Your Evil Twin'] },
+  { id:'setting', title: "Where will your adventure take place?", options: ['Haunted Castle','Outer Space','Dark Forest','Desert Wasteland','Underwater City','Volcano','Snowy Mountain','Secret Lab','Candy Land'] },
+  { id:'challenge', title: "What is the great challenge you must overcome?", options: ['Solve a Riddle','Cross a Raging River','Escape a Trap','Defeat a Monster','Sneak Past Guards','Build a Raft','Win a Dance Battle','Cook a Magical Feast','Race to the Finish'] },
+  { id:'reward', title: "What is your reward at the end of the adventure?", options: ['Treasure Chest','Golden Crown','Legendary Sword','Magic Potion','A Wish Granted','A Party with Friends','A Flying Pet','Your Own Castle','Eternal Glory'] }
+];
+/* =========================
+   END EDITABLE BLOCK
+   ========================= */
+
+/* -------------------------------------------------
+   themed pixabay mapping for better fallback results
+   ------------------------------------------------- */
+function themedPixabayQuery(term){
+  const key = (term || '').toLowerCase();
+  const map = {
+    'bow & arrow':'bow and arrow weapon illustration',
+    'bow':'bow and arrow weapon illustration',
+    'fishing net':'fishing net illustration',
+    'net':'fishing net illustration',
+    'outer space':'outer space galaxy planets illustration',
+    'candy land':'candy land fantasy sweets lollipops illustration',
+    'pirate':'pirate costume treasure map illustration',
+    'fairy':'fairy wings fantasy illustration',
+    'wizard':'wizard robe magic staff illustration',
+    'robot':'robot cartoon character',
+    'dragon':'dragon fantasy illustration',
+    'knight':'knight armor medieval illustration',
+    'sword':'medieval sword illustration',
+    'magic wand':'magic wand illustration',
+    'shield':'shield medieval illustration',
+    'default': term + ' illustration'
+  };
+  return map[key] || map['default'];
+}
+
+/* ---------------- State & DOM ---------------- */
+let state = { name:'', qIndex:-1, answers: [] };
+let soundOn = true;
+
+const stage = document.getElementById('stage');
+const progressEl = document.getElementById('progress');
+const soundBtn = document.getElementById('soundToggle');
+soundBtn.addEventListener('click', ()=>{ soundOn = !soundOn; soundBtn.textContent = soundOn? 'Sound On':'Sound Off'; if(!soundOn) window.speechSynthesis.cancel(); });
+
+function setProgress(){
+  if(state.qIndex === -1) progressEl.textContent = `Step 0 / ${QUESTIONS.length+1}`;
+  else if(state.qIndex === 'summary') progressEl.textContent = `${QUESTIONS.length+1} / ${QUESTIONS.length+1}`;
+  else progressEl.textContent = `Step ${state.qIndex+1} / ${QUESTIONS.length+1}`;
+}
+
+/* ---------------- TTS helper ---------------- */
+function speakText(text, onEnd){
+  if(!soundOn || !window.speechSynthesis){ if(onEnd) onEnd(); return; }
+  try{
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-GB';
+    u.rate = 1;
+    u.onend = ()=>{ if(onEnd) onEnd(); };
+    window.speechSynthesis.speak(u);
+  }catch(e){ console.warn('TTS failed', e); if(onEnd) onEnd(); }
+}
+
+/* ---------------- Image fetch logic ---------------- */
+async function fetchArasaac(term){
+  try{
+    const r = await fetch(`https://api.arasaac.org/api/pictograms/en/search/${encodeURIComponent(term)}`);
+    if(!r.ok) return null;
+    const j = await r.json();
+    if(Array.isArray(j) && j.length){
+      const id = j[0]._id || j[0].id;
+      if(id) return `https://static.arasaac.org/pictograms/${id}/${id}_500.png`;
+    }
+  }catch(e){ /* ignore */ }
+  return null;
+}
+
+async function fetchPixabay(term){
+  try{
+    const q = themedPixabayQuery(term);
+    const url = `https://pixabay.com/api/?key=${PIXABAY_KEY}&q=${encodeURIComponent(q)}&image_type=illustration&per_page=5&safesearch=true`;
+    const r = await fetch(url);
+    if(!r.ok) return null;
+    const j = await r.json();
+    if(j.hits && j.hits.length) return j.hits[0].webformatURL;
+  }catch(e){ console.warn('pixabay error', e); }
+  return null;
+}
+
+async function fetchImageFor(term){
+  const ar = await fetchArasaac(term);
+  if(ar) return ar;
+  const px = await fetchPixabay(term);
+  if(px) return px;
+  return `https://via.placeholder.com/320x220.png?text=${encodeURIComponent(term)}`;
+}
+
+/* ---------------- ID safe ---------------- */
+function idSafe(s){ return 'id_' + String(s).replace(/\W/g,'_'); }
+
+/* ---------------- UI screens ---------------- */
+
+function renderNameScreen(){
+  state.qIndex = -1;
+  setProgress();
+  stage.innerHTML = `
+    <div style="text-align:center">
+      <h2>Welcome! What's your name?</h2>
+      <input id="nameInput" placeholder="Type your name" />
+      <div style="margin-top:12px"><button class="btn primary" id="startBtn">Start Adventure</button></div>
+    </div>
+  `;
+  document.getElementById('startBtn').addEventListener('click', ()=>{
+    const n = (document.getElementById('nameInput').value || '').trim();
+    if(!n) return alert('Please enter a name');
+    state.name = n;
+    state.qIndex = 0;
+    state.answers = [];
+    speakText(`Hello ${state.name}! Let's begin your adventure.`, ()=> renderQuestion());
+  });
+}
+
+async function renderQuestion(){
+  setProgress();
+  if(typeof state.qIndex !== 'number' || state.qIndex < 0 || state.qIndex >= QUESTIONS.length) return renderSummary();
+  const q = QUESTIONS[state.qIndex];
+  // placeholders grid rendered immediately
+  let html = `<h2>${q.title}</h2><div class="grid" id="options">`;
+  for(const opt of q.options){
+    const safe = idSafe(opt);
+    html += `<div class="option" id="${safe}"><div class="loading">Loading…</div><div class="label">${opt}</div></div>`;
+  }
+  html += `</div><div class="affirm" id="affirm"></div>`;
+  stage.innerHTML = html;
+  // speak question
+  speakText(`${state.name}, ${q.title}`);
+  // fetch images async and populate each option
+  for(const opt of q.options){
+    const safe = idSafe(opt);
+    const el = document.getElementById(safe);
+    // create image element and attach when loaded
+    const img = document.createElement('img');
+    img.alt = opt;
+    let url = '';
+    fetchImageFor(opt).then(u=>{
+      url = u;
+      img.src = u;
+      img.onload = ()=>{
+        el.innerHTML = ''; // clear loading
+        el.appendChild(img);
+        const lbl = document.createElement('div'); lbl.className='label'; lbl.textContent = opt;
+        el.appendChild(lbl);
+        el.onclick = ()=> chooseOption(opt, u);
+      };
+      img.onerror = ()=>{
+        // fallback display if image can't load
+        el.innerHTML = `<div class="loading">No image</div><div class="label">${opt}</div>`;
+        el.onclick = ()=> chooseOption(opt, null);
+      };
+    }).catch(e=>{
+      el.innerHTML = `<div class="loading">No image</div><div class="label">${opt}</div>`;
+      el.onclick = ()=> chooseOption(opt, null);
+    });
+  }
+}
+
+/* When user chooses an option */
+function chooseOption(label, imgUrl){
+  const q = QUESTIONS[state.qIndex];
+  state.answers[state.qIndex] = { id:q.id, question:q.title, label, img: imgUrl || `https://via.placeholder.com/320x220.png?text=${encodeURIComponent(label)}` };
+  // build affirmation that includes the chosen option
+  const pool = [
+    n => `Great choice, ${n}! You chose ${label}.`,
+    n => `Nice one, ${n} — ${label} it is!`,
+    n => `Awesome pick, ${n}. ${label} will be perfect for your adventure.`,
+    n => `Brilliant, ${n}! You've chosen ${label}.`
+  ];
+  const text = pool[Math.floor(Math.random()*pool.length)](state.name);
+  // show affirmation text immediately
+  const affirmEl = document.getElementById('affirm');
+  if(affirmEl) affirmEl.textContent = text;
+  // speak and then proceed after a small delay
+  speakText(text, ()=>{
+    setTimeout(()=>{
+      state.qIndex++;
+      if(state.qIndex < QUESTIONS.length) renderQuestion();
+      else renderSummary();
+    }, 700); // pause so students hear affirmation
+  });
+}
+
+/* Build story text and render summary screen */
+function renderSummary(){
+  state.qIndex = 'summary';
+  setProgress();
+  const a = state.answers;
+  const pick = (i, fallback)=> (a[i] && a[i].label) ? a[i].label : fallback;
+  // story lines (2nd person)
+  const lines = [
+    `${state.name}, you dressed as ${pick(0,'someone brave')}.`,
+    `You set off with your trusty ${pick(1,'companion')}.`,
+    `In your hands you carried ${pick(2,'a helpful tool')}.`,
+    `You marched to the beat of ${pick(3,'your favourite music')}.`,
+    `Deep in the ${pick(5,'unknown place')}, you met the ${pick(4,'fearsome enemy')}.`,
+    `To win you had to ${pick(6,'complete your great challenge').toLowerCase()}.`,
+    `At the end, your reward was ${pick(7,'a wonderful prize')}.`
+  ];
+  const story = lines.join(' ');
+  // render UI
+  let html = `<h2>Your Adventure — ${state.name}</h2>`;
+  html += `<div class="storyText" id="storyText">${story}</div>`;
+  html += `<div class="summaryGrid" id="summaryGrid"></div>`;
+  html += `<div style="margin-top:12px"><button class="btn primary" id="savePdf">Save Story as PDF</button> <button class="btn ghost" id="saveTxt">Download Script</button> <button class="btn ghost" id="recordBtn">Record Narration</button> <button class="btn ghost" id="restartBtn">Create Another Adventure</button></div>`;
+  stage.innerHTML = html;
+  // populate images
+  const grid = document.getElementById('summaryGrid');
+  for(const ans of state.answers){
+    const card = document.createElement('div'); card.className = 'sumCard';
+    const img = document.createElement('img'); img.src = ans && ans.img ? ans.img : `https://via.placeholder.com/320x220.png?text=${encodeURIComponent(ans?ans.label:'')}`;
+    const lbl = document.createElement('div'); lbl.style.marginTop='8px'; lbl.style.fontWeight='700'; lbl.textContent = ans?ans.label:'';
+    const qtxt = document.createElement('div'); qtxt.style.fontSize='12px'; qtxt.style.color='#aecdff'; qtxt.textContent = ans?ans.question:'';
+    card.appendChild(img); card.appendChild(lbl); card.appendChild(qtxt);
+    grid.appendChild(card);
+  }
+  // speak story
+  speakText(story);
+  // event handlers
+  document.getElementById('savePdf').addEventListener('click', downloadPDFWithImages);
+  document.getElementById('saveTxt').addEventListener('click', downloadScript);
+  document.getElementById('restartBtn').addEventListener('click', ()=>{ renderNameScreen(); });
+  document.getElementById('recordBtn').addEventListener('click', recordNarration);
+}
+
+/* Download script as txt */
+function downloadScript(){
+  const txt = document.getElementById('storyText').textContent || '';
+  const blob = new Blob([txt], { type:'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `${state.name||'adventure'}_script.txt`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* PDF export with attempt to embed images */
+async function downloadPDFWithImages(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'pt', format:'a4', orientation:'portrait' });
+  let y = 40;
+  doc.setFontSize(18);
+  doc.text(`${state.name}'s Adventure`, 40, y); y += 26;
+  doc.setFontSize(12);
+  const story = document.getElementById('storyText').textContent || '';
+  const wrapped = doc.splitTextToSize(story, 520);
+  doc.text(wrapped, 40, y); y += wrapped.length * 12 + 12;
+  doc.setFontSize(13);
+  doc.text('Your choices:', 40, y); y += 18;
+
+  for(const ans of state.answers){
+    const qa = `${ans.question} — ${ans.label}`;
+    const wrappedQA = doc.splitTextToSize(qa, 360);
+    doc.text(wrappedQA, 45, y);
+    // try to embed image at right
+    try{
+      const resp = await fetch(ans.img);
+      const blob = await resp.blob();
+      const imgData = await new Promise((resolve,reject)=>{
+        const reader = new FileReader();
+        reader.onloadend = ()=>resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+      doc.addImage(imgData, 'PNG', 420, y - 6, 120, 80);
+    }catch(e){
+      console.warn('Could not embed image for PDF (CORS or fetch error):', e);
+    }
+    y += Math.max(wrappedQA.length * 12, 80) + 10;
+    if(y > 740){ doc.addPage(); y = 40; }
+  }
+
+  doc.save(`${state.name || 'adventure'}_story.pdf`);
+}
+
+/* Record narration — uses getDisplayMedia to capture tab audio. Browser must allow shared tab audio (Chrome/Edge recommended) */
+async function recordNarration(){
+  try{
+    const stream = await navigator.mediaDevices.getDisplayMedia({ audio:true, video:false });
+    const recorder = new MediaRecorder(stream);
+    const chunks = [];
+    recorder.ondataavailable = e => chunks.push(e.data);
+    recorder.onstop = ()=> {
+      const blob = new Blob(chunks, { type: 'audio/webm' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = `${state.name || 'adventure'}_narration.webm`; a.click();
+      URL.revokeObjectURL(url);
+      stream.getTracks().forEach(t=>t.stop());
+    };
+    recorder.start();
+    // play narration and stop recorder when done
+    const text = document.getElementById('storyText').textContent || '';
+    speakText(text, ()=>{ setTimeout(()=> recorder.stop(), 300); });
+  }catch(e){
+    alert('Recording failed — try Chrome/Edge and choose "Share Tab" with audio when prompted.');
+    console.warn(e);
+  }
+}
+
+/* ---------------- Start app ---------------- */
+function startApp(){ renderNameScreen(); }
+startApp();
+
+</script>
+</body>
+</html>
