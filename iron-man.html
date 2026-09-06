@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Iron Man — Red Level Readers — Talking in Pictures</title>
+<meta name="description" content="Red Level Reader resources for The Iron Man by Ted Hughes. Picture-supported reading with TIPS scaffolding for SEND learners." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #15151c;
+    --ink-soft: #3d3d47;
+    --cream: #fbf5e8;
+    --paper: #fffdf8;
+    --line: #e7ddc6;
+    --gold: #ffc93c;
+    --gold-deep: #e8a317;
+    --lvl-red: #e4483c;
+    --radius-lg: 26px;
+    --radius-md: 18px;
+    --shadow-soft: 0 10px 30px rgba(21,21,28,0.10);
+    --shadow-hard: 0 6px 0 rgba(0,0,0,0.18);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Atkinson Hyperlegible', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  h1, h2, h3, .display {
+    font-family: 'Baloo 2', system-ui, sans-serif;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+
+  /* ---------- Topbar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(251,245,232,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .topbar-brand {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Baloo 2'; font-weight: 800; font-size: 1.1rem;
+  }
+  .topbar-brand img { width: 34px; height: 34px; border-radius: 50%; }
+  .topnav { display: flex; gap: 6px; flex-wrap: wrap; }
+  .topnav a {
+    font-family: 'Baloo 2'; font-weight: 700; font-size: 0.9rem;
+    padding: 8px 14px; border-radius: 999px;
+    color: var(--ink); transition: background .15s ease;
+  }
+  .topnav a:hover, .topnav a:focus-visible { background: var(--gold); }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    text-align: center;
+    padding: 52px 24px 40px;
+  }
+  .hero .eyebrow {
+    font-family: 'Baloo 2'; font-weight: 700; font-size: 0.78rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--lvl-red); opacity: 0.85;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin-top: 10px;
+  }
+  .hero h1 em { font-style: normal; color: var(--gold-deep); }
+  .hero p {
+    font-size: 1.05rem; line-height: 1.55;
+    color: var(--ink-soft); max-width: 52ch; margin: 14px auto 0;
+  }
+
+  /* ---------- Main Content ---------- */
+  .main {
+    flex: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px 48px;
+    width: 100%;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .line {
+    flex: 1;
+    height: 2px;
+    background: var(--line);
+    border-radius: 1px;
+  }
+
+  /* ---------- Resource Cards ---------- */
+  .resource-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 22px;
+  }
+  .resource-card {
+    background: var(--paper);
+    border: 2px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 32px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .resource-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-soft);
+    border-color: var(--gold);
+  }
+  .resource-emoji {
+    font-size: 3.6rem;
+    line-height: 1;
+  }
+  .resource-name {
+    font-family: 'Baloo 2'; font-weight: 800; font-size: 1.25rem;
+    color: var(--ink);
+  }
+  .resource-desc {
+    font-size: 0.9rem; color: var(--ink-soft); line-height: 1.45;
+    max-width: 32ch;
+  }
+  .resource-badge {
+    font-family: 'Baloo 2'; font-weight: 700; font-size: 0.65rem;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    background: var(--lvl-red); color: #fff;
+    padding: 4px 12px; border-radius: 999px;
+  }
+  .resource-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 6px;
+  }
+  .btn {
+    font-family: 'Baloo 2'; font-weight: 700; font-size: 0.95rem;
+    padding: 12px 22px; border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 8px;
+    border: none; cursor: pointer;
+    transition: opacity .15s, transform .1s;
+  }
+  .btn:hover { opacity: .9; transform: translateY(-2px); }
+  .btn-primary { background: var(--ink); color: #fff; }
+  .btn-gold { background: var(--gold); color: var(--ink); }
+  .btn-outline {
+    background: transparent; border: 2px solid var(--line);
+    color: var(--ink-soft);
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--ink); }
+
+  /* ---------- About Box ---------- */
+  .about-box {
+    background: var(--paper);
+    border: 2px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    margin-top: 36px;
+  }
+  .about-box h3 {
+    font-size: 1.15rem;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .about-box p {
+    font-size: 0.95rem; line-height: 1.55;
+    color: var(--ink-soft); margin: 0;
+  }
+
+  /* ---------- Footer ---------- */
+  footer {
+    background: #0f0f14; color: #8f8f98;
+    padding: 24px;
+    text-align: center;
+    font-size: 0.85rem;
+  }
+  footer a { color: #c9c9d1; margin: 0 10px; }
+  footer a:hover { color: var(--gold); }
+
+  @media (max-width: 600px) {
+    .resource-grid { grid-template-columns: 1fr; }
+    .topnav { display: none; }
+    .hero { padding: 36px 20px 28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== TOPBAR ========== -->
+<div class="topbar">
+  <div class="wrap">
+    <a href="index.html" class="topbar-brand">
+      <img src="images/logo.png" alt="Talking in Pictures logo" />
+      Talking in Pictures
+    </a>
+    <nav class="topnav">
+      <a href="index.html">Home</a>
+      <a href="index.html#read-play">Read & Play</a>
+      <a href="index.html#teacher-tools">Teacher Tools</a>
+    </nav>
+  </div>
+</div>
+
+<!-- ========== HERO ========== -->
+<section class="hero">
+  <div class="eyebrow">Red Level Reader</div>
+  <h1>The Iron Man <em>Resources</em></h1>
+  <p>Picture-supported reading companions for Ted Hughes' classic tale. Built with TIPS scaffolding for SEND learners using Colourful Semantics and TEACCH approaches.</p>
+</section>
+
+<!-- ========== RESOURCES ========== -->
+<main class="main">
+  <h2 class="section-title">
+    <span>📖 Download Resources</span>
+    <span class="line"></span>
+  </h2>
+
+  <div class="resource-grid">
+
+    <!-- Resource 1 -->
+    <div class="resource-card">
+      <div class="resource-emoji">🤖</div>
+      <div class="resource-name">The Iron Man<br>Red Level Reader TIPS</div>
+      <div class="resource-desc">Chapter 1 picture-supported reader with TIPS scaffolding, word cards and comprehension prompts.</div>
+      <span class="resource-badge">Red Level</span>
+      <div class="resource-actions">
+        <a class="btn btn-primary" href="resources/Iron%20Man%20Red%20Level%20Reader%20TIPS.pdf" target="_blank" rel="noopener">
+          👁️ View Online
+        </a>
+        <a class="btn btn-outline" href="resources/Iron%20Man%20Red%20Level%20Reader%20TIPS.pdf" download>
+          ⬇️ Download
+        </a>
+      </div>
+    </div>
+
+    <!-- Resource 2 -->
+    <div class="resource-card">
+      <div class="resource-emoji">📕</div>
+      <div class="resource-name">The Iron Man<br>Chapter 2 Red Reader TIPS</div>
+      <div class="resource-desc">Chapter 2 continuation with graded sentence support, symbol prompts and follow-up activities.</div>
+      <span class="resource-badge">Red Level</span>
+      <div class="resource-actions">
+        <a class="btn btn-primary" href="resources/The%20Iron%20Man%20Chapter%202%20Red%20Reader%20TIPS.pdf" target="_blank" rel="noopener">
+          👁️ View Online
+        </a>
+        <a class="btn btn-outline" href="resources/The%20Iron%20Man%20Chapter%202%20Red%20Reader%20TIPS.pdf" download>
+          ⬇️ Download
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- About / Info Box -->
+  <div class="about-box">
+    <h3>🍎 How to use these resources</h3>
+    <p>These PDFs are designed to be used alongside your copy of <em>The Iron Man</em> by Ted Hughes. Each page combines simplified text with picture symbols to support comprehension. Use the "View Online" button to display on a whiteboard or tablet, or "Download" to print for individual TEACCH workstations. The Red Level indicates complex story language with full sentences and inference questions.</p>
+  </div>
+
+  <!-- Back to Home -->
+  <div style="text-align:center; margin-top: 32px;">
+    <a href="index.html" class="btn btn-gold">← Back to Home</a>
+  </div>
+</main>
+
+<!-- ========== FOOTER ========== -->
+<footer>
+  <div>© 2025 Talking in Pictures</div>
+  <div style="margin-top:8px;">
+    <a href="mailto:hello@talkinginpictures.co.uk">Email</a>
+    <a href="index.html">Home</a>
+  </div>
+</footer>
+
+</body>
+</html>
