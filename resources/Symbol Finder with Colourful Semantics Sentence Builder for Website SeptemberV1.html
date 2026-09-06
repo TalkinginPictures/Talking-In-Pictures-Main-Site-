@@ -1,0 +1,2065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AAC Symbol Builder — Talking in Pictures</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+/* ===== DESIGN TOKENS ===== */
+:root {
+  --green:   #2ecc8e;
+  --green-d: #1a9e6a;
+  --blue:    #3b82f6;
+  --blue-d:  #1d5bbf;
+  --amber:   #f59e0b;
+  --amber-d: #b97a08;
+  --red:     #ef4444;
+  --purple:  #8b5cf6;
+  --bg:      #f4f6fb;
+  --surface: #ffffff;
+  --surface2:#f0f4ff;
+  --border:  #dde3f0;
+  --text:    #1e2640;
+  --text-m:  #6b7494;
+  --shadow:  0 10px 30px -10px rgba(30,38,64,0.08);
+  --shadow-sm:0 4px 12px rgba(30,38,64,0.04);
+  --radius:  16px;
+  --radius-sm:8px;
+}
+
+/* ===== BASE STYLES ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito Sans', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 30px 15px;
+}
+h1, h2, h3, h4 { font-family: 'Nunito', sans-serif; font-weight: 800; color: var(--text); }
+
+.app-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* ===== APP HEADER ===== */
+.app-header {
+  background: var(--surface);
+  padding: 24px 30px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 4px solid var(--green);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.brand h1 { font-size: 24px; line-height: 1.2; }
+.brand p { color: var(--text-m); font-size: 14px; margin-top: 2px; }
+
+/* ===== STATUS BANNER ===== */
+#status-banner {
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 14px;
+  display: none;
+}
+#status-banner.loading { display: block; background: #e0f2fe; color: #0369a1; }
+#status-banner.error { display: block; background: #fee2e2; color: #b91c1c; }
+#status-banner.info { display: block; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+
+/* ===== MAIN WORKSPACE ===== */
+.workspace-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 25px;
+}
+@media (min-width: 992px) {
+  .workspace-grid { grid-template-columns: 350px 1fr; }
+}
+
+/* ===== CARD PANEL COMPONENT ===== */
+.panel {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  border: 1px solid var(--border);
+}
+.panel-title { font-size: 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+/* ===== CONTROL PANEL ===== */
+.control-group { margin-bottom: 20px; }
+.control-group:last-child { margin-bottom: 0; }
+.control-label { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-m); margin-bottom: 8px; display: block; }
+
+.search-box { display: flex; gap: 8px; }
+.search-box input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-box input:focus { border-color: var(--green); }
+
+.btn {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 12px 20px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+.btn-primary { background: var(--green); color: white; }
+.btn-primary:hover { background: var(--green-d); transform: translateY(-1px); }
+.btn-secondary { background: #f1f5f9; color: #475569; }
+.btn-secondary:hover { background: #e2e8f0; }
+.btn-danger { background: var(--red); color: white; }
+.btn-danger:hover { background: #dc2626; }
+.btn-blue { background: var(--blue); color: white; }
+.btn-blue:hover { background: var(--blue-d); transform: translateY(-1px); }
+
+/* --- Options layout --- */
+.options-stack { display: flex; flex-direction: column; gap: 10px; background: #f8f9ff; padding: 14px; border-radius: var(--radius-sm); border: 1px dashed var(--border); }
+.checkbox-label { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.checkbox-label input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--green); }
+
+.radio-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.radio-tile { cursor: pointer; }
+.radio-tile input { display: none; }
+.radio-tile span {
+  display: block;
+  text-align: center;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  padding: 8px 4px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+.radio-tile input:checked + span { border-color: var(--blue); background: var(--surface2); color: var(--blue-d); }
+
+/* --- Skin tones selector --- */
+.tone-selector-grid { display: flex; gap: 6px; flex-wrap: wrap; }
+.tone-dot { cursor: pointer; position: relative; }
+.tone-dot input { display: none; }
+.tone-dot span { display: block; width: 32px; height: 32px; border-radius: 50%; border: 2px solid transparent; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1); transition: transform 0.1s; }
+.tone-dot input:checked + span { border-color: var(--text); transform: scale(1.1); }
+
+/* --- Chips --- */
+.chips-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.quick-chip { background: #f1f5f9; padding: 6px 12px; border-radius: 100px; font-size: 13px; font-weight: 600; cursor: pointer; color: #475569; border: 1px solid transparent; transition: all 0.2s; }
+.quick-chip:hover { background: var(--surface2); color: var(--blue); border-color: #bfdbfe; }
+
+/* ===== RESULTS CONTAINER ===== */
+.results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--bg); }
+.results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; min-height: 150px; }
+
+.result-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  min-height: 130px;
+  box-shadow: var(--shadow-sm);
+}
+.result-tile:hover { border-color: var(--green); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.05); }
+.result-tile img { width: 56px; height: 56px; object-fit: contain; margin-bottom: 6px; }
+.result-tile .glyph { font-size: 44px; line-height: 56px; height: 56px; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; color: #1e2640; }
+.result-tile .tile-word { font-size: 12px; font-weight: 700; line-height: 1.2; word-break: break-word; color: var(--text); margin-top: 2px; }
+
+.tile-tone-select { font-size: 11px; padding: 2px; border-radius: 4px; border: 1px solid var(--border); background: #fff; max-width: 100%; outline: none; margin-top: 4px; }
+.tile-add-hint { position: absolute; bottom: 4px; font-size: 9px; font-weight: 700; color: var(--green-d); opacity: 0; transition: opacity 0.2s; text-transform: uppercase; }
+.result-tile:hover .tile-add-hint { opacity: 1; }
+
+/* ===== MAIN IMAGE / CONTEXT AREA ===== */
+.main-image-area {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.main-image-wrapper {
+  width: 100%;
+  max-width: 600px;
+  min-height: 200px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+.main-image-wrapper img {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+}
+.main-image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-m);
+  padding: 40px 20px;
+}
+.main-image-placeholder .icon { font-size: 40px; }
+.main-image-placeholder p { font-size: 14px; font-weight: 600; }
+.main-image-placeholder span { font-size: 12px; }
+
+/* ===== SENTENCE BUILDER STRIP ===== */
+.sentence-panel { border-top: 4px solid var(--blue); position: relative; }
+.sentence-actions-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+
+/* CENTERED sentence strip */
+.sentence-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  background: var(--bg);
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  min-height: 140px;
+  border: 2px dashed var(--border);
+  position: relative;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Drop indicator line between cards */
+.drop-indicator {
+  width: 4px;
+  background: var(--blue);
+  border-radius: 2px;
+  align-self: stretch;
+  margin: 4px 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+.drop-indicator.active { opacity: 1; }
+
+/* Dragging card ghost */
+.sentence-card.dragging {
+  opacity: 0.3;
+  transform: scale(0.95);
+}
+
+/* Card hover lift */
+.sentence-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+/* Move hint on hover */
+.sentence-card .move-hint {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--blue);
+  color: white;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 10px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.sentence-card:hover .move-hint { opacity: 1; }
+
+.sentence-card {
+  background: var(--surface);
+  border: 4px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  width: 110px;
+  min-height: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+  cursor: grab;
+  transition: transform 0.15s, border-color 0.2s, background-color 0.2s;
+}
+.sentence-card:active { cursor: grabbing; }
+.sentence-card.cs-coloured { border-width: 4px; }
+.sentence-card img { width: 56px; height: 56px; object-fit: contain; margin-bottom: 6px; pointer-events: none; }
+.sentence-card .glyph-display { font-size: 44px; line-height: 56px; height: 56px; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; pointer-events: none; color: #1e2640; }
+.sentence-card .card-label { font-size: 12px; font-weight: 800; text-align: center; word-break: break-word; line-height: 1.2; width: 100%; cursor: text; border-radius: 4px; padding: 2px; }
+.sentence-card .card-label:hover { background: #f0f4ff; color: var(--blue); }
+
+.card-label-input { font-family: inherit; font-size: 12px; font-weight: 800; text-align: center; width: 100%; border: 1px solid var(--blue); border-radius: 4px; padding: 1px; outline: none; color: var(--text); }
+
+.sentence-card .remove-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--red);
+  color: white;
+  border: 2px solid white;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  z-index: 10;
+}
+
+/* --- Color Swatches Dropdown Popup --- */
+.cs-colour-popup {
+  position: absolute;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 6px;
+  display: flex;
+  gap: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, bottom 0.2s;
+  z-index: 20;
+}
+.sentence-card:hover .cs-colour-popup { opacity: 1; pointer-events: auto; bottom: -24px; }
+.cs-swatch { width: 16px; height: 16px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0,0,0,0.15); transition: transform 0.1s; }
+.cs-swatch:hover { transform: scale(1.2); }
+.cs-swatch.active { border-color: #000; box-shadow: 0 0 0 1px #fff; }
+
+/* ===== PLACEMENT MAT ===== */
+.placement-mat-row { 
+  display: none; 
+  gap: 10px; 
+  background: var(--surface); 
+  border: 2px solid var(--border); 
+  border-radius: var(--radius); 
+  padding: 16px; 
+  overflow-x: auto;
+  box-shadow: var(--shadow);
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.placement-mat-row.visible { display: flex; }
+
+.mat-slot {
+  flex: 0 0 auto;
+  width: 110px;
+  height: 140px;
+  border: 3px dashed #aab4d0;
+  border-radius: var(--radius-sm);
+  background: #f8f9ff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.2s;
+}
+.mat-slot:hover { background: #eef2ff; }
+.mat-slot.drag-over { background: #e0e7ff; border-color: var(--blue); border-style: solid; }
+
+.mat-slot-label { 
+  position: absolute; 
+  top: 6px; 
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px; 
+  font-weight: 800; 
+  text-transform: uppercase; 
+  letter-spacing: 0.05em;
+  padding: 4px 10px; 
+  border-radius: 6px; 
+  text-align: center; 
+  width: calc(100% - 16px); 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+}
+.mat-slot-q { 
+  font-family: 'Nunito', sans-serif;
+  font-size: 42px; 
+  font-weight: 800; 
+  color: #aab4d0; 
+  margin-top: 18px;
+  line-height: 1;
+}
+
+/* ===== WORKSPACE BOTTOM SPLIT ===== */
+.bottom-grid { display: grid; grid-template-columns: 1fr; gap: 25px; margin-top: 5px; }
+@media (min-width: 768px) { .bottom-grid { grid-template-columns: 1fr 1fr; } }
+
+.drop-zone { border: 3px dashed var(--border); border-radius: var(--radius-sm); padding: 24px; text-align: center; background: #fafbfc; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 180px; }
+.drop-zone:hover, .drop-zone.dragover { border-color: var(--blue); background: var(--surface2); }
+.drop-zone .icon { font-size: 36px; margin-bottom: 8px; }
+.drop-zone p { font-size: 14px; font-weight: 600; color: var(--text-m); }
+.drop-zone span { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+
+.story-preview-container { position: relative; display: none; text-align: center; background: #fafbfc; border: 1px solid var(--border); padding: 12px; border-radius: var(--radius-sm); }
+.story-preview-container img { max-height: 200px; max-width: 100%; object-fit: contain; border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); }
+.btn-remove-story { position: absolute; top: 8px; right: 8px; background: rgba(239, 68, 68, 0.9); color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; cursor: pointer; display: none; align-items: center; gap: 4px; }
+.btn-remove-story:hover { background: rgba(220, 38, 38, 1); }
+
+/* ===== UTILITIES ===== */
+.empty-state { text-align: center; padding: 40px 20px; grid-column: 1 / -1; width: 100%; color: var(--text-m); }
+.empty-state .icon { font-size: 40px; margin-bottom: 10px; }
+.empty-state h3 { font-size: 16px; margin-bottom: 4px; color: var(--text); }
+.empty-state p { font-size: 13px; }
+
+.skeleton { background: #f1f5f9; border-radius: var(--radius-sm); height: 130px; animation: pulse 1.5s infinite ease-in-out; }
+@keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+#sentence-empty { width: 100%; text-align: center; padding: 35px 20px; color: var(--text-m); font-weight: 600; font-size: 14px; }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .app-header { flex-direction: column; align-items: flex-start; }
+  .sentence-actions-top { flex-direction: column; align-items: flex-start; }
+  .mat-slot { width: 90px; height: 120px; }
+  .mat-slot-q { font-size: 32px; }
+}
+
+/* ===== DECOY STRIP ===== */
+.decoy-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--amber-d);
+}
+.decoy-toggle-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--amber);
+}
+
+.decoy-strip-container {
+  width: 100%;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+.decoy-strip-container.visible {
+  display: flex;
+}
+
+.decoy-strip-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--amber-d);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.decoy-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  background: #fff8e6;
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  min-height: 100px;
+  border: 2px dashed var(--amber);
+  position: relative;
+  justify-content: center;
+  align-items: center;
+}
+
+.decoy-card {
+  background: var(--surface);
+  border: 4px solid var(--amber);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  width: 110px;
+  min-height: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+  cursor: grab;
+  transition: transform 0.15s, border-color 0.2s, background-color 0.2s;
+}
+.decoy-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+.decoy-card:active { cursor: grabbing; }
+.decoy-card.cs-coloured { border-width: 4px; }
+.decoy-card img { width: 56px; height: 56px; object-fit: contain; margin-bottom: 6px; pointer-events: none; }
+.decoy-card .glyph-display { font-size: 44px; line-height: 56px; height: 56px; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; pointer-events: none; color: #1e2640; }
+.decoy-card .card-label { font-size: 12px; font-weight: 800; text-align: center; word-break: break-word; line-height: 1.2; width: 100%; cursor: text; border-radius: 4px; padding: 2px; }
+.decoy-card .card-label:hover { background: #f0f4ff; color: var(--blue); }
+.decoy-card .remove-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--red);
+  color: white;
+  border: 2px solid white;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  z-index: 10;
+}
+
+/* Decoy card colour popup */
+.decoy-card .cs-colour-popup {
+  position: absolute;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 6px;
+  display: flex;
+  gap: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, bottom 0.2s;
+  z-index: 20;
+}
+.decoy-card:hover .cs-colour-popup { opacity: 1; pointer-events: auto; bottom: -24px; }
+
+/* Decoy card move hint */
+.decoy-card .move-hint {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--amber);
+  color: white;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 10px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.decoy-card:hover .move-hint { opacity: 1; }
+
+/* Decoy hint on result tiles */
+.result-tile .tile-decoy-hint {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--amber-d);
+  background: #fff8e6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  text-transform: uppercase;
+  border: 1px solid var(--amber);
+  cursor: pointer;
+  z-index: 5;
+}
+.result-tile:hover .tile-decoy-hint {
+  opacity: 1;
+}
+.result-tile .tile-decoy-hint:hover {
+  background: var(--amber);
+  color: white;
+}
+
+/* Show decoy hint when decoy mode is enabled */
+.decoy-mode-active .result-tile .tile-decoy-hint {
+  opacity: 1;
+}
+</style>
+<base target="_blank">
+<base target="_blank">
+</head>
+<body>
+
+<div class="app-container">
+
+  <header class="app-header">
+    <div class="brand">
+      <h1>Talking in Pictures</h1>
+      <p>AAC Communication Board & Sentence Strips Builder</p>
+    </div>
+    <div class="header-controls" style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-secondary" id="btnClear">Clear Board</button>
+      <button class="btn btn-blue" id="btnSave">Export Image</button>
+      <button class="btn btn-blue" id="btnSpeak">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+        Speak Strip
+      </button>
+    </div>
+  </header>
+
+  <div id="status-banner"></div>
+
+  <!-- MAIN WORKSPACE AREA: Image + Placement Mat + Sentence Strip -->
+  <section class="main-image-area" id="mainWorkspaceArea">
+    <div class="main-image-wrapper" id="mainImageWrapper">
+      <div class="main-image-placeholder" id="mainImagePlaceholder">
+        <div class="icon">🖼️</div>
+        <p>Upload a Contextual Anchor Image</p>
+        <span>Drag & drop or use the upload panel below</span>
+      </div>
+      <img src="" id="mainWorkspaceImg" alt="Context Anchor" style="display:none;" />
+      <button class="btn-remove-story" id="btnRemoveMainImage" style="position:absolute; top:8px; right:8px; display:none;">❌ Remove</button>
+    </div>
+
+    <!-- PLACEMENT MAT - directly under the main image -->
+    <div class="placement-mat-row visible" id="placementMatRow"></div>
+
+    <!-- SENTENCE STRIP - directly under the placement mat -->
+    <div class="sentence-strip" id="sentence" style="width:100%; border:2px dashed var(--border); background:var(--bg);">
+      <div id="sentence-empty"> Tap symbols above to compile your visual phrasing string layout sequence...</div>
+    </div>
+
+    <!-- DECOY STRIP - appears below the real sentence when decoy mode is on -->
+    <div class="decoy-strip-container" id="decoyStripContainer">
+      <div class="decoy-strip-header">
+        <span>🎯</span>
+        <span>Decoy / Distractor Symbols — click symbols above while holding Shift to add here</span>
+      </div>
+      <div class="decoy-strip" id="decoyStrip">
+        <div id="decoy-empty" style="width:100%; text-align:center; padding:25px 20px; color:var(--text-m); font-weight:600; font-size:14px;">
+          Decoy mode is on — Shift+click any symbol above or click the 🎯 hint to add distractors here
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="workspace-grid">
+
+    <section class="panel">
+      <h2 class="panel-title">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+        Search Settings
+      </h2>
+
+      <div class="control-group">
+        <label class="control-label">Keyword or Emoji</label>
+        <div class="search-box">
+          <input type="text" id="wordInput" placeholder="Type a word, music clef, space, math..." autocomplete="off" autofocus />
+          <button class="btn btn-primary" id="btnSearch">Find</button>
+        </div>
+        <div class="chips-container">
+          <span class="quick-chip" data-word="earth">earth</span>
+          <span class="quick-chip" data-word="saturn">saturn</span>
+          <span class="quick-chip" data-word="rocket">rocket</span>
+          <span class="quick-chip" data-word="infinity">infinity</span>
+          <span class="quick-chip" data-word="treble clef">treble clef</span>
+          <span class="quick-chip" data-word="happy">happy</span>
+          <span class="quick-chip" data-word="eat">eat</span>
+          <span class="quick-chip" data-word="bus">bus</span>
+          <span class="quick-chip" data-word="home">home</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">Illustrative Icon Engine</label>
+        <div class="radio-grid">
+          <label class="radio-tile">
+            <input type="checkbox" class="emoji-lib" value="twemoji" checked />
+            <span>Twemoji</span>
+          </label>
+          <label class="radio-tile">
+            <input type="checkbox" class="emoji-lib" value="openmoji" />
+            <span>OpenMoji</span>
+          </label>
+          <label class="radio-tile">
+            <input type="checkbox" class="emoji-lib" value="noto" />
+            <span>Noto</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">Default Skin Modification</label>
+        <div class="tone-selector-grid">
+          <label class="tone-dot">
+            <input type="radio" name="skinToneOpt" value="none" checked />
+            <span style="background:#ffd24d; border-radius:50%"></span>
+          </label>
+          <label class="tone-dot">
+            <input type="radio" name="skinToneOpt" value="1F3FB" />
+            <span style="background:#fadcbc"></span>
+          </label>
+          <label class="tone-dot">
+            <input type="radio" name="skinToneOpt" value="1F3FC" />
+            <span style="background:#e0bb95"></span>
+          </label>
+          <label class="tone-dot">
+            <input type="radio" name="skinToneOpt" value="1F3FD" />
+            <span style="background:#bf936b"></span>
+          </label>
+          <label class="tone-dot">
+            <input type="radio" name="skinToneOpt" value="1F3FE" />
+            <span style="background:#9b6438"></span>
+          </label>
+          <label class="tone-dot">
+            <input type="radio" name="skinToneOpt" value="1F3FF" />
+            <span style="background:#5c3818"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">Layout Configurations</label>
+        <div class="options-stack">
+          <label class="checkbox-label">
+            <input type="checkbox" id="toggleEmojiGlyph" checked />
+            <span>Render Font Glyphs Fallback</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="toggleAllTones" />
+            <span>Display All Skin Variants</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="togglePlacementMat" checked />
+            <span>Show Colourful Semantics Guide Mat</span>
+          </label>
+          <label class="checkbox-label decoy-toggle-label">
+            <input type="checkbox" id="toggleDecoyMode" />
+            <span>Add Decoy Images (Distractors)</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="results-header">
+        <h2 style="font-size:18px">Symbol Repository</h2>
+        <span id="result-count" class="quick-chip" style="display:none; cursor:default; background:var(--surface2); color:var(--blue-d); font-weight:700"></span>
+      </div>
+      <div class="results-grid" id="results">
+        <div class="empty-state">
+          <div class="icon">🔍</div>
+          <h3>Your Search Catalog is Ready</h3>
+          <p>Search words, or look up planetary bodies, musical scales, zodiac markings, and mathematical configurations.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bottom-grid">
+    <section class="panel">
+      <h2 class="panel-title">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        Contextual Anchor Photo Upload
+      </h2>
+      <div class="control-group">
+        <p style="font-size:13px; color:var(--text-m); margin-bottom:12px">Upload a reference environment or contextual anchor image to help non-verbal communicators tie visual phrasings to local surroundings.</p>
+
+        <input type="file" id="storyFileInput" accept="image/*" style="display:none" />
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('storyFileInput').click()">
+          <div class="icon">📥</div>
+          <p>Click or Drag photo file baseline here</p>
+          <span>Supports PNG, JPG, WebP formats</span>
+        </div>
+
+        <div class="story-preview-container" id="storyPreview">
+          <button class="btn-remove-story" id="btnRemoveStory">❌ Clear Anchor Photo</button>
+          <img src="" id="storyPreviewImg" alt="Context Blueprint" />
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel-title">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Export Layout Options
+      </h2>
+      <div class="control-group">
+        <div class="options-stack" style="background:transparent; padding:0; border:none">
+          <label class="checkbox-label" style="margin-bottom:8px">
+            <input type="checkbox" id="toggleStoryInExport" checked />
+            <span>Include Anchor Photo inside Image Canvas Grid Export</span>
+          </label>
+          <button class="btn btn-secondary" style="width:fit-content" id="removeStoryBtn">Reset Anchor Workspace</button>
+        </div>
+      </div>
+    </section>
+  </footer>
+
+</div>
+
+<script>
+const EMOJIBASE_URL = "https://cdn.jsdelivr.net/npm/emojibase-data@17.0.0/en/data.json";
+const TONE_CODES = ["1F3FB","1F3FC","1F3FD","1F3FE","1F3FF"];
+let EMOJI_DATA = null;
+let EMOJI_LOADING = false;
+
+const CUSTOM_UNICODE_ITEMS = [
+  { hexcode: "2609", label: "Sun Symbol", annotation: "astronomy astrology sun solar star light day horoscope symbol classic", tags: ["astronomy", "space", "star"] },
+  { hexcode: "263e", label: "Moon Symbol", annotation: "astronomy astrology crescent moon lunar night horoscope symbol classic", tags: ["astronomy", "space", "moon"] },
+  { hexcode: "263f", label: "Mercury", annotation: "astrology astronomy planet mercury speed quick element horoscope stars symbol", tags: ["astronomy", "planet", "space"] },
+  { hexcode: "2640", label: "Venus", annotation: "astrology astronomy planet venus beauty female goddess horoscope stars symbol", tags: ["astronomy", "planet", "space"] },
+  { hexcode: "2641", label: "Earth Symbol", annotation: "astrology astronomy planet earth world globe nature ground horoscope stars symbol classic", tags: ["astronomy", "planet", "space"] },
+  { hexcode: "2642", label: "Mars", annotation: "astrology astronomy planet mars red male god courage horoscope stars symbol", tags: ["astronomy", "planet", "space"] },
+  { hexcode: "2643", label: "Jupiter", annotation: "astrology astronomy planet jupiter giant king horoscope stars symbol", tags: ["astronomy", "planet", "space"] },
+  { hexcode: "2644", label: "Saturn", annotation: "astrology astronomy planet saturn rings time horoscope stars symbol", tags: ["astronomy", "planet", "space"] },
+  { hexcode: "2645", label: "Uranus", annotation: "astrology astronomy planet uranus sky heaven horoscope stars symbol", tags: ["astronomy", "planet", "space"] },
+  { hexcode: "2646", label: "Neptune", annotation: "astrology astronomy planet neptune trident ocean horoscope stars symbol", tags: ["astronomy", "planet", "space"] },
+  { hexcode: "2647", label: "Pluto", annotation: "astrology astronomy planet pluto dwarf underworld gate horoscope stars symbol", tags: ["astronomy", "planet", "space"] },
+  { hexcode: "1f30e", label: "Earth Globe (Americas)", annotation: "planet earth world globe americas map blue green ball", tags: ["planet", "space", "earth"] },
+  { hexcode: "1f30d", label: "Earth Globe (Europe)", annotation: "planet earth world globe europe africa map blue green ball", tags: ["planet", "space", "earth"] },
+  { hexcode: "1f30f", label: "Earth Globe (Asia)", annotation: "planet earth world globe asia australia map blue green ball", tags: ["planet", "space", "earth"] },
+  { hexcode: "1fa90", label: "Ringed Planet", annotation: "planet saturn space orbit rings celestial ball colorful", tags: ["planet", "space", "orbit"] },
+  { hexcode: "1f319", label: "Crescent Moon", annotation: "moon crescent lunar night space sky shiny", tags: ["space", "moon", "night"] },
+  { hexcode: "2b50", label: "Star", annotation: "star yellow gold shiny sparkle night celestial sky", tags: ["space", "star", "night"] },
+  { hexcode: "2728", label: "Sparkles", annotation: "sparkles stars shiny glint clean magic neon", tags: ["space", "star"] },
+  { hexcode: "1f303", label: "Night Sky / Stars", annotation: "night sky stars bridge cityscape evening darkness silhouette", tags: ["space", "star", "night"] },
+  { hexcode: "1f320", label: "Shooting Star", annotation: "shooting star falling meteor asteroid space streak line", tags: ["space", "star"] },
+  { hexcode: "1f680", label: "Rocket Ship", annotation: "rocket ship blast off space vehicle travel flying launch spaceship shuttle", tags: ["space", "rocket", "travel"] },
+  { hexcode: "1f6f0", label: "Satellite", annotation: "satellite space orbit communications technology antenna radar transmission receiver", tags: ["space", "satellite", "orbit"] },
+  { hexcode: "1f6f8", label: "UFO / Flying Saucer", annotation: "ufo flying saucer alien spaceship space transport mystery", tags: ["space", "alien"] },
+  { hexcode: "1f47d", label: "Alien", annotation: "alien creature extraterrestrial martian space ufo green face", tags: ["space", "alien"] },
+  { hexcode: "1f468-200d-1f680", label: "Astronaut", annotation: "astronaut cosmonaut spaceman space suit helmet pilot science explorer", tags: ["space", "rocket", "science"] },
+  { hexcode: "2b55", label: "Orbit Ring / Circle", annotation: "orbit circle ring target loop round boundary hollow", tags: ["space", "orbit"] },
+  { hexcode: "1d11e", label: "Treble Clef", annotation: "music treble clef g-clef pitch notation tune song stave", tags: ["music", "sound", "clef"] },
+  { hexcode: "1d122", label: "Bass Clef", annotation: "music bass clef f-clef low pitch instrument notation", tags: ["music", "sound", "clef"] },
+  { hexcode: "1d15f", label: "Quarter Note", annotation: "music quarter note crotchet beat rhythm sound", tags: ["music", "note"] },
+  { hexcode: "1d160", label: "Eighth Note", annotation: "music eighth note quaver rhythm sound quick", tags: ["music", "note"] },
+  { hexcode: "266d", label: "Music Flat", annotation: "music flat sign lower accidental pitch notation", tags: ["music"] },
+  { hexcode: "266f", label: "Music Sharp", annotation: "music sharp sign higher accidental pitch notation", tags: ["music"] },
+  { hexcode: "266e", label: "Music Natural", annotation: "music natural sign cancellation pitch accidental notation", tags: ["music"] },
+  { hexcode: "2648", label: "Aries", annotation: "astrology zodiac sign aries ram horoscope stars", tags: ["astrology", "zodiac"] },
+  { hexcode: "2649", label: "Taurus", annotation: "astrology zodiac sign taurus bull horoscope stars", tags: ["astrology", "zodiac"] },
+  { hexcode: "264a", label: "Gemini", annotation: "astrology zodiac sign gemini twins horoscope stars", tags: ["astrology", "zodiac"] },
+  { hexcode: "264b", label: "Cancer", annotation: "astrology zodiac sign cancer crab horoscope stars", tags: ["astrology", "zodiac"] },
+  { hexcode: "264c", label: "Leo", annotation: "astrology zodiac sign leo lion horoscope stars", tags: ["astrology", "zodiac"] },
+  { hexcode: "264d", label: "Virgo", annotation: "astrology zodiac sign virgo maiden horoscope stars", tags: ["astrology", "zodiac"] },
+  { hexcode: "264e", label: "Libra", annotation: "astrology zodiac sign libra scales balance horoscope stars", tags: ["astrology", "zodiac"] },
+  { hexcode: "264f", label: "Scorpio", annotation: "astrology zodiac sign scorpio scorpion horoscope stars", tags: ["astrology", "zodiac"] },
+  { hexcode: "2650", label: "Sagittarius", annotation: "astrology zodiac sign sagittarius archer horoscope stars", tags: ["astrology", "zodiac"] },
+  { hexcode: "2651", label: "Capricorn", annotation: "astrology zodiac sign capricorn goat horoscope stars", tags: ["astrology", "zodiac"] },
+  { hexcode: "2652", label: "Aquarius", annotation: "astrology zodiac sign aquarius water bearer horoscope stars", tags: ["astrology", "zodiac"] },
+  { hexcode: "2653", label: "Pisces", annotation: "astrology zodiac sign pisces fish horoscope stars", tags: ["astrology", "zodiac"] },
+  { hexcode: "221e", label: "Infinity", annotation: "math infinity infinite forever loop math sign limit endless", tags: ["math", "science"] },
+  { hexcode: "3c0", label: "Pi Symbol", annotation: "math pi greek letter constant circumference geometry radius calculate", tags: ["math", "science"] },
+  { hexcode: "2211", label: "Summation (Sigma)", annotation: "math sum total add addition calculation function series sigma", tags: ["math"] },
+  { hexcode: "222b", label: "Integral", annotation: "math integral calculus derivative function volume analysis integration", tags: ["math"] },
+  { hexcode: "221a", label: "Square Root", annotation: "math square root radical sign calculation equation factor", tags: ["math"] },
+  { hexcode: "2260", label: "Not Equal To", annotation: "math not equal unequal inequality logic condition comparison", tags: ["math"] },
+  { hexcode: "2248", label: "Approximately Equal", annotation: "math approximate approx estimate similar rounding calculation", tags: ["math"] },
+  { hexcode: "2205", label: "Empty Set", annotation: "math empty set null zero void logic philosophy", tags: ["math"] },
+  { hexcode: "269b", label: "Atom Structure", annotation: "science atom nucleus electron energy physics chemistry engineering nuclear", tags: ["science", "physics"] },
+  { hexcode: "212b", label: "Angstrom", annotation: "science angstrom unit wave length measurement spacing atomic physics distance", tags: ["science", "physics"] },
+  { hexcode: "2349", label: "Ohm Sign", annotation: "science ohm electrical resistance physics law omega circuit electricity", tags: ["science", "physics"] },
+  { hexcode: "ce4", label: "Xi Symbol", annotation: "science math xi greek letter chemistry thermodynamics particle physics physics", tags: ["science", "math"] }
+];
+
+const CS_COLOURS = [
+  { key: "who",    bg: "#F07800", label: "Who",      fullLabel: "Who / People & Pronouns",      textCol: "#ffffff" },
+  { key: "doing",  bg: "#FFD700", label: "Doing",    fullLabel: "Doing What / Verbs & Actions", textCol: "#333333" },
+  { key: "what",   bg: "#007A00", label: "What",     fullLabel: "What / Nouns & Objects",       textCol: "#ffffff" },
+  { key: "where",  bg: "#0055CC", label: "Where",    fullLabel: "Where / Prepositions & Places",textCol: "#ffffff" },
+  { key: "whom",   bg: "#E040A0", label: "To Whom",  fullLabel: "To Whom / Social & Emotions",  textCol: "#ffffff" },
+  { key: "when",   bg: "#8B4513", label: "When",     fullLabel: "When / Time & Sequencing",     textCol: "#ffffff" },
+  { key: "how",    bg: "#222222", label: "How",      fullLabel: "How / Adverbs & Manner",       textCol: "#ffffff" },
+  { key: "why",    bg: "#6A0DAD", label: "Why",      fullLabel: "Why / Reasons & Conjunctions", textCol: "#ffffff" },
+  { key: "none",   bg: "",        label: "None",     fullLabel: "No Colour",                    textCol: "#1e2640" },
+  { key: "silver", bg: "#A8A8A8", label: "Silver",   fullLabel: "Silver / Extra",               textCol: "#ffffff" },
+  { key: "gold",   bg: "#C8960C", label: "Gold",     fullLabel: "Gold / Extra",                 textCol: "#ffffff" },
+];
+
+function contrastText(hex) {
+  if (!hex) return "#1e2640";
+  const r = parseInt(hex.slice(1,3), 16);
+  const g = parseInt(hex.slice(3,5), 16);
+  const b = parseInt(hex.slice(5,7), 16);
+  return (r*299 + g*587 + b*114) / 1000 < 128 ? "#ffffff" : "#333333";
+}
+
+function setStatus(msg, type) {
+  const b = document.getElementById("status-banner");
+  b.className = type || "";
+  b.textContent = msg;
+  if (!type) b.style.display = "none";
+}
+
+async function loadEmoji() {
+  if (EMOJI_DATA) return EMOJI_DATA;
+  if (EMOJI_LOADING) {
+    await new Promise(function(r) {
+      const t = setInterval(function() { if (!EMOJI_LOADING) { clearInterval(t); r(); } }, 100);
+    });
+    return EMOJI_DATA;
+  }
+  EMOJI_LOADING = true;
+  setStatus("Loading symbol database...", "loading");
+  try {
+    const res = await fetch(EMOJIBASE_URL, { cache: "force-cache" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const primaryData = await res.json();
+    EMOJI_DATA = CUSTOM_UNICODE_ITEMS.concat(primaryData);
+    setStatus("", "");
+    return EMOJI_DATA;
+  } catch (e) {
+    console.error(e);
+    EMOJI_DATA = CUSTOM_UNICODE_ITEMS.slice();
+    setStatus("Running on built-in symbol registry mode.", "error");
+    return EMOJI_DATA;
+  } finally {
+    EMOJI_LOADING = false;
+  }
+}
+
+function selectedToneIndex() {
+  const v = document.querySelector("input[name=skinToneOpt]:checked").value;
+  if (v === "none") return null;
+  const idx = TONE_CODES.indexOf(v.toUpperCase());
+  return idx >= 0 ? idx + 1 : null;
+}
+
+function selectedToneHex() {
+  const v = document.querySelector("input[name=skinToneOpt]:checked").value;
+  return v === "none" ? "" : v.toUpperCase();
+}
+
+function hexToGlyph(hex) {
+  try {
+    return String.fromCodePoint.apply(null, hex.split("-").map(function(h) { return parseInt(h, 16); }));
+  } catch {
+    return "";
+  }
+}
+
+function emojiToHexSequence(emojiStr) {
+  const codePoints = [];
+  for (const char of emojiStr) {
+    const cp = char.codePointAt(0);
+    if (cp) codePoints.push(cp.toString(16).toLowerCase());
+  }
+  return codePoints.join("-");
+}
+
+function containsRawEmoji(str) {
+  const regex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F000}-\u{1FBF0}\u{1D100}-\u{1D1FF}\u{2200}-\u{22FF}]/u;
+  return regex.test(str);
+}
+
+function normalizeTwemoji(hex) {
+  const parts = hex.toLowerCase().split("-");
+  const hasZWJ = parts.indexOf("200d") >= 0;
+  return parts.filter(function(p) { return p !== "fe0f" || hasZWJ; }).join("-");
+}
+
+function twemojiUrl(hex) {
+  return "https://cdnjs.cloudflare.com/ajax/libs/twemoji/16.0.1/72x72/" + normalizeTwemoji(hex) + ".png";
+}
+
+function openmojiUrl(hex) {
+  return "https://cdn.jsdelivr.net/npm/openmoji@16.0.0/color/618x618/" + hex.toUpperCase() + ".png";
+}
+
+function notoUrl(hex) {
+  const name = "emoji_u" + hex.toLowerCase().replace(/-/g, "_");
+  return "https://cdn.jsdelivr.net/gh/googlefonts/noto-emoji@main/png/128/" + name + ".png";
+}
+
+const TONE_TARGETS = new Set([
+  "261D","270A","270B","270C","270D","1F44A","1F44B","1F44C","1F44D","1F44E",
+  "1F44F","1F450","1F485","1F4AA","1F595","1F596","1F918","1F919","1F91A",
+  "1F91B","1F91C","1F91D","1F91E","1F91F","1F932","1F933","1F9B5","1F9B6",
+  "1F9BB","1FAF0","1FAF1","1FAF2","1FAF3","1FAF4","1FAF5","1FAF6","1FAF7","1FAF8",
+  "1F466","1F467","1F468","1F469","1F46E","1F470","1F471","1F472","1F473",
+  "1F474","1F475","1F476","1F477","1F478","1F47C","1F481","1F482","1F575",
+  "1F645","1F646","1F647","1F64B","1F64D","1F64E","1F64F",
+  "1F6A3","1F6B4","1F6B5","1F6B6","1F926","1F937","1F938","1F939","1F93C",
+  "1F93D","1F93E","1F9B8","1F9B9","1F9BC","1F9BD","1F9CC","1F9CD","1F9CE",
+  "1F9CF","1F9D0","1F9D1","1F9D2","1F9D3","1F9D4","1F9D5","1F9D6","1F9D7",
+  "1F9D8","1F9D9","1F9DA","1F9DB","1F9DC","1F9DD","1FAC3","1FAC4","1FAC5",
+  "26F9","1F3C2","1F3C3","1F3C4","1F3C7","1F3CA","1F3CB","1F3CC"
+]);
+
+function isToneTarget(hexPart) {
+  return TONE_TARGETS.has(hexPart.toUpperCase());
+}
+
+function applyToneUniversal(rawHex, toneHex) {
+  const stripped = rawHex.toUpperCase().split("-")
+    .filter(function(p) { return TONE_CODES.indexOf(p) < 0; })
+    .join("-");
+  if (!toneHex) return stripped.toLowerCase();
+  const tone = toneHex.toUpperCase();
+  const segments = stripped.split("-200D-");
+  const tonedSegments = segments.map(function(seg) {
+    const parts = seg.split("-");
+    if (isToneTarget(parts[0])) {
+      return [parts[0], tone].concat(parts.slice(1)).join("-");
+    }
+    return seg;
+  });
+  return tonedSegments.join("-200D-").toLowerCase();
+}
+
+function pickVariants(emoji, toneIndex, showAll) {
+  const skins = emoji.skins || [];
+  const base = emoji.hexcode ? emoji.hexcode.toLowerCase() : null;
+  if (!skins.length) return base ? [base] : [];
+  if (showAll) return skins.map(function(s) { return s.hexcode.toLowerCase(); });
+  if (!toneIndex) return base ? [base] : [];
+
+  let match = skins.find(function(s) {
+    const t = s.tone;
+    return Array.isArray(t) ? t.indexOf(toneIndex) >= 0 : t === toneIndex;
+  });
+  if (match) return [match.hexcode.toLowerCase()];
+
+  const toneHex = TONE_CODES[toneIndex - 1].toLowerCase();
+  match = skins.find(function(s) { return s.hexcode.toLowerCase().indexOf(toneHex) >= 0; });
+  return match ? [match.hexcode.toLowerCase()] : base ? [base] : [];
+}
+
+function matchQuery(e, q) {
+  const block = [e.label, e.annotation].concat(e.tags || []).concat(e.shortcodes || [])
+    .filter(Boolean).map(function(s) { return s.toLowerCase(); }).join(" ");
+  return block.indexOf(q) >= 0;
+}
+
+function imgError(img) {
+  img.style.display = "none";
+  img.title = "Image rendering fallback active";
+  const parent = img.closest(".result-tile") || img.closest(".sentence-card");
+  if (parent) {
+    const glyphContainer = parent.querySelector(".glyph, .glyph-display");
+    if (glyphContainer) {
+      glyphContainer.style.display = "flex";
+      glyphContainer.style.width = "100%";
+      glyphContainer.style.fontSize = "44px";
+    }
+  }
+}
+
+let SENTENCE_ITEMS = [];
+let DECOY_ITEMS = [];
+let DRAG_SRC_INDEX = null;
+
+function initPlacementMat() {
+  const container = document.getElementById("placementMatRow");
+  container.innerHTML = "";
+
+  const usedKeys = new Set(
+    SENTENCE_ITEMS.map(function(item) { return item.csKey; }).filter(function(k) { return k && k !== "none" && k !== "silver" && k !== "gold"; })
+  );
+
+  const standardSlots = CS_COLOURS.filter(function(c) { 
+    return c.key !== "none" && c.key !== "silver" && c.key !== "gold";
+  });
+  const slotsToShow = usedKeys.size > 0
+    ? standardSlots.filter(function(c) { return usedKeys.has(c.key); })
+    : standardSlots;
+
+  slotsToShow.forEach(function(def) {
+    const slot = document.createElement("div");
+    slot.className = "mat-slot";
+    slot.dataset.csKey = def.key;
+
+    const lbl = document.createElement("div");
+    lbl.className = "mat-slot-label";
+    lbl.textContent = def.label;
+    lbl.style.background = def.bg;
+    lbl.style.color = def.textCol;
+
+    const q = document.createElement("div");
+    q.className = "mat-slot-q";
+    q.textContent = "?";
+
+    slot.appendChild(lbl);
+    slot.appendChild(q);
+
+    slot.addEventListener("dragover", function(e) {
+      e.preventDefault();
+      slot.classList.add("drag-over");
+    });
+    slot.addEventListener("dragleave", function() {
+      slot.classList.remove("drag-over");
+    });
+    slot.addEventListener("drop", function(e) {
+      e.preventDefault();
+      slot.classList.remove("drag-over");
+      const cardIdx = parseInt(e.dataTransfer.getData("text/plain"), 10);
+      if (!isNaN(cardIdx)) {
+        assignColourToCard(cardIdx, def.key);
+      }
+    });
+
+    container.appendChild(slot);
+  });
+}
+
+async function runSearch() {
+  let rawQuery = document.getElementById("wordInput").value.trim();
+  if (!rawQuery) return;
+
+  const resultsEl = document.getElementById("results");
+  const countEl = document.getElementById("result-count");
+
+  resultsEl.innerHTML = "";
+  countEl.style.display = "none";
+
+  for (let i = 0; i < 12; i++) {
+    const sk = document.createElement("div");
+    sk.className = "skeleton";
+    resultsEl.appendChild(sk);
+  }
+
+  const data = await loadEmoji();
+  resultsEl.innerHTML = "";
+
+  const libs = Array.from(document.querySelectorAll(".emoji-lib:checked")).map(function(el) { return el.value; });
+  const showGlyph = document.getElementById("toggleEmojiGlyph").checked;
+  const globalToneIdx = selectedToneIndex();
+  const globalToneHex = selectedToneHex();
+  const showAllTones = document.getElementById("toggleAllTones").checked;
+
+  let filtered = [];
+
+  if (containsRawEmoji(rawQuery)) {
+    const extractedHex = emojiToHexSequence(rawQuery);
+    const existingMatch = data.find(function(e) { return e.hexcode && e.hexcode.toLowerCase() === extractedHex; });
+    if (existingMatch) {
+      filtered.push(existingMatch);
+    } else {
+      filtered.push({
+        hexcode: extractedHex,
+        label: "Pasted Notation",
+        annotation: "custom pasted notation unicode symbol",
+        tags: ["custom"],
+        group: 0,
+        subgroup: 0
+      });
+    }
+  } else {
+    const queryLower = rawQuery.toLowerCase();
+    filtered = data.filter(function(e) { return matchQuery(e, queryLower); });
+  }
+
+  if (filtered.length === 0) {
+    countEl.style.display = "inline-block";
+    countEl.textContent = "0 matches";
+    resultsEl.innerHTML = 
+      '<div class="empty-state">' +
+        '<div class="icon">💨</div>' +
+        '<h3>No symbols matched "' + rawQuery + '"</h3>' +
+        '<p>Try matching simple phrases or paste your raw specific layout symbol directly.</p>' +
+      '</div>';
+    return;
+  }
+
+  let totalTilesRendered = 0;
+
+  filtered.forEach(function(emoji) {
+    const hexVariants = pickVariants(emoji, globalToneIdx, showAllTones);
+    hexVariants.forEach(function(rawHex) {
+      const hex = globalToneHex ? applyToneUniversal(rawHex, globalToneHex) : rawHex;
+      totalTilesRendered++;
+      const glyph = hexToGlyph(hex);
+
+      const tile = document.createElement("div");
+      tile.className = "result-tile";
+
+      let imgHtml = "";
+      let hasImg = false;
+
+      if (libs.indexOf("twemoji") >= 0) { imgHtml = '<img src="' + twemojiUrl(hex) + '" onerror="imgError(this)" alt="" />'; hasImg = true; }
+      else if (libs.indexOf("openmoji") >= 0) { imgHtml = '<img src="' + openmojiUrl(hex) + '" onerror="imgError(this)" alt="" />'; hasImg = true; }
+      else if (libs.indexOf("noto") >= 0) { imgHtml = '<img src="' + notoUrl(hex) + '" onerror="imgError(this)" alt="" />'; hasImg = true; }
+
+      const glyphStyle = (hasImg && libs.length > 0) ? 'style="display:none;"' : '';
+      const systemGlyphHtml = showGlyph 
+        ? '<div class="glyph" ' + glyphStyle + '>' + glyph + '</div>'
+        : '<div class="glyph" style="display:none;">' + glyph + '</div>';
+
+      tile.innerHTML = 
+        '<div class="tile-overlay"></div>' +
+        imgHtml +
+        systemGlyphHtml +
+        '<div class="tile-word">' + (emoji.label || emoji.annotation) + '</div>' +
+        '<select class="tile-tone-select" style="margin-top:auto">' +
+          '<option value="">Default Tone</option>' +
+          TONE_CODES.map(function(tc, i) { 
+            return '<option value="' + tc + '"' + (hex.indexOf(tc.toLowerCase()) >= 0 ? ' selected' : '') + '>Tone ' + (i+1) + '</option>';
+          }).join("") +
+        '</select>' +
+        '<span class="tile-add-hint">✨ Click to Add</span>' +
+        '<span class="tile-decoy-hint" title="Add as decoy/distractor">🎯 Decoy</span>';
+
+      const select = tile.querySelector(".tile-tone-select");
+      select.addEventListener("click", function(e) { e.stopPropagation(); });
+      select.addEventListener("change", function(e) {
+        const val = e.target.value.toLowerCase();
+        let newHex = emoji.hexcode.toLowerCase();
+        if (val) {
+          newHex = applyToneUniversal(emoji.hexcode.toLowerCase(), val);
+        }
+        const newGlyph = hexToGlyph(newHex);
+        const tileImg = tile.querySelector("img");
+        if (tileImg) {
+          tileImg.style.display = "block";
+          if (libs.indexOf("twemoji") >= 0) tileImg.src = twemojiUrl(newHex);
+          else if (libs.indexOf("openmoji") >= 0) tileImg.src = openmojiUrl(newHex);
+          else if (libs.indexOf("noto") >= 0) tileImg.src = notoUrl(newHex);
+        }
+        const tileGlyph = tile.querySelector(".glyph");
+        if (tileGlyph) tileGlyph.textContent = newGlyph;
+        tile.setAttribute("data-hex", newHex);
+      });
+
+      tile.setAttribute("data-hex", hex);
+      tile.setAttribute("data-label", emoji.label || emoji.annotation);
+
+      tile.addEventListener("click", function(e) {
+        // Check if decoy hint was clicked
+        if (e.target.classList && e.target.classList.contains("tile-decoy-hint")) {
+          e.stopPropagation();
+          const activeHex = tile.getAttribute("data-hex");
+          addToDecoy(activeHex, emoji.label || emoji.annotation);
+          return;
+        }
+        // Shift+click adds as decoy
+        if (e.shiftKey) {
+          const activeHex = tile.getAttribute("data-hex");
+          addToDecoy(activeHex, emoji.label || emoji.annotation);
+          return;
+        }
+        const activeHex = tile.getAttribute("data-hex");
+        addToSentence(activeHex, emoji.label || emoji.annotation);
+      });
+
+      resultsEl.appendChild(tile);
+    });
+  });
+
+  countEl.style.display = "inline-block";
+  countEl.textContent = totalTilesRendered + " cards populated";
+}
+
+function addToSentence(hex, label) {
+  SENTENCE_ITEMS.push({ hex: hex, label: label, csKey: "none" });
+  renderSentence();
+}
+
+function removeCard(idx) {
+  SENTENCE_ITEMS.splice(idx, 1);
+  renderSentence();
+}
+
+function assignColourToCard(idx, colourKey) {
+  if (SENTENCE_ITEMS[idx]) {
+    SENTENCE_ITEMS[idx].csKey = colourKey;
+    renderSentence();
+  }
+}
+
+function updateCardLabel(idx, newText) {
+  if (SENTENCE_ITEMS[idx]) {
+    SENTENCE_ITEMS[idx].label = newText;
+  }
+}
+
+function addToDecoy(hex, label) {
+  DECOY_ITEMS.push({ hex: hex, label: label, csKey: "none" });
+  renderDecoys();
+}
+
+function removeDecoy(idx) {
+  DECOY_ITEMS.splice(idx, 1);
+  renderDecoys();
+}
+
+function updateDecoyLabel(idx, newText) {
+  if (DECOY_ITEMS[idx]) {
+    DECOY_ITEMS[idx].label = newText;
+  }
+}
+
+function assignColourToDecoy(idx, colourKey) {
+  if (DECOY_ITEMS[idx]) {
+    DECOY_ITEMS[idx].csKey = colourKey;
+    renderDecoys();
+  }
+}
+
+function renderDecoys() {
+  const container = document.getElementById("decoyStrip");
+  const emptyEl = document.getElementById("decoy-empty");
+
+  // Remove existing decoy cards
+  const childs = Array.from(container.children);
+  childs.forEach(function(c) { if(c.id !== "decoy-empty") c.remove(); });
+
+  if (DECOY_ITEMS.length === 0) {
+    emptyEl.style.display = "block";
+    return;
+  }
+
+  emptyEl.style.display = "none";
+
+  const libs = Array.from(document.querySelectorAll(".emoji-lib:checked")).map(function(el) { return el.value; });
+  const showGlyph = document.getElementById("toggleEmojiGlyph").checked;
+
+  DECOY_ITEMS.forEach(function(item, idx) {
+    const card = document.createElement("div");
+    card.className = "decoy-card";
+    card.draggable = true;
+    card.dataset.index = idx;
+
+    // Apply CS colour if assigned
+    const csDef = CS_COLOURS.find(function(c) { return c.key === item.csKey; });
+    if (csDef && csDef.bg) {
+      card.style.backgroundColor = csDef.bg + "22";
+      card.style.borderColor = csDef.bg;
+      card.classList.add("cs-coloured");
+    } else {
+      card.style.backgroundColor = "";
+      card.style.borderColor = "var(--amber)";
+      card.classList.remove("cs-coloured");
+    }
+
+    let imgHtml = "";
+    let hasImg = false;
+    if (libs.indexOf("twemoji") >= 0) { imgHtml = '<img src="' + twemojiUrl(item.hex) + '" onerror="imgError(this)" alt="" />'; hasImg = true; }
+    else if (libs.indexOf("openmoji") >= 0) { imgHtml = '<img src="' + openmojiUrl(item.hex) + '" onerror="imgError(this)" alt="" />'; hasImg = true; }
+    else if (libs.indexOf("noto") >= 0) { imgHtml = '<img src="' + notoUrl(item.hex) + '" onerror="imgError(this)" alt="" />'; hasImg = true; }
+
+    const glyphStyle = (hasImg && libs.length > 0) ? 'style="display:none;"' : '';
+    const systemGlyphHtml = showGlyph 
+      ? '<div class="glyph-display" ' + glyphStyle + '>' + hexToGlyph(item.hex) + '</div>'
+      : '<div class="glyph-display" style="display:none;">' + hexToGlyph(item.hex) + '</div>';
+
+    let swatchesHtml = "";
+    CS_COLOURS.forEach(function(c) {
+      const isActive = item.csKey === c.key ? "active" : "";
+      if (c.key === "none") {
+        swatchesHtml += '<div class="cs-swatch ' + isActive + '" style="background:#f4f6fb;position:relative;display:flex;align-items:center;justify-content:center;" data-color="clear" title="Clear color">' +
+          '<svg viewBox="0 0 16 16" width="10" height="10"><line x1="3" y1="3" x2="13" y2="13" stroke="#999" stroke-width="2"/><line x1="13" y1="3" x2="3" y2="13" stroke="#999" stroke-width="2"/></svg></div>';
+      } else {
+        swatchesHtml += '<div class="cs-swatch ' + isActive + '" style="background:' + c.bg + '" data-color="' + c.key + '" title="' + c.fullLabel + '"></div>';
+      }
+    });
+
+    card.innerHTML = 
+      '<span class="move-hint">↔ drag to move</span>' +
+      '<button class="remove-btn" title="Remove">×</button>' +
+      imgHtml +
+      systemGlyphHtml +
+      '<div class="card-label" title="Click to edit text description">' + item.label + '</div>' +
+      '<div class="cs-colour-popup">' + swatchesHtml + '</div>';
+
+    // ── LABEL EDIT ──
+    const labelEl = card.querySelector(".card-label");
+    labelEl.addEventListener("click", function(e) {
+      e.stopPropagation();
+      const current = labelEl.textContent;
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "card-label-input";
+      input.value = current;
+      card.replaceChild(input, labelEl);
+      input.focus();
+
+      function saveLabel() {
+        const val = input.value.trim() || current;
+        updateDecoyLabel(idx, val);
+        renderDecoys();
+      }
+      input.addEventListener("keydown", function(e) { if(e.key === "Enter") saveLabel(); });
+      input.addEventListener("blur", saveLabel);
+    });
+
+    // ── DRAG & DROP REORDERING ──
+    card.addEventListener("dragstart", function(e) {
+      DRAG_SRC_INDEX = idx;
+      e.dataTransfer.setData("text/plain", "decoy-" + idx.toString());
+      e.dataTransfer.effectAllowed = "move";
+      card.classList.add("dragging");
+    });
+
+    card.addEventListener("dragend", function() {
+      card.classList.remove("dragging");
+      DRAG_SRC_INDEX = null;
+      document.querySelectorAll(".drop-indicator").forEach(function(el) { el.remove(); });
+    });
+
+    card.addEventListener("dragover", function(e) {
+      e.preventDefault();
+      if (DRAG_SRC_INDEX === null || DRAG_SRC_INDEX === idx) return;
+      e.dataTransfer.dropEffect = "move";
+
+      const rect = card.getBoundingClientRect();
+      const midpoint = rect.left + rect.width / 2;
+      const dropBefore = e.clientX < midpoint;
+
+      document.querySelectorAll(".drop-indicator").forEach(function(el) { el.remove(); });
+
+      const indicator = document.createElement("div");
+      indicator.className = "drop-indicator active";
+      indicator.style.height = rect.height + "px";
+
+      if (dropBefore) {
+        card.parentNode.insertBefore(indicator, card);
+      } else {
+        card.parentNode.insertBefore(indicator, card.nextSibling);
+      }
+    });
+
+    card.addEventListener("dragleave", function(e) {
+      if (!card.contains(e.relatedTarget)) {
+        document.querySelectorAll(".drop-indicator").forEach(function(el) { el.remove(); });
+      }
+    });
+
+    card.addEventListener("drop", function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      document.querySelectorAll(".drop-indicator").forEach(function(el) { el.remove(); });
+
+      const data = e.dataTransfer.getData("text/plain");
+      if (!data || !data.startsWith("decoy-")) return;
+
+      const srcIdx = parseInt(data.replace("decoy-", ""), 10);
+      if (isNaN(srcIdx) || srcIdx === idx) return;
+
+      const rect = card.getBoundingClientRect();
+      const midpoint = rect.left + rect.width / 2;
+      const dropBefore = e.clientX < midpoint;
+
+      const movedItem = DECOY_ITEMS[srcIdx];
+      DECOY_ITEMS.splice(srcIdx, 1);
+
+      let insertAt = idx;
+      if (srcIdx < idx) {
+        insertAt = dropBefore ? idx - 1 : idx;
+      } else {
+        insertAt = dropBefore ? idx : idx + 1;
+      }
+
+      DECOY_ITEMS.splice(insertAt, 0, movedItem);
+      renderDecoys();
+    });
+
+    // ── REMOVE BUTTON ──
+    card.querySelector(".remove-btn").addEventListener("click", function(e) {
+      e.stopPropagation();
+      removeDecoy(idx);
+    });
+
+    // ── COLOUR SWATCHES ──
+    card.querySelectorAll(".cs-swatch").forEach(function(swatch) {
+      swatch.addEventListener("click", function(e) {
+        e.stopPropagation();
+        const targetColor = swatch.getAttribute("data-color");
+        assignColourToDecoy(idx, targetColor === "clear" ? "none" : targetColor);
+      });
+    });
+
+    container.appendChild(card);
+  });
+}
+
+function renderSentence() {
+  const container = document.getElementById("sentence");
+
+  const childs = Array.from(container.children);
+  childs.forEach(function(c) { if(c.id !== "sentence-empty") c.remove(); });
+
+  const emptyEl = document.getElementById("sentence-empty");
+
+  if (SENTENCE_ITEMS.length === 0) {
+    emptyEl.style.display = "block";
+    return;
+  }
+
+  emptyEl.style.display = "none";
+
+  const libs = Array.from(document.querySelectorAll(".emoji-lib:checked")).map(function(el) { return el.value; });
+  const showGlyph = document.getElementById("toggleEmojiGlyph").checked;
+
+  SENTENCE_ITEMS.forEach(function(item, idx) {
+    const card = document.createElement("div");
+    card.className = "sentence-card";
+    card.draggable = true;
+    card.dataset.index = idx;
+
+    const csDef = CS_COLOURS.find(function(c) { return c.key === item.csKey; });
+    if (csDef && csDef.bg) {
+      card.style.backgroundColor = csDef.bg + "22";
+      card.style.borderColor = csDef.bg;
+      card.classList.add("cs-coloured");
+    } else {
+      card.style.backgroundColor = "";
+      card.style.borderColor = "transparent";
+      card.classList.remove("cs-coloured");
+    }
+
+    let imgHtml = "";
+    let hasImg = false;
+    if (libs.indexOf("twemoji") >= 0) { imgHtml = '<img src="' + twemojiUrl(item.hex) + '" onerror="imgError(this)" alt="" />'; hasImg = true; }
+    else if (libs.indexOf("openmoji") >= 0) { imgHtml = '<img src="' + openmojiUrl(item.hex) + '" onerror="imgError(this)" alt="" />'; hasImg = true; }
+    else if (libs.indexOf("noto") >= 0) { imgHtml = '<img src="' + notoUrl(item.hex) + '" onerror="imgError(this)" alt="" />'; hasImg = true; }
+
+    const glyphStyle = (hasImg && libs.length > 0) ? 'style="display:none;"' : '';
+    const systemGlyphHtml = showGlyph 
+      ? '<div class="glyph-display" ' + glyphStyle + '>' + hexToGlyph(item.hex) + '</div>'
+      : '<div class="glyph-display" style="display:none;">' + hexToGlyph(item.hex) + '</div>';
+
+    let swatchesHtml = "";
+    CS_COLOURS.forEach(function(c) {
+      const isActive = item.csKey === c.key ? "active" : "";
+      if (c.key === "none") {
+        swatchesHtml += '<div class="cs-swatch ' + isActive + '" style="background:#f4f6fb;position:relative;display:flex;align-items:center;justify-content:center;" data-color="clear" title="Clear color">' +
+          '<svg viewBox="0 0 16 16" width="10" height="10"><line x1="3" y1="3" x2="13" y2="13" stroke="#999" stroke-width="2"/><line x1="13" y1="3" x2="3" y2="13" stroke="#999" stroke-width="2"/></svg></div>';
+      } else {
+        swatchesHtml += '<div class="cs-swatch ' + isActive + '" style="background:' + c.bg + '" data-color="' + c.key + '" title="' + c.fullLabel + '"></div>';
+      }
+    });
+
+    card.innerHTML = 
+      '<span class="move-hint">↔ drag to move</span>' +
+      '<button class="remove-btn" title="Remove">×</button>' +
+      imgHtml +
+      systemGlyphHtml +
+      '<div class="card-label" title="Click to edit text description">' + item.label + '</div>' +
+      '<div class="cs-colour-popup">' + swatchesHtml + '</div>';
+
+    // ── LABEL EDIT ──
+    const labelEl = card.querySelector(".card-label");
+    labelEl.addEventListener("click", function(e) {
+      e.stopPropagation();
+      const current = labelEl.textContent;
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "card-label-input";
+      input.value = current;
+      card.replaceChild(input, labelEl);
+      input.focus();
+
+      function saveLabel() {
+        const val = input.value.trim() || current;
+        updateCardLabel(idx, val);
+        renderSentence();
+      }
+      input.addEventListener("keydown", function(e) { if(e.key === "Enter") saveLabel(); });
+      input.addEventListener("blur", saveLabel);
+    });
+
+    // ── DRAG & DROP REORDERING (fixed) ──
+    card.addEventListener("dragstart", function(e) {
+      DRAG_SRC_INDEX = idx;
+      e.dataTransfer.setData("text/plain", idx.toString());
+      e.dataTransfer.effectAllowed = "move";
+      card.classList.add("dragging");
+    });
+
+    card.addEventListener("dragend", function() {
+      card.classList.remove("dragging");
+      DRAG_SRC_INDEX = null;
+      document.querySelectorAll(".drop-indicator").forEach(function(el) { el.remove(); });
+    });
+
+    card.addEventListener("dragover", function(e) {
+      e.preventDefault();
+      if (DRAG_SRC_INDEX === null || DRAG_SRC_INDEX === idx) return;
+      e.dataTransfer.dropEffect = "move";
+
+      const rect = card.getBoundingClientRect();
+      const midpoint = rect.left + rect.width / 2;
+      const dropBefore = e.clientX < midpoint;
+
+      document.querySelectorAll(".drop-indicator").forEach(function(el) { el.remove(); });
+
+      const indicator = document.createElement("div");
+      indicator.className = "drop-indicator active";
+      indicator.style.height = rect.height + "px";
+
+      if (dropBefore) {
+        card.parentNode.insertBefore(indicator, card);
+      } else {
+        card.parentNode.insertBefore(indicator, card.nextSibling);
+      }
+    });
+
+    card.addEventListener("dragleave", function(e) {
+      if (!card.contains(e.relatedTarget)) {
+        document.querySelectorAll(".drop-indicator").forEach(function(el) { el.remove(); });
+      }
+    });
+
+    card.addEventListener("drop", function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      document.querySelectorAll(".drop-indicator").forEach(function(el) { el.remove(); });
+
+      const srcIdx = parseInt(e.dataTransfer.getData("text/plain"), 10);
+      if (isNaN(srcIdx) || srcIdx === idx) return;
+
+      const rect = card.getBoundingClientRect();
+      const midpoint = rect.left + rect.width / 2;
+      const dropBefore = e.clientX < midpoint;
+
+      // Simple, reliable reorder: remove from src, insert at target
+      const movedItem = SENTENCE_ITEMS[srcIdx];
+      SENTENCE_ITEMS.splice(srcIdx, 1);
+
+      // Calculate insertion index after removal
+      let insertAt = idx;
+      if (srcIdx < idx) {
+        // Item was before target, so target index shifted down by 1
+        insertAt = dropBefore ? idx - 1 : idx;
+      } else {
+        // Item was after target, index unchanged
+        insertAt = dropBefore ? idx : idx + 1;
+      }
+
+      SENTENCE_ITEMS.splice(insertAt, 0, movedItem);
+      renderSentence();
+    });
+
+    // ── REMOVE BUTTON ──
+    card.querySelector(".remove-btn").addEventListener("click", function(e) {
+      e.stopPropagation();
+      removeCard(idx);
+    });
+
+    // ── COLOUR SWATCHES ──
+    card.querySelectorAll(".cs-swatch").forEach(function(swatch) {
+      swatch.addEventListener("click", function(e) {
+        e.stopPropagation();
+        const targetColor = swatch.getAttribute("data-color");
+        assignColourToCard(idx, targetColor === "clear" ? "none" : targetColor);
+      });
+    });
+
+    container.appendChild(card);
+  });
+
+  initPlacementMat();
+}
+
+function handleSpeech() {
+  if (SENTENCE_ITEMS.length === 0) return;
+  const phrase = SENTENCE_ITEMS.map(function(i) { return i.label; }).join(" ");
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(phrase);
+    utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
+  } else {
+    alert("Speech synthesis is not supported on this device/browser.");
+  }
+}
+
+function handleClear() {
+  SENTENCE_ITEMS = [];
+  DECOY_ITEMS = [];
+  renderSentence();
+  renderDecoys();
+}
+
+function handleSave() {
+  if (SENTENCE_ITEMS.length === 0) {
+    alert("Please build a sentence board sequence first before export extraction.");
+    return;
+  }
+
+  const includeStory = document.getElementById("toggleStoryInExport").checked;
+  const storyImgSrc = document.getElementById("storyPreviewImg").src;
+  const storyVisible = document.getElementById("storyPreview").style.display === "block";
+  const mainImgSrc = document.getElementById("mainWorkspaceImg").src;
+  const mainImgVisible = document.getElementById("mainWorkspaceImg").style.display !== "none";
+
+  const sandbox = document.createElement("div");
+  sandbox.style.position = "absolute";
+  sandbox.style.left = "-9999px";
+  sandbox.style.top = "-9999px";
+  sandbox.style.width = "800px";
+  sandbox.style.background = "#ffffff";
+  sandbox.style.padding = "24px";
+  sandbox.style.borderRadius = "12px";
+  sandbox.style.display = "flex";
+  sandbox.style.flexDirection = "column";
+  sandbox.style.gap = "20px";
+
+  const exportHeader = document.createElement("div");
+  exportHeader.style.borderBottom = "3px solid #2ecc8e";
+  exportHeader.style.paddingBottom = "10px";
+  exportHeader.style.marginBottom = "5px";
+  exportHeader.innerHTML = 
+    '<h1 style="font-family: Nunito, sans-serif; font-size:24px; color:#1e2640; margin:0">AAC Colourful Semantics Board Worksheet</h1>' +
+    '<p style="font-family: Nunito Sans, sans-serif; font-size:13px; color:#6b7494; margin:3px 0 0 0">Created via Talking in Pictures Builder</p>';
+  sandbox.appendChild(exportHeader);
+
+  // Use main workspace image if available, otherwise fall back to story preview
+  const displayImgSrc = (mainImgVisible && mainImgSrc) ? mainImgSrc : (storyVisible ? storyImgSrc : null);
+
+  if (includeStory && displayImgSrc) {
+    const storyContainer = document.createElement("div");
+    storyContainer.style.textAlign = "center";
+    storyContainer.style.width = "100%";
+    storyContainer.style.background = "#f4f6fb";
+    storyContainer.style.padding = "12px";
+    storyContainer.style.borderRadius = "8px";
+
+    const sImg = document.createElement("img");
+    sImg.src = displayImgSrc;
+    sImg.style.maxHeight = "220px";
+    sImg.style.maxWidth = "100%";
+    sImg.style.objectFit = "contain";
+    sImg.style.borderRadius = "6px";
+
+    storyContainer.appendChild(sImg);
+    sandbox.appendChild(storyContainer);
+  }
+
+  // ── PLACEMENT MAT: one slot per card, matching each card's assigned colour ──
+  const matCopy = document.createElement("div");
+  matCopy.style.display = "flex";
+  matCopy.style.gap = "10px";
+  matCopy.style.padding = "10px 0";
+  matCopy.style.flexWrap = "wrap";
+  matCopy.style.justifyContent = "center";
+
+  // Build mat slots in the same order as sentence cards, one per card
+  SENTENCE_ITEMS.forEach(function(item) {
+    const csDef = CS_COLOURS.find(function(c) { return c.key === item.csKey; });
+    // Default to neutral grey if no colour assigned
+    const slotBg = (csDef && csDef.bg) ? csDef.bg : "#aab4d0";
+    const slotTextCol = (csDef && csDef.textCol) ? csDef.textCol : "#ffffff";
+    const slotLabel = (csDef && csDef.label) ? csDef.label : "?";
+
+    const slot = document.createElement("div");
+    slot.style.display = "flex";
+    slot.style.flexDirection = "column";
+    slot.style.alignItems = "center";
+    slot.style.justifyContent = "center";
+    slot.style.gap = "6px";
+    slot.style.width = "115px";
+    slot.style.height = "115px";
+    slot.style.border = "3px dashed " + slotBg;
+    slot.style.borderRadius = "8px";
+    slot.style.background = "#f8f9ff";
+
+    slot.innerHTML = 
+      '<div style="background:' + slotBg + '; color:' + slotTextCol + '; font-family:Nunito,sans-serif; font-size:11px; font-weight:800; text-align:center; padding:3px 6px; border-radius:4px; text-transform:uppercase;">' + slotLabel + '</div>' +
+      '<div style="font-family:Nunito,sans-serif; font-size:32px; font-weight:800; color:#aab4d0;">?</div>';
+    matCopy.appendChild(slot);
+  });
+  sandbox.appendChild(matCopy);
+
+  // ── SENTENCE CARDS (matching CS colours, cut-out ready) ──
+  const sentenceCopy = document.createElement("div");
+  sentenceCopy.style.display = "flex";
+  sentenceCopy.style.flexWrap = "wrap";
+  sentenceCopy.style.gap = "16px";
+  sentenceCopy.style.background = "#ffffff";
+  sentenceCopy.style.padding = "16px";
+  sentenceCopy.style.border = "2px solid #dde3f0";
+  sentenceCopy.style.borderRadius = "12px";
+  sentenceCopy.style.justifyContent = "center";
+
+  const libs = Array.from(document.querySelectorAll(".emoji-lib:checked")).map(function(el) { return el.value; });
+  const showGlyph = document.getElementById("toggleEmojiGlyph").checked;
+
+  SENTENCE_ITEMS.forEach(function(item) {
+    const sc = document.createElement("div");
+    sc.style.display = "flex";
+    sc.style.flexDirection = "column";
+    sc.style.alignItems = "center";
+    sc.style.gap = "8px";
+    sc.style.padding = "10px";
+    sc.style.borderRadius = "8px";
+    sc.style.width = "105px";
+    sc.style.minHeight = "120px";
+
+    const csDef = CS_COLOURS.find(function(c) { return c.key === item.csKey; });
+    // Use CS colour border if assigned, otherwise neutral grey
+    if (csDef && csDef.bg) {
+      sc.style.border = "4px solid " + csDef.bg;
+      sc.style.backgroundColor = csDef.bg + "18"; // ~10% opacity
+    } else {
+      sc.style.border = "2px solid #dde3f0";
+      sc.style.backgroundColor = "#ffffff";
+    }
+
+    let imgHtml = "";
+    let hasImg = false;
+    if (libs.indexOf("twemoji") >= 0) { imgHtml = '<img src="' + twemojiUrl(item.hex) + '" style="width:64px;height:64px;object-fit:contain;" alt="" />'; hasImg = true; }
+    else if (libs.indexOf("openmoji") >= 0) { imgHtml = '<img src="' + openmojiUrl(item.hex) + '" style="width:64px;height:64px;object-fit:contain;" alt="" />'; hasImg = true; }
+    else if (libs.indexOf("noto") >= 0) { imgHtml = '<img src="' + notoUrl(item.hex) + '" style="width:64px;height:64px;object-fit:contain;" alt="" />'; hasImg = true; }
+
+    const glyphStyle = (hasImg && libs.length > 0) ? 'style="display:none;"' : '';
+    const systemGlyphHtml = showGlyph 
+      ? '<div class="glyph-display" ' + glyphStyle + ' style="font-size:44px;line-height:1;width:64px;height:64px;display:flex;align-items:center;justify-content:center;color:#1e2640;">' + hexToGlyph(item.hex) + '</div>'
+      : '';
+
+    sc.innerHTML = 
+      imgHtml +
+      systemGlyphHtml +
+      '<div style="font-size:13px; font-weight:700; color:#1e2640; text-align:center; word-break:break-word; font-family: Nunito Sans, sans-serif; line-height:1.2;">' + item.label + '</div>';
+    sentenceCopy.appendChild(sc);
+  });
+
+  sandbox.appendChild(sentenceCopy);
+
+  // ── DECOY CARDS (if any) ──
+  if (DECOY_ITEMS.length > 0) {
+    const decoyHeader = document.createElement("div");
+    decoyHeader.style.fontFamily = "Nunito, sans-serif";
+    decoyHeader.style.fontSize = "14px";
+    decoyHeader.style.fontWeight = "800";
+    decoyHeader.style.color = "#b97a08";
+    decoyHeader.style.textTransform = "uppercase";
+    decoyHeader.style.letterSpacing = "0.05em";
+    decoyHeader.style.textAlign = "center";
+    decoyHeader.style.padding = "8px 0";
+    decoyHeader.style.borderTop = "2px dashed #f59e0b";
+    decoyHeader.style.marginTop = "10px";
+    decoyHeader.textContent = "Decoy / Distractor Symbols";
+    sandbox.appendChild(decoyHeader);
+
+    const decoyCopy = document.createElement("div");
+    decoyCopy.style.display = "flex";
+    decoyCopy.style.flexWrap = "wrap";
+    decoyCopy.style.gap = "16px";
+    decoyCopy.style.background = "#fff8e6";
+    decoyCopy.style.padding = "16px";
+    decoyCopy.style.border = "2px dashed #f59e0b";
+    decoyCopy.style.borderRadius = "12px";
+    decoyCopy.style.justifyContent = "center";
+
+    DECOY_ITEMS.forEach(function(item) {
+      const dc = document.createElement("div");
+      dc.style.display = "flex";
+      dc.style.flexDirection = "column";
+      dc.style.alignItems = "center";
+      dc.style.gap = "8px";
+      dc.style.padding = "10px";
+      dc.style.borderRadius = "8px";
+      dc.style.width = "105px";
+      dc.style.minHeight = "120px";
+
+      const dcsDef = CS_COLOURS.find(function(c) { return c.key === item.csKey; });
+      if (dcsDef && dcsDef.bg) {
+        dc.style.border = "4px solid " + dcsDef.bg;
+        dc.style.backgroundColor = dcsDef.bg + "18";
+      } else {
+        dc.style.border = "3px solid #f59e0b";
+        dc.style.backgroundColor = "#ffffff";
+      }
+
+      let imgHtml = "";
+      let hasImg = false;
+      if (libs.indexOf("twemoji") >= 0) { imgHtml = '<img src="' + twemojiUrl(item.hex) + '" style="width:64px;height:64px;object-fit:contain;" alt="" />'; hasImg = true; }
+      else if (libs.indexOf("openmoji") >= 0) { imgHtml = '<img src="' + openmojiUrl(item.hex) + '" style="width:64px;height:64px;object-fit:contain;" alt="" />'; hasImg = true; }
+      else if (libs.indexOf("noto") >= 0) { imgHtml = '<img src="' + notoUrl(item.hex) + '" style="width:64px;height:64px;object-fit:contain;" alt="" />'; hasImg = true; }
+
+      const glyphStyle = (hasImg && libs.length > 0) ? 'style="display:none;"' : '';
+      const systemGlyphHtml = showGlyph 
+        ? '<div class="glyph-display" ' + glyphStyle + ' style="font-size:44px;line-height:1;width:64px;height:64px;display:flex;align-items:center;justify-content:center;color:#1e2640;">' + hexToGlyph(item.hex) + '</div>'
+        : '';
+
+      dc.innerHTML = 
+        imgHtml +
+        systemGlyphHtml +
+        '<div style="font-size:13px; font-weight:700; color:#1e2640; text-align:center; word-break:break-word; font-family: Nunito Sans, sans-serif; line-height:1.2;">' + item.label + '</div>';
+      decoyCopy.appendChild(dc);
+    });
+
+    sandbox.appendChild(decoyCopy);
+  }
+
+  document.body.appendChild(sandbox);
+
+  setTimeout(function() {
+    html2canvas(sandbox, {
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: "#ffffff",
+      scale: 2
+    }).then(function(canvas) {
+      const link = document.createElement("a");
+      link.download = "aac-board-worksheet.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      document.body.removeChild(sandbox);
+    }).catch(function(err) {
+      console.error("Canvas export error:", err);
+      alert("Error building board export compilation asset frame.");
+      document.body.removeChild(sandbox);
+    });
+  }, 400);
+}
+
+function setStoryImage(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    // Update both the preview and the main workspace image
+    document.getElementById("storyPreviewImg").src = e.target.result;
+    document.getElementById("storyPreview").style.display = "block";
+    document.getElementById("dropZone").style.display = "none";
+    document.getElementById("btnRemoveStory").style.display = "inline-flex";
+
+    // Update main workspace area
+    document.getElementById("mainWorkspaceImg").src = e.target.result;
+    document.getElementById("mainWorkspaceImg").style.display = "block";
+    document.getElementById("mainImagePlaceholder").style.display = "none";
+    document.getElementById("btnRemoveMainImage").style.display = "inline-flex";
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearStoryImage() {
+  document.getElementById("storyPreviewImg").src = "";
+  document.getElementById("storyPreview").style.display = "none";
+  document.getElementById("dropZone").style.display = "flex";
+  document.getElementById("btnRemoveStory").style.display = "none";
+  document.getElementById("storyFileInput").value = "";
+
+  // Clear main workspace area too
+  document.getElementById("mainWorkspaceImg").src = "";
+  document.getElementById("mainWorkspaceImg").style.display = "none";
+  document.getElementById("mainImagePlaceholder").style.display = "flex";
+  document.getElementById("btnRemoveMainImage").style.display = "none";
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  initPlacementMat();
+
+  document.getElementById("btnSearch").addEventListener("click", runSearch);
+  document.getElementById("wordInput").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") runSearch();
+  });
+
+  document.getElementById("btnSpeak").addEventListener("click", handleSpeech);
+  document.getElementById("btnSave").addEventListener("click", handleSave);
+  document.getElementById("btnClear").addEventListener("click", handleClear);
+
+  document.getElementById("togglePlacementMat").addEventListener("change", function(e) {
+    const row = document.getElementById("placementMatRow");
+    if (e.target.checked) row.classList.add("visible");
+    else row.classList.remove("visible");
+  });
+
+  document.getElementById("toggleDecoyMode").addEventListener("change", function(e) {
+    const decoyContainer = document.getElementById("decoyStripContainer");
+    const appContainer = document.querySelector(".app-container");
+    if (e.target.checked) {
+      decoyContainer.classList.add("visible");
+      appContainer.classList.add("decoy-mode-active");
+    } else {
+      decoyContainer.classList.remove("visible");
+      appContainer.classList.remove("decoy-mode-active");
+    }
+  });
+
+  document.querySelectorAll(".emoji-lib").forEach(function(cb) {
+    cb.addEventListener("change", function(e) {
+      if (e.target.checked) {
+        document.querySelectorAll(".emoji-lib").forEach(function(other) { if(other !== e.target) other.checked = false; });
+      }
+      runSearch();
+    });
+  });
+  document.getElementById("toggleEmojiGlyph").addEventListener("change", runSearch);
+  document.querySelectorAll("input[name=skinToneOpt]").forEach(function(r) { r.addEventListener("change", runSearch); });
+  document.getElementById("toggleAllTones").addEventListener("change", runSearch);
+
+  document.querySelectorAll(".quick-chip").forEach(function(chip) {
+    chip.addEventListener("click", function() {
+      document.getElementById("wordInput").value = chip.getAttribute("data-word");
+      runSearch();
+    });
+  });
+
+  const fileIn = document.getElementById("storyFileInput");
+  fileIn.addEventListener("change", function(e) { if (e.target.files[0]) setStoryImage(e.target.files[0]); });
+  document.getElementById("removeStoryBtn").addEventListener("click", clearStoryImage);
+  document.getElementById("btnRemoveStory").addEventListener("click", clearStoryImage);
+  document.getElementById("btnRemoveMainImage").addEventListener("click", clearStoryImage);
+
+  const dz = document.getElementById("dropZone");
+  dz.addEventListener("dragover", function(e) { e.preventDefault(); dz.classList.add("dragover"); });
+  dz.addEventListener("dragleave", function() { dz.classList.remove("dragover"); });
+  dz.addEventListener("drop", function(e) {
+    e.preventDefault();
+    dz.classList.remove("dragover");
+    if (e.dataTransfer.files[0]) setStoryImage(e.dataTransfer.files[0]);
+  });
+
+  loadEmoji();
+});
+
+</script>
+</body>
+</html>
