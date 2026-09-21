@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Talking In Pictures — Typing Programme (Emoji Edition)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --bg:        #0a0a1a;
+  --card:      #12122a;
+  --surface:   #1a1a3e;
+  --surface2:  #0d0d24;
+  --gold:      #f0c040;
+  --text:      #f0ece0;
+  --muted:     #5e5a6e;
+  --border:    rgba(240,192,64,0.13);
+  --red:       #e84343;
+  --green:     #4caf7d;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html, body {
+  min-height:100%;
+  font-family:'Segoe UI', system-ui, Arial, sans-serif;
+  background:radial-gradient(ellipse at 50% 0%, #1a1a3e 0%, var(--bg) 75%);
+  color:var(--text);
+  font-size:16px;
+  line-height:1.5;
+}
+.wrap { max-width:760px; margin:0 auto; padding:20px 14px 48px; }
+.card {
+  background:var(--card);
+  border-radius:18px;
+  border:1px solid var(--border);
+  box-shadow:0 28px 80px rgba(0,0,0,0.7);
+  padding:24px 24px 20px;
+}
+.game-header {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border); gap:12px;
+}
+.game-title { font-size:20px; font-weight:900; letter-spacing:0.3px; }
+.lamp { color:var(--gold); animation:lamp-flicker 12s 4s ease-in-out infinite; display:inline; }
+@keyframes lamp-flicker {
+  0%,90%,93%,97%,100% { opacity:1 }
+  91%  { opacity:.45 }
+  92%  { opacity:1 }
+  95%  { opacity:.6 }
+  96%  { opacity:1 }
+}
+.game-byline { font-size:11px; color:var(--muted); margin-top:4px; letter-spacing:0.5px; }
+.header-right { display:flex; flex-direction:column; align-items:flex-end; gap:10px; flex-shrink:0; }
+.header-controls { display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+.trail { display:flex; gap:6px; align-items:center; }
+.dot {
+  width:9px; height:9px; border-radius:50%;
+  background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.08);
+  transition:background .3s, box-shadow .3s;
+}
+.dot.done { background:rgba(240,192,64,.35); border-color:rgba(240,192,64,.35); }
+.dot.now  { background:var(--gold); border-color:var(--gold); box-shadow:0 0 9px var(--gold); }
+.btn {
+  padding:10px 16px; border-radius:10px; border:none; cursor:pointer;
+  font-weight:700; font-size:14px; line-height:1; font-family:inherit;
+  transition:opacity .15s, transform .1s; display:inline-flex; align-items:center; gap:6px;
+}
+.btn:hover  { opacity:.84; transform:translateY(-1px); }
+.btn:active { transform:translateY(0); }
+.btn-primary { background:linear-gradient(135deg,#f0c040,#c8a020); color:#07060a; }
+.btn-ghost   { background:rgba(255,255,255,0.05); color:var(--text); border:1px solid var(--border); }
+.btn-icon    { padding:8px 10px; font-size:16px; }
+.speed-btn   { padding:7px 11px; font-size:12px; font-weight:700; white-space:nowrap; }
+.toggle-btn  { padding:7px 11px; font-size:12px; font-weight:700; white-space:nowrap;
+               background:rgba(255,255,255,0.05); color:var(--text); border:1px solid var(--border);
+               border-radius:10px; cursor:pointer; font-family:inherit; }
+.toggle-btn.active { border-color:var(--gold); color:var(--gold); }
+.engine-select {
+  padding:7px 8px; font-size:12px; font-weight:700; font-family:inherit;
+  background:rgba(255,255,255,0.05); color:var(--text); border:1px solid var(--border);
+  border-radius:10px; cursor:pointer; outline:none;
+}
+.engine-select option { background:var(--surface); color:var(--text); }
+
+/* Welcome / level select */
+.name-screen { text-align:center; padding:30px 10px 20px; }
+.name-screen .hero { font-size:58px; display:block; margin-bottom:12px; }
+.name-screen h2 { font-size:26px; font-weight:900; margin-bottom:10px; }
+.name-screen p { font-size:15px; color:#b0a898; line-height:1.7; margin:0 auto 22px; max-width:440px; }
+.level-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:6px; }
+.level-card {
+  background:var(--surface); border-radius:12px; border:2px solid transparent;
+  cursor:pointer; padding:20px 14px; text-align:center;
+  transition:transform .15s, box-shadow .15s, border-color .15s;
+}
+.level-card:hover, .level-card:focus {
+  transform:translateY(-4px);
+  box-shadow:0 10px 30px rgba(0,0,0,.5), 0 0 0 1px var(--gold);
+  border-color:var(--gold); outline:none;
+}
+.level-emoji { font-size:42px; display:block; margin-bottom:8px; }
+.level-name { font-size:16px; font-weight:700; }
+.level-desc { font-size:12px; color:var(--muted); margin-top:4px; }
+
+/* Round intro strip */
+.round-strip {
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;
+  color:var(--muted); margin-bottom:14px;
+}
+.round-strip .round-name { color:var(--gold); }
+
+/* Game area */
+.word-display { text-align:center; margin-bottom:14px; }
+.uppercase-word { font-size:40px; font-weight:900; letter-spacing:2px; }
+.lowercase-word { font-size:18px; color:var(--muted); margin-top:2px; }
+.scene-img-wrap {
+  width:100%; max-width:240px; height:190px; margin:0 auto 14px;
+  border-radius:12px; background:var(--surface2); border:1px solid var(--border);
+  overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center;
+}
+.scene-img-wrap img { max-width:90%; max-height:85%; object-fit:contain; }
+.glyph-fallback {
+  font-size:80px; line-height:1; display:none; align-items:center; justify-content:center;
+}
+.fade {
+  position:absolute; inset:0;
+  background:linear-gradient(0deg, rgba(10,10,26,.55) 0%, rgba(10,10,26,0) 100%);
+  pointer-events:none;
+}
+.prompt {
+  font-size:19px; font-weight:700; text-align:center; margin-bottom:14px; min-height:28px;
+}
+.answer-row { display:flex; gap:10px; justify-content:center; margin-bottom:10px; }
+.text-input {
+  padding:13px 18px; border-radius:10px; border:1px solid var(--border);
+  background:rgba(255,255,255,0.05); color:var(--text);
+  font-size:26px; width:300px; max-width:100%; text-align:center; outline:none;
+  font-family:inherit; letter-spacing:1px;
+}
+.text-input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(240,192,64,.14); }
+.affirm {
+  min-height:26px; font-size:17px; color:var(--gold); font-style:italic; text-align:center; margin-top:6px;
+}
+.affirm.bad { color:var(--red); font-style:normal; }
+.timer-display { text-align:center; font-size:12px; color:var(--muted); margin-top:12px; letter-spacing:0.5px; }
+.initial-letter-hint { text-align:center; font-size:13px; color:var(--muted); margin-top:2px; }
+
+/* Ending screen */
+.ending-screen { text-align:center; padding:8px 4px; }
+.ending-emoji  { font-size:58px; display:block; margin-bottom:8px; }
+.ending-title  { font-size:24px; font-weight:900; margin-bottom:14px; color:var(--green); }
+.stats-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:20px; }
+.stat-chip {
+  background:rgba(76,175,125,.08); border:1px solid rgba(76,175,125,.25);
+  border-radius:10px; padding:10px 18px; font-size:14px;
+}
+.stat-chip b { display:block; font-size:20px; color:var(--gold); }
+.journey-block { margin:6px 0 16px; text-align:left; }
+.journey-eyebrow {
+  font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px;
+  color:var(--muted); margin-bottom:10px; text-align:center;
+}
+.journey-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:8px; }
+.j-card {
+  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px; padding:9px 11px; text-align:center;
+}
+.j-ok    { font-size:16px; }
+.j-word  { font-size:14px; font-weight:700; margin-top:2px; }
+.btn-row { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:16px; }
+footer { margin-top:18px; text-align:center; font-size:11px; color:var(--muted); letter-spacing:0.3px; }
+@media (max-width:560px){
+  .level-grid { grid-template-columns:1fr; }
+  .text-input { width:100%; }
+}
+</style>
+<base target="_blank">
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <header class="game-header">
+      <div class="title-block">
+        <div class="game-title">Typing <span class="lamp">Programme</span></div>
+        <div class="game-byline">Talking in Pictures &middot; Emoji Edition</div>
+      </div>
+      <div class="header-right">
+        <div class="trail" id="trail"></div>
+        <div class="header-controls">
+          <select class="engine-select" id="engineSel" title="Emoji icon engine">
+            <option value="twemoji" selected>Twemoji</option>
+            <option value="openmoji">OpenMoji</option>
+            <option value="noto">Noto</option>
+          </select>
+          <button class="toggle-btn" id="errBtn" title="Errorless typing">🛡 Errorless</button>
+          <button class="btn btn-ghost speed-btn" id="speedBtn" title="Playback speed: Normal">▶ Normal</button>
+          <button class="btn btn-ghost btn-icon"  id="soundBtn" title="Toggle sound">🔊</button>
+        </div>
+      </div>
+    </header>
+    <main id="stage"></main>
+    <footer>Talking in Pictures &middot; SEND Resource &middot; www.talkinginpictures.co.uk</footer>
+  </div>
+</div>
+
+<script>
+/* ==========================================================
+   WORD DATA — all 20 rounds preserved from original
+   ========================================================== */
+var FOUR  = ["frog","milk","ship","book","lamp","star","duck","nest","ball","tree"];
+var FIVE  = ["apple","chair","grape","plant","train","snake","cloud","light","brick","smile"];
+var SIX   = ["rabbit","guitar","button","silver","orange","bridge","castle","pencil","market","forest"];
+var SEVEN = ["picture","teacher","blanket","student","printer","glasses","balloon","sandbox","cabinet","monster"];
+var EIGHT = ["elephant","sandwich","umbrella","dinosaur","notebook","hospital","football","building","magazine","airplane"];
+var NINE  = ["chocolate","pineapple","volunteer","nightmare","storybook","blueberry","astronaut","adventure","campfire","lighthouse"];
+var TEN   = ["strawberry","vegetables","playground","motorcycle","backpacker","watermelon","newspaper","telescope","librarian","toothbrush"];
+var ELEVEN    = ["playfulness","multiverse","volleyballs","breathtaking","sailboarding","friendliest","expressions","magnificent","photographs","windbreaker"];
+var TWELVE    = ["understanding","grandparents","championship","relationship","kindergarten","astonishment","extraordinary","intelligently","mathematical","adventurous"];
+var THIRTEEN  = ["accomplishing","contribution","transformation","concentration","determination","exaggeration","hallucination","justification","participation","recommendation"];
+var FOURTEEN  = ["unbelievably","congratulations","responsibility","representation","acknowledgment","communication","interpretation","investigation","manufacturing","qualification"];
+var FIFTEEN   = ["extraordinarily","misunderstandings","confidentiality","unquestionably","institutionally","accomplishments","unpredictability","comprehensively","disappointments","uncontrollably"];
+
+var ALPHA_WORDS = ["apple","ball","cat","dog","egg","fish","goat","hat","ice","juice",
+                   "kite","lion","moon","nest","orange","pig","queen","rain","sun","tree",
+                   "umbrella","van","whale","xylophone","yarn","zebra"];
+
+var ROUNDS = {
+  1:  { phase:"alphabet",   label:"Round 1 — The Alphabet",  words: ALPHA_WORDS.slice(0,10), mode:"letter" },
+  2:  { phase:"three",      label:"Round 2 — 3-Letter Words",words: ["cat","dog","sun","pen","cup","box","man","fan","bag","jam"], mode:"word" },
+  3:  { phase:"four",       label:"Round 3 — 4-Letter Words",words: FOUR,  mode:"word" },
+  4:  { phase:"five",       label:"Round 4 — 5-Letter Words",words: FIVE,  mode:"word" },
+  5:  { phase:"six",        label:"Round 5 — 6-Letter Words",words: SIX,   mode:"word" },
+  6:  { phase:"seven",      label:"Round 6 — 7-Letter Words",words: SEVEN, mode:"word" },
+  7:  { phase:"eight",      label:"Round 7 — 8-Letter Words",words: EIGHT, mode:"word" },
+  8:  { phase:"nine",       label:"Round 8 — 9-Letter Words",words: NINE,  mode:"word" },
+  9:  { phase:"ten",        label:"Round 9 — 10-Letter Words",words: TEN, mode:"word" },
+  10: { phase:"eleven",     label:"Round 10 — 11-Letter Words", words: ELEVEN,    mode:"word" },
+  11: { phase:"twelve",     label:"Round 11 — 12-Letter Words", words: TWELVE,    mode:"word" },
+  12: { phase:"thirteen",   label:"Round 12 — 13-Letter Words", words: THIRTEEN,  mode:"word" },
+  13: { phase:"fourteen",   label:"Round 13 — 14-Letter Words", words: FOURTEEN,  mode:"word" },
+  14: { phase:"fifteen",    label:"Round 14 — 15-Letter Words", words: FIFTEEN,   mode:"word" },
+  15: { phase:"easyReview", label:"Round 15 — Easy Review",     words: FOUR,      mode:"word" },
+  16: { phase:"mediumReview",label:"Round 16 — Medium Review",  words: SIX,       mode:"word" },
+  17: { phase:"hardReview", label:"Round 17 — Hard Review",     words: TEN,       mode:"word" },
+  18: { phase:"extremeReview",label:"Round 18 — Extreme Review",words: ELEVEN,    mode:"word" },
+  19: { phase:"finalChallenge",label:"Round 19 — Final Challenge",words: THIRTEEN, mode:"word" },
+  20: { phase:"grandFinale",label:"Round 20 — Grand Finale! 🏆",words: FIFTEEN,   mode:"word" }
+};
+
+var LEVELS = {
+  red:   { name:"Red Level",   emoji:"🔴", desc:"Full sentences & detail" },
+  blue:  { name:"Blue Level",  emoji:"🔵", desc:"Simple sentences" },
+  green: { name:"Green Level", emoji:"🟢", desc:"Words & pictures only" }
+};
+
+/* ==========================================================
+   EMOJI ENGINE — adapted from the Symbol Finder resource
+   (emojibase data + Twemoji/OpenMoji/Noto CDNs, glyph fallback)
+   ========================================================== */
+var EMOJIBASE_URL = "https://cdn.jsdelivr.net/npm/emojibase-data@17.0.0/en/data.json";
+var EMOJI_DATA = null;
+var EMOJI_LOADING = false;
+
+/* Built-in registry: works fully offline, also boosts space/music/math words */
+var CUSTOM_UNICODE_ITEMS = [
+  { hexcode: "2609", label: "Sun Symbol", annotation: "astronomy astrology sun solar star light day horoscope symbol classic", tags: ["astronomy","space","star"] },
+  { hexcode: "263e", label: "Moon Symbol", annotation: "astronomy astrology crescent moon lunar night horoscope symbol classic", tags: ["astronomy","space","moon"] },
+  { hexcode: "263f", label: "Mercury", annotation: "astrology astronomy planet mercury speed quick element horoscope stars symbol", tags: ["astronomy","planet","space"] },
+  { hexcode: "2640", label: "Venus", annotation: "astrology astronomy planet venus beauty female goddess horoscope stars symbol", tags: ["astronomy","planet","space"] },
+  { hexcode: "2641", label: "Earth Symbol", annotation: "astrology astronomy planet earth world globe nature ground horoscope stars symbol classic", tags: ["astronomy","planet","space"] },
+  { hexcode: "2642", label: "Mars", annotation: "astrology astronomy planet mars red male god courage horoscope stars symbol", tags: ["astronomy","planet","space"] },
+  { hexcode: "2643", label: "Jupiter", annotation: "astrology astronomy planet jupiter giant king horoscope stars symbol", tags: ["astronomy","planet","space"] },
+  { hexcode: "2644", label: "Saturn", annotation: "astrology astronomy planet saturn rings time horoscope stars symbol", tags: ["astronomy","planet","space"] },
+  { hexcode: "2645", label: "Uranus", annotation: "astrology astronomy planet uranus sky heaven horoscope stars symbol", tags: ["astronomy","planet","space"] },
+  { hexcode: "2646", label: "Neptune", annotation: "astrology astronomy planet neptune trident ocean horoscope stars symbol", tags: ["astronomy","planet","space"] },
+  { hexcode: "2647", label: "Pluto", annotation: "astrology astronomy planet pluto dwarf underworld gate horoscope stars symbol", tags: ["astronomy","planet","space"] },
+  { hexcode: "1f30e", label: "Earth Globe (Americas)", annotation: "planet earth world globe americas map blue green ball", tags: ["planet","space","earth"] },
+  { hexcode: "1f30d", label: "Earth Globe (Europe)", annotation: "planet earth world globe europe africa map blue green ball", tags: ["planet","space","earth"] },
+  { hexcode: "1f30f", label: "Earth Globe (Asia)", annotation: "planet earth world globe asia australia map blue green ball", tags: ["planet","space","earth"] },
+  { hexcode: "1fa90", label: "Ringed Planet", annotation: "planet saturn space orbit rings celestial ball colorful", tags: ["planet","space","orbit"] },
+  { hexcode: "1f319", label: "Crescent Moon", annotation: "moon crescent lunar night space sky shiny", tags: ["space","moon","night"] },
+  { hexcode: "2b50", label: "Star", annotation: "star yellow gold shiny sparkle night celestial sky", tags: ["space","star","night"] },
+  { hexcode: "2728", label: "Sparkles", annotation: "sparkles stars shiny glint clean magic neon", tags: ["space","star"] },
+  { hexcode: "1f303", label: "Night Sky / Stars", annotation: "night sky stars bridge cityscape evening darkness silhouette", tags: ["space","star","night"] },
+  { hexcode: "1f320", label: "Shooting Star", annotation: "shooting star falling meteor asteroid space streak line", tags: ["space","star"] },
+  { hexcode: "1f680", label: "Rocket Ship", annotation: "rocket ship blast off space vehicle travel flying launch spaceship shuttle", tags: ["space","rocket","travel"] },
+  { hexcode: "1f6f0", label: "Satellite", annotation: "satellite space orbit communications technology antenna radar transmission receiver", tags: ["space","satellite","orbit"] },
+  { hexcode: "1f6f8", label: "UFO / Flying Saucer", annotation: "ufo flying saucer alien spaceship space transport mystery", tags: ["space","alien"] },
+  { hexcode: "1f47d", label: "Alien", annotation: "alien creature extraterrestrial martian space ufo green face", tags: ["space","alien"] },
+  { hexcode: "1f468-200d-1f680", label: "Astronaut", annotation: "astronaut cosmonaut spaceman space suit helmet pilot science explorer", tags: ["space","rocket","science"] },
+  { hexcode: "2b55", label: "Orbit Ring / Circle", annotation: "orbit circle ring target loop round boundary hollow", tags: ["space","orbit"] },
+  { hexcode: "1d11e", label: "Treble Clef", annotation: "music treble clef g-clef pitch notation tune song stave", tags: ["music","sound","clef"] },
+  { hexcode: "1d122", label: "Bass Clef", annotation: "music bass clef f-clef low pitch instrument notation", tags: ["music","sound","clef"] },
+  { hexcode: "1d15f", label: "Quarter Note", annotation: "music quarter note crotchet beat rhythm sound", tags: ["music","note"] },
+  { hexcode: "1d160", label: "Eighth Note", annotation: "music eighth note quaver rhythm sound quick", tags: ["music","note"] },
+  { hexcode: "266d", label: "Music Flat", annotation: "music flat sign lower accidental pitch notation", tags: ["music"] },
+  { hexcode: "266f", label: "Music Sharp", annotation: "music sharp sign higher accidental pitch notation", tags: ["music"] },
+  { hexcode: "266e", label: "Music Natural", annotation: "music natural sign cancellation pitch accidental notation", tags: ["music"] },
+  { hexcode: "221e", label: "Infinity", annotation: "math infinity infinite forever loop math sign limit endless", tags: ["math","science"] },
+  { hexcode: "3c0", label: "Pi Symbol", annotation: "math pi greek letter constant circumference geometry radius calculate", tags: ["math","science"] },
+  { hexcode: "2211", label: "Summation (Sigma)", annotation: "math sum total add addition calculation function series sigma", tags: ["math"] },
+  { hexcode: "222b", label: "Integral", annotation: "math integral calculus derivative function volume analysis integration", tags: ["math"] },
+  { hexcode: "221a", label: "Square Root", annotation: "math square root radical sign calculation equation factor", tags: ["math"] },
+  { hexcode: "2260", label: "Not Equal To", annotation: "math not equal unequal inequality logic condition comparison", tags: ["math"] },
+  { hexcode: "2248", label: "Approximately Equal", annotation: "math approximate approx estimate similar rounding calculation", tags: ["math"] },
+  { hexcode: "2205", label: "Empty Set", annotation: "math empty set null zero void logic philosophy", tags: ["math"] },
+  { hexcode: "269b", label: "Atom Structure", annotation: "science atom nucleus electron energy physics chemistry engineering nuclear", tags: ["science","physics"] },
+  { hexcode: "1f3b8", label: "Guitar", annotation: "music guitar instrument string rock acoustic electric", tags: ["music","instrument"] },
+  { hexcode: "1f3b5", label: "Musical Note", annotation: "music note melody song sound tune", tags: ["music","note"] },
+  { hexcode: "1f3b2", label: "Game Die", annotation: "game dice die chance random roll play", tags: ["game","play"] }
+];
+
+function loadEmoji(){
+  if (EMOJI_DATA) return Promise.resolve(EMOJI_DATA);
+  if (EMOJI_LOADING){
+    return new Promise(function(res){
+      var t = setInterval(function(){ if(!EMOJI_LOADING){ clearInterval(t); res(EMOJI_DATA); } },100);
+    });
+  }
+  EMOJI_LOADING = true;
+  return fetch(EMOJIBASE_URL, { cache:"force-cache" })
+    .then(function(res){ if(!res.ok) throw new Error("HTTP "+res.status); return res.json(); })
+    .then(function(data){ EMOJI_DATA = CUSTOM_UNICODE_ITEMS.concat(data); })
+    .catch(function(){ EMOJI_DATA = CUSTOM_UNICODE_ITEMS.slice(); })
+    .then(function(){ EMOJI_LOADING = false; return EMOJI_DATA; });
+}
+
+function hexToGlyph(hex){
+  try {
+    return String.fromCodePoint.apply(null, hex.split("-").map(function(h){ return parseInt(h,16); }));
+  } catch(e){ return ""; }
+}
+
+function normalizeTwemoji(hex){
+  var parts = hex.toLowerCase().split("-");
+  var hasZWJ = parts.indexOf("200d") >= 0;
+  return parts.filter(function(p){ return p !== "fe0f" || hasZWJ; }).join("-");
+}
+
+function twemojiUrl(hex){ return "https://cdnjs.cloudflare.com/ajax/libs/twemoji/16.0.1/72x72/" + normalizeTwemoji(hex) + ".png"; }
+function openmojiUrl(hex){ return "https://cdn.jsdelivr.net/npm/openmoji@16.0.0/color/618x618/" + hex.toUpperCase() + ".png"; }
+function notoUrl(hex){ return "https://cdn.jsdelivr.net/gh/googlefonts/noto-emoji@main/png/128/emoji_u" + hex.toLowerCase().replace(/-/g,"_") + ".png"; }
+
+function engineUrl(hex){
+  var eng = document.getElementById("engineSel").value;
+  if (eng === "openmoji") return openmojiUrl(hex);
+  if (eng === "noto") return notoUrl(hex);
+  return twemojiUrl(hex);
+}
+
+/* Image fallback → show system glyph instead (same pattern as Symbol Finder) */
+function imgFail(el){
+  el.style.display = "none";
+  var g = el.parentElement.querySelector(".glyph-fallback");
+  if (g) g.style.display = "flex";
+}
+
+/* Find the best emoji for a spelling word — no external pictogram API needed */
+function emojiBlock(e){
+  return ((e.label||"")+" "+(e.annotation||"")+" "+((e.tags||[]).join(" "))+" "+((e.shortcodes||[]).join(" "))).toLowerCase();
+}
+function findEmojiHex(word){
+  var q = word.toLowerCase();
+  var data = EMOJI_DATA || [];
+  var i, e;
+  for (i=0;i<data.length;i++){
+    e = data[i];
+    if (e.label && e.label.toLowerCase() === q && e.hexcode) return e.hexcode.toLowerCase();
+  }
+  var re = new RegExp("\\b" + q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&") + "\\b");
+  for (i=0;i<data.length;i++){
+    e = data[i];
+    if (e.hexcode && re.test(emojiBlock(e))) return e.hexcode.toLowerCase();
+  }
+  for (i=0;i<data.length;i++){
+    e = data[i];
+    if (e.hexcode && emojiBlock(e).indexOf(q) >= 0) return e.hexcode.toLowerCase();
+  }
+  return null;
+}
+
+/* ==========================================================
+   STATE
+   ========================================================== */
+var state = {
+  level:"red", round:1, current:0,
+  words:[], correct:0, total:0,
+  results:[],
+  allProgress:[],
+  startTime:0, timerInt:null,
+  errorless:false
+};
+
+var soundOn = true;
+var SPEEDS = [
+  { label:"🐢 Slow",  rate:0.6  },
+  { label:"▶ Normal", rate:0.93 },
+  { label:"⚡ Fast",  rate:1.6  },
+  { label:"🚀 Turbo", rate:2.2  }
+];
+var speedIdx = 1, speechRate = SPEEDS[1].rate;
+
+/* ==========================================================
+   DOM
+   ========================================================== */
+var stage    = document.getElementById("stage");
+var trailEl  = document.getElementById("trail");
+var soundBtn = document.getElementById("soundBtn");
+var speedBtn = document.getElementById("speedBtn");
+var errBtn   = document.getElementById("errBtn");
+
+soundBtn.addEventListener("click", function(){
+  soundOn = !soundOn;
+  soundBtn.textContent = soundOn ? "🔊" : "🔇";
+  if (!soundOn && window.speechSynthesis) window.speechSynthesis.cancel();
+});
+speedBtn.addEventListener("click", function(){
+  speedIdx = (speedIdx+1) % SPEEDS.length;
+  speechRate = SPEEDS[speedIdx].rate;
+  speedBtn.textContent = SPEEDS[speedIdx].label;
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+});
+errBtn.addEventListener("click", function(){
+  state.errorless = !state.errorless;
+  errBtn.classList.toggle("active", state.errorless);
+});
+document.getElementById("engineSel").addEventListener("change", function(){
+  if (state.words.length && state.current < state.words.length) renderWord();
+});
+
+/* ==========================================================
+   SPEECH — same engine as Solar System game
+   ========================================================== */
+function speak(text, onEnd){
+  if (!soundOn || !window.speechSynthesis){ if(onEnd) onEnd(); return; }
+  try {
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-GB"; u.rate = speechRate;
+    var fired = false;
+    var done = function(){ if(!fired){ fired=true; if(onEnd) onEnd(); } };
+    u.onend = done; u.onerror = done;
+    var ms = Math.max(Math.ceil(text.length*80/speechRate)+2000, 3000);
+    setTimeout(done, ms);
+    window.speechSynthesis.speak(u);
+  } catch(e){ if(onEnd) onEnd(); }
+}
+
+/* ==========================================================
+   TRAIL — 10 dots per round
+   ========================================================== */
+function setTrail(currentIdx){
+  trailEl.innerHTML = "";
+  for (var i=0;i<10;i++){
+    var d = document.createElement("div");
+    d.className = i < currentIdx ? "dot done" : (i === currentIdx ? "dot now" : "dot");
+    trailEl.appendChild(d);
+  }
+}
+function clearTrail(){ trailEl.innerHTML = ""; }
+
+/* ==========================================================
+   SCREEN: WELCOME
+   ========================================================== */
+function renderWelcome(){
+  clearTrail(); stopTimer();
+  stage.innerHTML =
+    '<div class="name-screen">' +
+      '<span class="hero">⌨️</span>' +
+      '<h2>Typing Programme</h2>' +
+      '<p>Learn to type, one word at a time!<br><br>' +
+         '🔤 Start with the alphabet<br>' +
+         '✏️ Type whole words, round by round<br>' +
+         '🏆 Twenty rounds, from easy to epic<br><br>' +
+         'Choose your level to begin.</p>' +
+      '<div class="level-grid">' +
+        '<div class="level-card" id="lvRed" tabindex="0" role="button">' +
+          '<span class="level-emoji">🔴</span>' +
+          '<div class="level-name">Red Level</div>' +
+          '<div class="level-desc">Full sentences &amp; detail</div>' +
+        '</div>' +
+        '<div class="level-card" id="lvBlue" tabindex="0" role="button">' +
+          '<span class="level-emoji">🔵</span>' +
+          '<div class="level-name">Blue Level</div>' +
+          '<div class="level-desc">Simple sentences</div>' +
+        '</div>' +
+        '<div class="level-card" id="lvGreen" tabindex="0" role="button">' +
+          '<span class="level-emoji">🟢</span>' +
+          '<div class="level-name">Green Level</div>' +
+          '<div class="level-desc">Words &amp; pictures only</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  bindLevel("lvRed","red"); bindLevel("lvBlue","blue"); bindLevel("lvGreen","green");
+}
+function bindLevel(id, lvl){
+  var el = document.getElementById(id);
+  el.onclick = function(){ pickLevel(lvl); };
+  el.onkeydown = function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); pickLevel(lvl); } };
+}
+function pickLevel(lvl){
+  state.level = lvl;
+  state.round = 1; state.allProgress = [];
+  speak(LEVELS[lvl].name + ". Let's start typing!", function(){ startRound(1); });
+}
+
+/* ==========================================================
+   TIMER
+   ========================================================== */
+function startTimer(){
+  stopTimer();
+  state.startTime = Date.now();
+  state.timerInt = setInterval(updateTimerLabel, 1000);
+  updateTimerLabel();
+}
+function stopTimer(){ if (state.timerInt) clearInterval(state.timerInt); state.timerInt = null; }
+function updateTimerLabel(){
+  var el = document.getElementById("timerLabel");
+  if (el) el.textContent = "Time this round: " + Math.floor((Date.now()-state.startTime)/1000) + "s";
+}
+
+/* ==========================================================
+   ROUND FLOW
+   ========================================================== */
+function startRound(n){
+  var cfg = ROUNDS[n];
+  if (!cfg){ renderAllDone(); return; }
+  state.round = n; state.current = 0;
+  state.correct = 0; state.total = 0; state.results = [];
+  state.words = [];
+  loadEmoji().then(function(){
+    for (var i=0;i<cfg.words.length;i++){
+      var w = cfg.words[i];
+      state.words.push({ word: w, hex: findEmojiHex(w) });
+    }
+    startTimer();
+    renderWord();
+  });
+}
+
+function getPrompt(word, mode){
+  if (mode === "letter"){
+    if (state.level === "red")  return "What letter does " + word.toUpperCase() + " begin with?";
+    if (state.level === "blue") return word.toUpperCase() + " begins with...?";
+    return word[0].toUpperCase();
+  }
+  if (state.level === "red")  return "Type the word: " + word;
+  if (state.level === "blue") return "Type: " + word;
+  return word.toUpperCase();
+}
+
+function getSpeechText(word, mode){
+  if (mode === "letter"){
+    if (state.level === "red")  return "What letter does " + word + " begin with?";
+    if (state.level === "blue") return word + ". What letter does it begin with?";
+    return word;
+  }
+  if (state.level === "red")  return "Type the word " + word;
+  if (state.level === "blue") return "Type " + word;
+  return word;
+}
+
+function renderWord(){
+  var cfg = ROUNDS[state.round];
+  if (state.current >= state.words.length){ renderRoundEnd(); return; }
+  var entry = state.words[state.current];
+  var mode = cfg.mode;
+  setTrail(state.current);
+
+  var glyph = entry.hex ? hexToGlyph(entry.hex) : entry.word[0].toUpperCase();
+  var imgHtml = entry.hex
+    ? '<img src="'+engineUrl(entry.hex)+'" onerror="imgFail(this)" alt="'+entry.word+'"/>'
+    : '';
+  var glyphStyle = entry.hex ? '' : 'style="display:flex;"';
+
+  stage.innerHTML =
+    '<div class="round-strip"><span class="round-name">'+cfg.label+'</span>'+
+      '<span>'+LEVELS[state.level].name+' · '+document.getElementById("engineSel").value+'</span></div>' +
+    '<div class="word-display">' +
+      '<div class="uppercase-word">'+entry.word.toUpperCase()+'</div>' +
+      '<div class="lowercase-word">'+entry.word+'</div>' +
+    '</div>' +
+    '<div class="scene-img-wrap">' +
+      imgHtml +
+      '<div class="glyph-fallback" '+glyphStyle+'>'+glyph+'</div>' +
+      '<div class="fade"></div>' +
+    '</div>' +
+    '<div class="prompt">'+getPrompt(entry.word, mode)+'</div>' +
+    '<div class="answer-row">' +
+      '<input class="text-input" id="answer" maxlength="20" autocomplete="off" '+
+             (mode==="letter" ? 'maxlength="1"' : '') + '/>' +
+      '<button class="btn btn-primary" id="sayBtn" title="Hear it again">🔊</button>' +
+    '</div>' +
+    '<div class="affirm" id="affirm"></div>' +
+    '<div class="initial-letter-hint">'+
+      (mode==="letter" ? 'Hint: "'+entry.word+'" starts with...' : 'Hint: type every letter you see.')+
+    '</div>' +
+    '<div class="timer-display" id="timerLabel"></div>';
+
+  var inp = document.getElementById("answer");
+  inp.focus();
+  document.getElementById("sayBtn").onclick = function(){ speak(getSpeechText(entry.word, mode)); };
+  speak(getSpeechText(entry.word, mode));
+
+  inp.addEventListener("input", function(){ onInput(entry, mode, inp); });
+}
+
+function onInput(entry, mode, inp){
+  var typed = inp.value.toLowerCase();
+  var target = (mode === "letter") ? entry.word[0] : entry.word;
+  var aff = document.getElementById("affirm");
+
+  /* Errorless mode: block wrong characters */
+  if (state.errorless){
+    var ok = (mode === "letter")
+      ? typed === target
+      : target.indexOf(typed) === 0;
+    if (!ok){
+      inp.value = typed.slice(0, typed.length-1);
+      return;
+    }
+  }
+
+  if (typed === target){
+    state.correct++; state.total++;
+    state.results.push({ word: entry.word, ok: true });
+    if (aff){ aff.textContent = "✅ Well done!"; aff.className = "affirm"; }
+    inp.disabled = true;
+    speak("Well done!", function(){
+      setTimeout(function(){
+        state.current++;
+        renderWord();
+      }, 600);
+    });
+  } else {
+    var wrongLen = (mode === "letter") ? 1 : entry.word.length;
+    if (typed.length === wrongLen){
+      state.total++;
+      state.results.push({ word: entry.word, ok: false });
+      if (aff){ aff.textContent = "❌ Try again — look at the word."; aff.className = "affirm bad"; }
+      inp.value = "";
+      speak("Try again.");
+    } else {
+      if (aff){ aff.textContent = ""; aff.className = "affirm"; }
+    }
+  }
+}
+
+/* ==========================================================
+   SCREEN: ROUND END (ending-style, from Solar System engine)
+   ========================================================== */
+function renderRoundEnd(){
+  stopTimer();
+  clearTrail();
+  var cfg = ROUNDS[state.round];
+  var elapsed = Math.floor((Date.now()-state.startTime)/1000);
+  var acc = state.total ? Math.round(state.correct/state.total*100) : 0;
+  state.allProgress.push({ round: state.round, label: cfg.label,
+    correct: state.correct, total: state.total, time: elapsed, words: state.results });
+
+  var isFinal = state.round >= 20;
+  var title = isFinal ? "🏆 Grand Finale Complete!" :
+              (acc === 100 ? "🌟 Perfect Round!" : acc >= 70 ? "👍 Great Job!" : "💪 Good Try!");
+  var emoji = isFinal ? "🏆" : acc === 100 ? "🌟" : "🎉";
+
+  var journey = "";
+  for (var i=0;i<state.results.length;i++){
+    var r = state.results[i];
+    journey +=
+      '<div class="j-card">' +
+        '<div class="j-ok">'+(r.ok ? "✅" : "🔄")+'</div>' +
+        '<div class="j-word">'+r.word+'</div>' +
+      '</div>';
+  }
+
+  var history = "";
+  for (var h=0; h<state.allProgress.length; h++){
+    var p = state.allProgress[h];
+    history += '<div class="j-card"><div class="j-scene" style="font-size:11px;color:var(--muted)">'+p.label+'</div>'+
+               '<div class="j-word">'+p.correct+'/'+p.total+' · '+(p.total?Math.round(p.correct/p.total*100):0)+'% · '+p.time+'s</div></div>';
+  }
+
+  var nextLabel = isFinal ? "See Final Results" : "Start Next Round →";
+
+  stage.innerHTML =
+    '<div class="ending-screen">' +
+      '<span class="ending-emoji">'+emoji+'</span>' +
+      '<div class="ending-title">'+title+'</div>' +
+      '<div class="stats-row">' +
+        '<div class="stat-chip"><b>'+state.correct+'/'+state.total+'</b>Score</div>' +
+        '<div class="stat-chip"><b>'+acc+'%</b>Accuracy</div>' +
+        '<div class="stat-chip"><b>'+elapsed+'s</b>Time</div>' +
+      '</div>' +
+      '<div class="journey-block">' +
+        '<div class="journey-eyebrow">📍 This round</div>' +
+        '<div class="journey-grid">'+journey+'</div>' +
+      '</div>' +
+      '<div class="btn-row">' +
+        '<button class="btn btn-primary" id="nextBtn">'+nextLabel+'</button>' +
+        '<button class="btn btn-ghost" id="pdfBtn">📄 Save as PDF</button>' +
+        '<button class="btn btn-ghost" id="readBtn">🔊 Read Aloud</button>' +
+        '<button class="btn btn-ghost" id="againBtn">🔄 Play Again</button>' +
+      '</div>' +
+      (state.allProgress.length > 1 ?
+        '<div class="journey-block" style="margin-top:20px">' +
+          '<div class="journey-eyebrow">📊 All rounds so far</div>' +
+          '<div class="journey-grid">'+history+'</div>' +
+        '</div>' : '') +
+    '</div>';
+
+  var spoken = title + " You scored " + state.correct + " out of " + state.total +
+               ", with " + acc + " percent accuracy, in " + elapsed + " seconds.";
+  speak(spoken);
+
+  document.getElementById("readBtn").onclick = function(){ speak(spoken); };
+  document.getElementById("againBtn").onclick = renderWelcome;
+  document.getElementById("pdfBtn").onclick = function(){ savePDF(); };
+  document.getElementById("nextBtn").onclick = function(){
+    if (isFinal) renderAllDone();
+    else speak("Next round!", function(){ startRound(state.round + 1); });
+  };
+}
+
+/* ==========================================================
+   SCREEN: ALL DONE
+   ========================================================== */
+function renderAllDone(){
+  stopTimer(); clearTrail();
+  var totC = 0, totT = 0, totS = 0;
+  for (var i=0;i<state.allProgress.length;i++){
+    totC += state.allProgress[i].correct;
+    totT += state.allProgress[i].total;
+    totS += state.allProgress[i].time;
+  }
+  var acc = totT ? Math.round(totC/totT*100) : 0;
+  var rows = "";
+  for (var j=0;j<state.allProgress.length;j++){
+    var p = state.allProgress[j];
+    rows += '<div class="j-card"><div class="j-scene" style="font-size:11px;color:var(--muted)">'+p.label+'</div>'+
+            '<div class="j-word">'+p.correct+'/'+p.total+' · '+(p.total?Math.round(p.correct/p.total*100):0)+'%</div></div>';
+  }
+  stage.innerHTML =
+    '<div class="ending-screen">' +
+      '<span class="ending-emoji">🏆</span>' +
+      '<div class="ending-title">Programme Complete!</div>' +
+      '<div style="text-align:center;font-size:15px;line-height:1.8;color:#ddd6c8;max-width:520px;margin:0 auto 18px">' +
+        'You finished all 20 rounds of the Typing Programme — from the alphabet ' +
+        'all the way to fifteen-letter words. That is an amazing achievement!' +
+      '</div>' +
+      '<div class="stats-row">' +
+        '<div class="stat-chip"><b>'+totC+'/'+totT+'</b>Total Score</div>' +
+        '<div class="stat-chip"><b>'+acc+'%</b>Total Accuracy</div>' +
+        '<div class="stat-chip"><b>'+totS+'s</b>Total Time</div>' +
+      '</div>' +
+      '<div class="journey-block">' +
+        '<div class="journey-eyebrow">📊 Your full journey</div>' +
+        '<div class="journey-grid">'+rows+'</div>' +
+      '</div>' +
+      '<div class="btn-row">' +
+        '<button class="btn btn-primary" id="pdfBtn2">📄 Save as PDF</button>' +
+        '<button class="btn btn-ghost" id="homeBtn">🔄 Play Again</button>' +
+      '</div>' +
+    '</div>';
+  speak("Programme complete! You finished all twenty rounds. Amazing work!");
+  document.getElementById("homeBtn").onclick = renderWelcome;
+  document.getElementById("pdfBtn2").onclick = function(){ savePDF(); };
+}
+
+/* ==========================================================
+   PDF EXPORT — same jsPDF styling as Solar System game
+   ========================================================== */
+function savePDF(){
+  if (!window.jspdf || !window.jspdf.jsPDF){
+    alert("PDF library not loaded. Please check your internet connection.");
+    return;
+  }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({ unit:"pt", format:"a4", orientation:"portrait" });
+  var pageWidth = 595.28, pageHeight = 841.89, margin = 54;
+  var contentWidth = pageWidth - margin*2;
+
+  doc.setFillColor(250,248,245);
+  doc.rect(0,0,pageWidth,pageHeight,"F");
+  doc.setDrawColor(240,192,64); doc.setLineWidth(1.5);
+  doc.line(margin,110,pageWidth-margin,110);
+  doc.line(margin,pageHeight-75,pageWidth-margin,pageHeight-75);
+
+  doc.setFont("Helvetica","bold"); doc.setFontSize(22); doc.setTextColor(17,17,32);
+  doc.text("TYPING PROGRAMME", margin, 80);
+  doc.setFont("Helvetica","normal"); doc.setFontSize(9); doc.setTextColor(94,90,78);
+  doc.text("Talking in Pictures — Progress Report", margin, 98);
+
+  var dateString = new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
+  doc.setFont("Helvetica","bold"); doc.setFontSize(9); doc.setTextColor(17,17,32);
+  doc.text(LEVELS[state.level].name + "  |  " + dateString, pageWidth-margin, 98, {align:"right"});
+
+  var fontSize = 10.5, lineSpacing = 15, currY = 145;
+  doc.setFontSize(fontSize); doc.setTextColor(17,17,32); doc.setFont("Helvetica","normal");
+
+  for (var i=0;i<state.allProgress.length;i++){
+    var p = state.allProgress[i];
+    var line = p.label + "  —  Score: " + p.correct + "/" + p.total +
+               "  |  Accuracy: " + (p.total?Math.round(p.correct/p.total*100):0) +
+               "%  |  Time: " + p.time + "s";
+    var lines = doc.splitTextToSize(line, contentWidth);
+    for (var l=0;l<lines.length;l++){ doc.text(lines[l], margin, currY); currY += lineSpacing; }
+    if (p.words){
+      doc.setFontSize(9);
+      var wline = "Words: " + p.words.map(function(w){ return (w.ok?"[OK] ":"[retry] ") + w.word; }).join("   ");
+      var wl = doc.splitTextToSize(wline, contentWidth);
+      for (var m=0;m<wl.length;m++){ doc.text(wl[m], margin, currY); currY += 13; }
+      doc.setFontSize(fontSize);
+    }
+    currY += 8;
+  }
+
+  doc.setFont("Helvetica","bold"); doc.setTextColor(240,192,64);
+  doc.text("•   •   •", pageWidth/2, currY+6, {align:"center"});
+  currY += 26;
+  doc.setFont("Helvetica","normal"); doc.setTextColor(17,17,32);
+  var totC = state.allProgress.reduce(function(a,p){return a+p.correct;},0);
+  var totT = state.allProgress.reduce(function(a,p){return a+p.total;},0);
+  doc.text("Overall: " + totC + "/" + totT + " correct across " + state.allProgress.length + " round(s).", margin, currY);
+
+  doc.setFont("Helvetica","normal"); doc.setFontSize(8); doc.setTextColor(94,90,78);
+  doc.text("Talking in Pictures  |  SEND Resource  |  www.talkinginpictures.co.uk", margin, pageHeight-55);
+
+  doc.save("typing_programme_progress.pdf");
+}
+
+/* ==========================================================
+   BOOT
+   ========================================================== */
+loadEmoji();
+renderWelcome();
+</script>
+</body>
+</html>
