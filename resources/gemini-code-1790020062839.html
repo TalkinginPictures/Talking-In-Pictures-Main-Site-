@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Talking In Pictures — Maths Adventure</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --bg:        #0a0a1a;
+  --card:      #12122a;
+  --surface:   #1a1a3e;
+  --surface2:  #0d0d24;
+  --gold:      #f0c040;
+  --text:      #f0ece0;
+  --muted:     #5e5a6e;
+  --border:    rgba(240,192,64,0.13);
+  --red:       #e84343;
+  --green:     #4caf7d;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html, body {
+  min-height:100%;
+  font-family:'Segoe UI', system-ui, Arial, sans-serif;
+  background:radial-gradient(ellipse at 50% 0%, #1a1a3e 0%, var(--bg) 75%);
+  color:var(--text);
+  font-size:16px;
+  line-height:1.5;
+}
+.wrap { max-width:760px; margin:0 auto; padding:20px 14px 48px; }
+.card {
+  background:var(--card);
+  border-radius:18px;
+  border:1px solid var(--border);
+  box-shadow:0 28px 80px rgba(0,0,0,0.7);
+  padding:24px 24px 20px;
+}
+.game-header {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border); gap:12px;
+}
+.game-title { font-size:20px; font-weight:900; letter-spacing:0.3px; }
+.lamp { color:var(--gold); animation:lamp-flicker 12s 4s ease-in-out infinite; display:inline; }
+@keyframes lamp-flicker {
+  0%,90%,93%,97%,100% { opacity:1 }
+  91%  { opacity:.45 }
+  92%  { opacity:1 }
+  95%  { opacity:.6 }
+  96%  { opacity:1 }
+}
+.game-byline { font-size:11px; color:var(--muted); margin-top:4px; letter-spacing:0.5px; }
+.header-right { display:flex; flex-direction:column; align-items:flex-end; gap:10px; flex-shrink:0; }
+.header-controls { display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+.trail { display:flex; gap:6px; align-items:center; }
+.dot {
+  width:9px; height:9px; border-radius:50%;
+  background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.08);
+  transition:background .3s, box-shadow .3s;
+}
+.dot.done { background:rgba(240,192,64,.35); border-color:rgba(240,192,64,.35); }
+.dot.now  { background:var(--gold); border-color:var(--gold); box-shadow:0 0 9px var(--gold); }
+.btn {
+  padding:10px 16px; border-radius:10px; border:none; cursor:pointer;
+  font-weight:700; font-size:14px; line-height:1; font-family:inherit;
+  transition:opacity .15s, transform .1s; display:inline-flex; align-items:center; gap:6px;
+}
+.btn:hover  { opacity:.84; transform:translateY(-1px); }
+.btn:active { transform:translateY(0); }
+.btn-primary { background:linear-gradient(135deg,#f0c040,#c8a020); color:#07060a; }
+.btn-ghost   { background:rgba(255,255,255,0.05); color:var(--text); border:1px solid var(--border); }
+.btn-icon    { padding:8px 10px; font-size:16px; }
+.speed-btn   { padding:7px 11px; font-size:12px; font-weight:700; white-space:nowrap; }
+.toggle-btn  { padding:7px 11px; font-size:12px; font-weight:700; white-space:nowrap;
+               background:rgba(255,255,255,0.05); color:var(--text); border:1px solid var(--border);
+               border-radius:10px; cursor:pointer; font-family:inherit; }
+.toggle-btn.active { border-color:var(--gold); color:var(--gold); }
+
+/* Welcome / Level Select */
+.name-screen { text-align:center; padding:30px 10px 20px; }
+.name-screen .hero { font-size:58px; display:block; margin-bottom:12px; }
+.name-screen h2 { font-size:26px; font-weight:900; margin-bottom:10px; }
+.name-screen p { font-size:15px; color:#b0a898; line-height:1.7; margin:0 auto 22px; max-width:440px; }
+.level-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:6px; }
+.level-card {
+  background:var(--surface); border-radius:12px; border:2px solid transparent;
+  cursor:pointer; padding:20px 14px; text-align:center;
+  transition:transform .15s, box-shadow .15s, border-color .15s;
+}
+.level-card:hover, .level-card:focus {
+  transform:translateY(-4px);
+  box-shadow:0 10px 30px rgba(0,0,0,.5), 0 0 0 1px var(--gold);
+  border-color:var(--gold); outline:none;
+}
+.level-emoji { font-size:42px; display:block; margin-bottom:8px; }
+.level-name { font-size:16px; font-weight:700; }
+.level-desc { font-size:12px; color:var(--muted); margin-top:4px; }
+
+/* Round Header */
+.round-strip {
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;
+  color:var(--muted); margin-bottom:14px;
+}
+.round-strip .round-name { color:var(--gold); }
+
+/* Main Stage / Math Area */
+.math-display { text-align:center; margin-bottom:14px; }
+.target-expression { font-size:48px; font-weight:900; letter-spacing:2px; color:var(--gold); }
+.math-subtext { font-size:16px; color:var(--muted); margin-top:2px; }
+
+/* Visual Item Container */
+.scene-img-wrap {
+  width:100%; max-width:320px; min-height:160px; margin:0 auto 14px;
+  border-radius:12px; background:var(--surface2); border:1px solid var(--border);
+  position:relative; display:flex; flex-wrap:wrap; align-items:center; justify-content:center;
+  padding:16px; gap:12px;
+}
+.count-item { font-size:48px; line-height:1; user-select:none; }
+
+.prompt {
+  font-size:19px; font-weight:700; text-align:center; margin-bottom:14px; min-height:28px;
+}
+.answer-row { display:flex; gap:10px; justify-content:center; margin-bottom:10px; }
+.text-input {
+  padding:13px 18px; border-radius:10px; border:1px solid var(--border);
+  background:rgba(255,255,255,0.05); color:var(--text);
+  font-size:28px; width:220px; max-width:100%; text-align:center; outline:none;
+  font-family:inherit; letter-spacing:1px; font-weight:800;
+}
+.text-input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(240,192,64,.14); }
+
+/* Choice Cards (Green/Blue/Red Level visuals) */
+.choice-grid {
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(90px, 1fr));
+  gap:10px; max-width:440px; margin:0 auto 10px;
+}
+.choice-btn {
+  background:var(--surface); border:2px solid var(--border); border-radius:12px;
+  padding:14px 8px; font-size:24px; font-weight:800; color:var(--text);
+  cursor:pointer; text-align:center; transition:transform .12s, border-color .12s, background .12s;
+  font-family:inherit;
+}
+.choice-btn:hover, .choice-btn:focus {
+  transform:translateY(-2px); border-color:var(--gold); outline:none;
+}
+
+.affirm {
+  min-height:26px; font-size:17px; color:var(--gold); font-style:italic; text-align:center; margin-top:6px;
+}
+.affirm.bad { color:var(--red); font-style:normal; }
+.timer-display { text-align:center; font-size:12px; color:var(--muted); margin-top:12px; letter-spacing:0.5px; }
+
+/* Ending screen */
+.ending-screen { text-align:center; padding:8px 4px; }
+.ending-emoji  { font-size:58px; display:block; margin-bottom:8px; }
+.ending-title  { font-size:24px; font-weight:900; margin-bottom:14px; color:var(--green); }
+.stats-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:20px; }
+.stat-chip {
+  background:rgba(76,175,125,.08); border:1px solid rgba(76,175,125,.25);
+  border-radius:10px; padding:10px 18px; font-size:14px;
+}
+.stat-chip b { display:block; font-size:20px; color:var(--gold); }
+.journey-block { margin:6px 0 16px; text-align:left; }
+.journey-eyebrow {
+  font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px;
+  color:var(--muted); margin-bottom:10px; text-align:center;
+}
+.journey-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:8px; }
+.j-card {
+  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px; padding:9px 11px; text-align:center;
+}
+.j-ok    { font-size:16px; }
+.j-word  { font-size:14px; font-weight:700; margin-top:2px; }
+.btn-row { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:16px; }
+footer { margin-top:18px; text-align:center; font-size:11px; color:var(--muted); letter-spacing:0.3px; }
+@media (max-width:560px){
+  .level-grid { grid-template-columns:1fr; }
+  .text-input { width:100%; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <header class="game-header">
+      <div class="title-block">
+        <div class="game-title">Maths <span class="lamp">Programme</span></div>
+        <div class="game-byline">Talking in Pictures &middot; Early Numeracy Edition</div>
+      </div>
+      <div class="header-right">
+        <div class="trail" id="trail"></div>
+        <div class="header-controls">
+          <button class="toggle-btn" id="errBtn" title="Errorless math practice">🛡 Errorless</button>
+          <button class="btn btn-ghost speed-btn" id="speedBtn" title="Playback speed: Normal">▶ Normal</button>
+          <button class="btn btn-ghost btn-icon"  id="soundBtn" title="Toggle sound">🔊</button>
+        </div>
+      </div>
+    </header>
+    <main id="stage"></main>
+    <footer>Talking in Pictures &middot; SEND Resource &middot; www.talkinginpictures.co.uk</footer>
+  </div>
+</div>
+
+<script>
+/* ==========================================================
+   MATHS GAME DATA — 20 Progression Rounds
+   Levels mapping:
+   - Early Rounds (1-6): Number recognition & correspondence up to 5
+   - Middle Rounds (7-12): Counting & Bonds to 5 & 10
+   - Advanced Rounds (13-20): Plus/Minus Facts & Bonds to 10/20
+   ========================================================== */
+
+var ROUNDS = {
+  1:  { phase:"rec1",    label:"Round 1 — Numbers 1 to 3",       mode:"choice", items:[
+        {target:1, emoji:"🍎", prompt:"Find the number 1", choices:[1,2,3]},
+        {target:2, emoji:"🐶", prompt:"Find the number 2", choices:[1,2,3]},
+        {target:3, emoji:"⭐", prompt:"Find the number 3", choices:[2,3,1]},
+        {target:1, emoji:"🐱", prompt:"Find the number 1", choices:[3,1,2]},
+        {target:2, emoji:"🚗", prompt:"Find the number 2", choices:[2,1,3]}
+      ]},
+  2:  { phase:"rec2",    label:"Round 2 — Numbers 1 to 5",       mode:"choice", items:[
+        {target:4, emoji:"🎈", prompt:"Find the number 4", choices:[3,4,5]},
+        {target:5, emoji:"🐸", prompt:"Find the number 5", choices:[4,5,2]},
+        {target:3, emoji:"🐥", prompt:"Find the number 3", choices:[3,1,4]},
+        {target:4, emoji:"🦋", prompt:"Find the number 4", choices:[2,5,4]},
+        {target:5, emoji:"🐝", prompt:"Find the number 5", choices:[5,3,2]}
+      ]},
+  3:  { phase:"count1",  label:"Round 3 — Counting Objects to 3", mode:"count", items:[
+        {target:1, emoji:"🍎", choices:[1,2,3]},
+        {target:2, emoji:"🐶", choices:[1,2,3]},
+        {target:3, emoji:"⭐", choices:[1,2,3]},
+        {target:2, emoji:"🐱", choices:[2,3,1]},
+        {target:1, emoji:"🚗", choices:[3,1,2]}
+      ]},
+  4:  { phase:"count2",  label:"Round 4 — Counting Objects to 5", mode:"count", items:[
+        {target:4, emoji:"🎈", choices:[3,4,5]},
+        {target:5, emoji:"🐸", choices:[4,5,2]},
+        {target:3, emoji:"🐥", choices:[2,3,4]},
+        {target:5, emoji:"🦋", choices:[5,4,3]},
+        {target:4, emoji:"🐝", choices:[2,4,5]}
+      ]},
+  5:  { phase:"match5",   label:"Round 5 — Number Match to 5",    mode:"input", items:[
+        {target:1, emoji:"🍏", prompt:"How many apples?"},
+        {target:3, emoji:"🐻", prompt:"How many bears?"},
+        {target:2, emoji:"🚗", prompt:"How many cars?"},
+        {target:5, emoji:"⭐", prompt:"How many stars?"},
+        {target:4, emoji:"🦆", prompt:"How many ducks?"}
+      ]},
+  6:  { phase:"bonds5a",  label:"Round 6 — Making 5 (Visual)",    mode:"bond5_vis", items:[
+        {num1:4, target:1, emoji:"🔴", prompt:"4 and what makes 5?"},
+        {num1:3, target:2, emoji:"🔵", prompt:"3 and what makes 5?"},
+        {num1:2, target:3, emoji:"🟢", prompt:"2 and what makes 5?"},
+        {num1:1, target:4, emoji:"🟡", prompt:"1 and what makes 5?"},
+        {num1:5, target:0, emoji:"🟣", prompt:"5 and what makes 5?"}
+      ]},
+  7:  { phase:"bonds5b",  label:"Round 7 — Number Bonds to 5",    mode:"equation", items:[
+        {eq:"3 + _ = 5", target:2, text:"3 plus what equals 5?"},
+        {eq:"4 + _ = 5", target:1, text:"4 plus what equals 5?"},
+        {eq:"2 + _ = 5", target:3, text:"2 plus what equals 5?"},
+        {eq:"1 + _ = 5", target:4, text:"1 plus what equals 5?"},
+        {eq:"0 + _ = 5", target:5, text:"0 plus what equals 5?"}
+      ]},
+  8:  { phase:"sub5",     label:"Round 8 — Subtract within 5",    mode:"equation", items:[
+        {eq:"5 - 1 = _", target:4, text:"5 take away 1 equals..."},
+        {eq:"5 - 2 = _", target:3, text:"5 take away 2 equals..."},
+        {eq:"4 - 2 = _", target:2, text:"4 take away 2 equals..."},
+        {eq:"3 - 1 = _", target:2, text:"3 take away 1 equals..."},
+        {eq:"5 - 3 = _", target:2, text:"5 take away 3 equals..."}
+      ]},
+  9:  { phase:"mix5",     label:"Round 9 — Plus & Minus to 5",    mode:"equation", items:[
+        {eq:"2 + 3 = _", target:5, text:"2 plus 3 equals..."},
+        {eq:"5 - 4 = _", target:1, text:"5 take away 4 equals..."},
+        {eq:"1 + 3 = _", target:4, text:"1 plus 3 equals..."},
+        {eq:"4 - 1 = _", target:3, text:"4 take away 1 equals..."},
+        {eq:"3 + 1 = _", target:4, text:"3 plus 1 equals..."}
+      ]},
+  10: { phase:"count10",  label:"Round 10 — Counting to 10",      mode:"input", items:[
+        {target:6, emoji:"🌸", prompt:"How many flowers?"},
+        {target:7, emoji:"🐠", prompt:"How many fish?"},
+        {target:8, emoji:"⚽", prompt:"How many balls?"},
+        {target:9, emoji:"🎨", prompt:"How many paints?"},
+        {target:10,emoji:"🌟", prompt:"How many stars?"}
+      ]},
+  11: { phase:"bonds10a", label:"Round 11 — Bonds to 10 (Part 1)", mode:"equation", items:[
+        {eq:"9 + _ = 10", target:1, text:"9 plus what equals 10?"},
+        {eq:"8 + _ = 10", target:2, text:"8 plus what equals 10?"},
+        {eq:"7 + _ = 10", target:3, text:"7 plus what equals 10?"},
+        {eq:"6 + _ = 10", target:4, text:"6 plus what equals 10?"},
+        {eq:"5 + _ = 10", target:5, text:"5 plus what equals 10?"}
+      ]},
+  12: { phase:"bonds10b", label:"Round 12 — Bonds to 10 (Part 2)", mode:"equation", items:[
+        {eq:"4 + _ = 10", target:6, text:"4 plus what equals 10?"},
+        {eq:"3 + _ = 10", target:7, text:"3 plus what equals 10?"},
+        {eq:"2 + _ = 10", target:8, text:"2 plus what equals 10?"},
+        {eq:"1 + _ = 10", target:9, text:"1 plus what equals 10?"},
+        {eq:"10 + _ = 10",target:0, text:"10 plus what equals 10?"}
+      ]},
+  13: { phase:"sub10a",   label:"Round 13 — Subtract from 10",    mode:"equation", items:[
+        {eq:"10 - 2 = _", target:8, text:"10 take away 2 equals..."},
+        {eq:"10 - 5 = _", target:5, text:"10 take away 5 equals..."},
+        {eq:"10 - 3 = _", target:7, text:"10 take away 3 equals..."},
+        {eq:"10 - 1 = _", target:9, text:"10 take away 1 equals..."},
+        {eq:"10 - 4 = _", target:6, text:"10 take away 4 equals..."}
+      ]},
+  14: { phase:"add10",    label:"Round 14 — Addition Facts to 10",mode:"equation", items:[
+        {eq:"6 + 3 = _", target:9, text:"6 plus 3 equals..."},
+        {eq:"4 + 4 = _", target:8, text:"4 plus 4 equals..."},
+        {eq:"5 + 2 = _", target:7, text:"5 plus 2 equals..."},
+        {eq:"3 + 4 = _", target:7, text:"3 plus 4 equals..."},
+        {eq:"2 + 6 = _", target:8, text:"2 plus 6 equals..."}
+      ]},
+  15: { phase:"sub10b",   label:"Round 15 — Subtraction Facts to 10", mode:"equation", items:[
+        {eq:"9 - 4 = _", target:5, text:"9 take away 4 equals..."},
+        {eq:"8 - 3 = _", target:5, text:"8 take away 3 equals..."},
+        {eq:"7 - 5 = _", target:2, text:"7 take away 5 equals..."},
+        {eq:"6 - 2 = _", target:4, text:"6 take away 2 equals..."},
+        {eq:"9 - 6 = _", target:3, text:"9 take away 6 equals..."}
+      ]},
+  16: { phase:"review5_10",label:"Round 16 — Mixed Review to 10", mode:"equation", items:[
+        {eq:"5 + 5 = _", target:10, text:"5 plus 5 equals..."},
+        {eq:"10 - 7 = _", target:3, text:"10 take away 7 equals..."},
+        {eq:"3 + 6 = _", target:9, text:"3 plus 6 equals..."},
+        {eq:"8 - 4 = _", target:4, text:"8 take away 4 equals..."},
+        {eq:"2 + 7 = _", target:9, text:"2 plus 7 equals..."}
+      ]},
+  17: { phase:"double10", label:"Round 17 — Doubles to 10",       mode:"equation", items:[
+        {eq:"1 + 1 = _", target:2, text:"1 plus 1 equals..."},
+        {eq:"2 + 2 = _", target:4, text:"2 plus 2 equals..."},
+        {eq:"3 + 3 = _", target:6, text:"3 plus 3 equals..."},
+        {eq:"4 + 4 = _", target:8, text:"4 plus 4 equals..."},
+        {eq:"5 + 5 = _", target:10, text:"5 plus 5 equals..."}
+      ]},
+  18: { phase:"bonds20a", label:"Round 18 — Bonds to 20 (Part 1)", mode:"equation", items:[
+        {eq:"15 + _ = 20", target:5, text:"15 plus what equals 20?"},
+        {eq:"18 + _ = 20", target:2, text:"18 plus what equals 20?"},
+        {eq:"12 + _ = 20", target:8, text:"12 plus what equals 20?"},
+        {eq:"10 + _ = 20", target:10, text:"10 plus what equals 20?"},
+        {eq:"14 + _ = 20", target:6, text:"14 plus what equals 20?"}
+      ]},
+  19: { phase:"sub20",    label:"Round 19 — Subtraction within 20", mode:"equation", items:[
+        {eq:"20 - 5 = _", target:15, text:"20 take away 5 equals..."},
+        {eq:"20 - 2 = _", target:18, text:"20 take away 2 equals..."},
+        {eq:"15 - 3 = _", target:12, text:"15 take away 3 equals..."},
+        {eq:"18 - 4 = _", target:14, text:"18 take away 4 equals..."},
+        {eq:"20 - 10 = _", target:10, text:"20 take away 10 equals..."}
+      ]},
+  20: { phase:"finale",   label:"Round 20 — Grand Maths Finale! 🏆", mode:"equation", items:[
+        {eq:"10 + 10 = _", target:20, text:"10 plus 10 equals..."},
+        {eq:"20 - 8 = _",  target:12, text:"20 take away 8 equals..."},
+        {eq:"7 + 13 = _",  target:20, text:"7 plus 13 equals..."},
+        {eq:"16 - 5 = _",  target:11, text:"16 take away 5 equals..."},
+        {eq:"9 + 9 = _",   target:18, text:"9 plus 9 equals..."}
+      ]}
+};
+
+var LEVELS = {
+  red:   { name:"Red Level",   emoji:"🔴", desc:"Full math facts & equations" },
+  blue:  { name:"Blue Level",  emoji:"🔵", desc:"Simple equations & options" },
+  green: { name:"Green Level", emoji:"🟢", desc:"Visual objects & counting" }
+};
+
+/* ==========================================================
+   STATE
+   ========================================================== */
+var state = {
+  level:"red", round:1, current:0,
+  items:[], correct:0, total:0,
+  results:[], allProgress:[],
+  startTime:0, timerInt:null,
+  errorless:false
+};
+
+var soundOn = true;
+var SPEEDS = [
+  { label:"🐢 Slow",  rate:0.6  },
+  { label:"▶ Normal", rate:0.93 },
+  { label:"⚡ Fast",  rate:1.6  },
+  { label:"🚀 Turbo", rate:2.2  }
+];
+var speedIdx = 1, speechRate = SPEEDS[1].rate;
+
+/* ==========================================================
+   DOM
+   ========================================================== */
+var stage    = document.getElementById("stage");
+var trailEl  = document.getElementById("trail");
+var soundBtn = document.getElementById("soundBtn");
+var speedBtn = document.getElementById("speedBtn");
+var errBtn   = document.getElementById("errBtn");
+
+soundBtn.addEventListener("click", function(){
+  soundOn = !soundOn;
+  soundBtn.textContent = soundOn ? "🔊" : "🔇";
+  if (!soundOn && window.speechSynthesis) window.speechSynthesis.cancel();
+});
+speedBtn.addEventListener("click", function(){
+  speedIdx = (speedIdx+1) % SPEEDS.length;
+  speechRate = SPEEDS[speedIdx].rate;
+  speedBtn.textContent = SPEEDS[speedIdx].label;
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+});
+errBtn.addEventListener("click", function(){
+  state.errorless = !state.errorless;
+  errBtn.classList.toggle("active", state.errorless);
+});
+
+/* ==========================================================
+   SPEECH ENGINE
+   ========================================================== */
+function speak(text, onEnd){
+  if (!soundOn || !window.speechSynthesis){ if(onEnd) onEnd(); return; }
+  try {
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-GB"; u.rate = speechRate;
+    var fired = false;
+    var done = function(){ if(!fired){ fired=true; if(onEnd) onEnd(); } };
+    u.onend = done; u.onerror = done;
+    var ms = Math.max(Math.ceil(text.length*80/speechRate)+2000, 3000);
+    setTimeout(done, ms);
+    window.speechSynthesis.speak(u);
+  } catch(e){ if(onEnd) onEnd(); }
+}
+
+/* ==========================================================
+   TRAIL (5 items per round)
+   ========================================================== */
+function setTrail(currentIdx){
+  trailEl.innerHTML = "";
+  for (var i=0;i<5;i++){
+    var d = document.createElement("div");
+    d.className = i < currentIdx ? "dot done" : (i === currentIdx ? "dot now" : "dot");
+    trailEl.appendChild(d);
+  }
+}
+function clearTrail(){ trailEl.innerHTML = ""; }
+
+/* ==========================================================
+   SCREEN: WELCOME
+   ========================================================== */
+function renderWelcome(){
+  clearTrail(); stopTimer();
+  stage.innerHTML =
+    '<div class="name-screen">' +
+      '<span class="hero">🔢</span>' +
+      '<h2>Maths Programme</h2>' +
+      '<p>Master numbers and math facts, step by step!<br><br>' +
+         '1️⃣ Number recognition &amp; counting up to 5<br>' +
+         '➕ Number bonds and addition facts<br>' +
+         '➖ Subtraction facts and bonds up to 20<br><br>' +
+         'Choose your level to begin.</p>' +
+      '<div class="level-grid">' +
+        '<div class="level-card" id="lvRed" tabindex="0" role="button">' +
+          '<span class="level-emoji">🔴</span>' +
+          '<div class="level-name">Red Level</div>' +
+          '<div class="level-desc">Full math facts &amp; equations</div>' +
+        '</div>' +
+        '<div class="level-card" id="lvBlue" tabindex="0" role="button">' +
+          '<span class="level-emoji">🔵</span>' +
+          '<div class="level-name">Blue Level</div>' +
+          '<div class="level-desc">Simple equations &amp; options</div>' +
+        '</div>' +
+        '<div class="level-card" id="lvGreen" tabindex="0" role="button">' +
+          '<span class="level-emoji">🟢</span>' +
+          '<div class="level-name">Green Level</div>' +
+          '<div class="level-desc">Visual objects &amp; counting</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  bindLevel("lvRed","red"); bindLevel("lvBlue","blue"); bindLevel("lvGreen","green");
+}
+function bindLevel(id, lvl){
+  var el = document.getElementById(id);
+  el.onclick = function(){ pickLevel(lvl); };
+  el.onkeydown = function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); pickLevel(lvl); } };
+}
+function pickLevel(lvl){
+  state.level = lvl;
+  state.round = 1; state.allProgress = [];
+  speak(LEVELS[lvl].name + ". Let's start maths practice!", function(){ startRound(1); });
+}
+
+/* ==========================================================
+   TIMER
+   ========================================================== */
+function startTimer(){
+  stopTimer();
+  state.startTime = Date.now();
+  state.timerInt = setInterval(updateTimerLabel, 1000);
+  updateTimerLabel();
+}
+function stopTimer(){ if (state.timerInt) clearInterval(state.timerInt); state.timerInt = null; }
+function updateTimerLabel(){
+  var el = document.getElementById("timerLabel");
+  if (el) el.textContent = "Time this round: " + Math.floor((Date.now()-state.startTime)/1000) + "s";
+}
+
+/* ==========================================================
+   ROUND FLOW
+   ========================================================== */
+function startRound(n){
+  var cfg = ROUNDS[n];
+  if (!cfg){ renderAllDone(); return; }
+  state.round = n; state.current = 0;
+  state.correct = 0; state.total = 0; state.results = [];
+  state.items = cfg.items;
+  startTimer();
+  renderItem();
+}
+
+function renderItem(){
+  var cfg = ROUNDS[state.round];
+  if (state.current >= state.items.length){ renderRoundEnd(); return; }
+  var item = state.items[state.current];
+  var mode = cfg.mode;
+  setTrail(state.current);
+
+  var displayHtml = "";
+  var visualHtml = "";
+  var promptText = "";
+  var speechText = "";
+
+  if (mode === "choice"){
+    displayHtml = '<div class="target-expression">' + item.target + '</div>';
+    promptText = item.prompt;
+    speechText = item.prompt;
+  } else if (mode === "count"){
+    displayHtml = '<div class="target-expression">?</div>';
+    for(var c=0; c<item.target; c++){ visualHtml += '<span class="count-item">'+item.emoji+'</span>'; }
+    promptText = "How many " + getEmojiLabel(item.emoji) + " can you count?";
+    speechText = promptText;
+  } else if (mode === "input"){
+    displayHtml = '<div class="target-expression">?</div>';
+    for(var i=0; i<item.target; i++){ visualHtml += '<span class="count-item">'+item.emoji+'</span>'; }
+    promptText = item.prompt;
+    speechText = item.prompt;
+  } else if (mode === "bond5_vis"){
+    displayHtml = '<div class="target-expression">' + item.num1 + ' + ? = 5</div>';
+    for(var b=0; b<item.num1; b++){ visualHtml += '<span class="count-item">'+item.emoji+'</span>'; }
+    promptText = item.prompt;
+    speechText = item.prompt;
+  } else if (mode === "equation"){
+    displayHtml = '<div class="target-expression">' + item.eq + '</div>';
+    promptText = item.text;
+    speechText = item.text;
+  }
+
+  /* Formulate Input Area based on Level & Mode */
+  var answerControls = "";
+  if (state.level === "green" || mode === "choice" || mode === "count"){
+    var choices = item.choices || generateChoices(item.target);
+    answerControls = '<div class="choice-grid">';
+    for(var k=0; k<choices.length; k++){
+      answerControls += '<button class="choice-btn" data-val="'+choices[k]+'">'+choices[k]+'</button>';
+    }
+    answerControls += '</div>';
+  } else {
+    answerControls =
+      '<div class="answer-row">' +
+        '<input class="text-input" id="answer" type="number" pattern="[0-9]*" autocomplete="off"/>' +
+        '<button class="btn btn-primary" id="sayBtn" title="Hear it again">🔊</button>' +
+      '</div>';
+  }
+
+  stage.innerHTML =
+    '<div class="round-strip"><span class="round-name">'+cfg.label+'</span>'+
+      '<span>'+LEVELS[state.level].name+'</span></div>' +
+    '<div class="math-display">' + displayHtml + '</div>' +
+    (visualHtml ? '<div class="scene-img-wrap">' + visualHtml + '</div>' : '') +
+    '<div class="prompt">'+promptText+'</div>' +
+    answerControls +
+    '<div class="affirm" id="affirm"></div>' +
+    '<div class="timer-display" id="timerLabel"></div>';
+
+  speak(speechText);
+
+  var sayBtn = document.getElementById("sayBtn");
+  if (sayBtn) sayBtn.onclick = function(){ speak(speechText); };
+
+  if (document.getElementById("answer")){
+    var inp = document.getElementById("answer");
+    inp.focus();
+    inp.addEventListener("input", function(){ onInput(item.target, inp.value.trim(), inp); });
+  } else {
+    var btns = stage.querySelectorAll(".choice-btn");
+    btns.forEach(function(b){
+      b.onclick = function(){ onChoice(item.target, parseInt(b.getAttribute("data-val"), 10), b); };
+    });
+  }
+}
+
+function generateChoices(target){
+  var set = new Set([target]);
+  while(set.size < 3){
+    var delta = (Math.random() < 0.5 ? 1 : -1) * (Math.floor(Math.random()*3)+1);
+    var val = target + delta;
+    if (val >= 0) set.add(val);
+  }
+  return Array.from(set).sort(function(a,b){ return a-b; });
+}
+
+function getEmojiLabel(emoji){
+  if (emoji==="🍎"||emoji==="🍏") return "apples";
+  if (emoji==="🐶") return "dogs";
+  if (emoji==="⭐") return "stars";
+  if (emoji==="🐱") return "cats";
+  if (emoji==="🚗") return "cars";
+  if (emoji==="🐸") return "frogs";
+  if (emoji==="🐥") return "chicks";
+  if (emoji==="🦋") return "butterflies";
+  if (emoji==="🐝") return "bees";
+  if (emoji==="🐻") return "bears";
+  if (emoji==="🦆") return "ducks";
+  if (emoji==="🌸") return "flowers";
+  if (emoji==="🐠") return "fish";
+  if (emoji==="⚽") return "balls";
+  if (emoji==="🎨") return "paints";
+  return "items";
+}
+
+function onInput(target, typedVal, inp){
+  if (typedVal === "") return;
+  var val = parseInt(typedVal, 10);
+  var aff = document.getElementById("affirm");
+
+  /* Errorless mode check */
+  if (state.errorless){
+    if (val !== target && typedVal.length >= String(target).length){
+      inp.value = "";
+      return;
+    }
+  }
+
+  if (val === target){
+    state.correct++; state.total++;
+    state.results.push({ item: target, ok: true });
+    if (aff){ aff.textContent = "✅ Correct!"; aff.className = "affirm"; }
+    inp.disabled = true;
+    speak("Correct!", function(){
+      setTimeout(function(){
+        state.current++;
+        renderItem();
+      }, 500);
+    });
+  } else if (typedVal.length >= String(target).length){
+    state.total++;
+    state.results.push({ item: target, ok: false });
+    if (aff){ aff.textContent = "❌ Try again!"; aff.className = "affirm bad"; }
+    inp.value = "";
+    speak("Try again.");
+  }
+}
+
+function onChoice(target, chosenVal, btn){
+  var aff = document.getElementById("affirm");
+  if (state.errorless && chosenVal !== target){
+    btn.style.opacity = "0.3";
+    btn.disabled = true;
+    return;
+  }
+
+  if (chosenVal === target){
+    state.correct++; state.total++;
+    state.results.push({ item: target, ok: true });
+    if (aff){ aff.textContent = "✅ Well done!"; aff.className = "affirm"; }
+    speak("Well done!", function(){
+      setTimeout(function(){
+        state.current++;
+        renderItem();
+      }, 500);
+    });
+  } else {
+    state.total++;
+    state.results.push({ item: target, ok: false });
+    if (aff){ aff.textContent = "❌ Try again!"; aff.className = "affirm bad"; }
+    speak("Try again.");
+  }
+}
+
+/* ==========================================================
+   SCREEN: ROUND END
+   ========================================================== */
+function renderRoundEnd(){
+  stopTimer();
+  clearTrail();
+  var cfg = ROUNDS[state.round];
+  var elapsed = Math.floor((Date.now()-state.startTime)/1000);
+  var acc = state.total ? Math.round(state.correct/state.total*100) : 0;
+  state.allProgress.push({ round: state.round, label: cfg.label,
+    correct: state.correct, total: state.total, time: elapsed });
+
+  var isFinal = state.round >= 20;
+  var title = isFinal ? "🏆 Grand Finale Complete!" :
+              (acc === 100 ? "🌟 Perfect Round!" : acc >= 70 ? "👍 Great Job!" : "💪 Good Try!");
+  var emoji = isFinal ? "🏆" : acc === 100 ? "🌟" : "🎉";
+
+  var journey = "";
+  for (var i=0;i<state.results.length;i++){
+    var r = state.results[i];
+    journey +=
+      '<div class="j-card">' +
+        '<div class="j-ok">'+(r.ok ? "✅" : "🔄")+'</div>' +
+        '<div class="j-word">Target: '+r.item+'</div>' +
+      '</div>';
+  }
+
+  var history = "";
+  for (var h=0; h<state.allProgress.length; h++){
+    var p = state.allProgress[h];
+    history += '<div class="j-card"><div class="j-scene" style="font-size:11px;color:var(--muted)">'+p.label+'</div>'+
+               '<div class="j-word">'+p.correct+'/'+p.total+' · '+(p.total?Math.round(p.correct/p.total*100):0)+'% · '+p.time+'s</div></div>';
+  }
+
+  var nextLabel = isFinal ? "See Final Results" : "Start Next Round →";
+
+  stage.innerHTML =
+    '<div class="ending-screen">' +
+      '<span class="ending-emoji">'+emoji+'</span>' +
+      '<div class="ending-title">'+title+'</div>' +
+      '<div class="stats-row">' +
+        '<div class="stat-chip"><b>'+state.correct+'/'+state.total+'</b>Score</div>' +
+        '<div class="stat-chip"><b>'+acc+'%</b>Accuracy</div>' +
+        '<div class="stat-chip"><b>'+elapsed+'s</b>Time</div>' +
+      '</div>' +
+      '<div class="journey-block">' +
+        '<div class="journey-eyebrow">📍 This round</div>' +
+        '<div class="journey-grid">'+journey+'</div>' +
+      '</div>' +
+      '<div class="btn-row">' +
+        '<button class="btn btn-primary" id="nextBtn">'+nextLabel+'</button>' +
+        '<button class="btn btn-ghost" id="pdfBtn">📄 Save as PDF</button>' +
+        '<button class="btn btn-ghost" id="readBtn">🔊 Read Aloud</button>' +
+        '<button class="btn btn-ghost" id="againBtn">🔄 Play Again</button>' +
+      '</div>' +
+      (state.allProgress.length > 1 ?
+        '<div class="journey-block" style="margin-top:20px">' +
+          '<div class="journey-eyebrow">📊 All rounds so far</div>' +
+          '<div class="journey-grid">'+history+'</div>' +
+        '</div>' : '') +
+    '</div>';
+
+  var spoken = title + " You scored " + state.correct + " out of " + state.total +
+               ", with " + acc + " percent accuracy, in " + elapsed + " seconds.";
+  speak(spoken);
+
+  document.getElementById("readBtn").onclick = function(){ speak(spoken); };
+  document.getElementById("againBtn").onclick = renderWelcome;
+  document.getElementById("pdfBtn").onclick = function(){ savePDF(); };
+  document.getElementById("nextBtn").onclick = function(){
+    if (isFinal) renderAllDone();
+    else speak("Next round!", function(){ startRound(state.round + 1); });
+  };
+}
+
+/* ==========================================================
+   SCREEN: ALL DONE
+   ========================================================== */
+function renderAllDone(){
+  stopTimer(); clearTrail();
+  var totC = 0, totT = 0, totS = 0;
+  for (var i=0;i<state.allProgress.length;i++){
+    totC += state.allProgress[i].correct;
+    totT += state.allProgress[i].total;
+    totS += state.allProgress[i].time;
+  }
+  var acc = totT ? Math.round(totC/totT*100) : 0;
+  var rows = "";
+  for (var j=0;j<state.allProgress.length;j++){
+    var p = state.allProgress[j];
+    rows += '<div class="j-card"><div class="j-scene" style="font-size:11px;color:var(--muted)">'+p.label+'</div>'+
+            '<div class="j-word">'+p.correct+'/'+p.total+' · '+(p.total?Math.round(p.correct/p.total*100):0)+'%</div></div>';
+  }
+  stage.innerHTML =
+    '<div class="ending-screen">' +
+      '<span class="ending-emoji">🏆</span>' +
+      '<div class="ending-title">Programme Complete!</div>' +
+      '<div style="text-align:center;font-size:15px;line-height:1.8;color:#ddd6c8;max-width:520px;margin:0 auto 18px">' +
+        'You finished all 20 rounds of the Maths Programme — from number recognition ' +
+        'all the way to number bonds and addition/subtraction facts! Outstanding work!' +
+      '</div>' +
+      '<div class="stats-row">' +
+        '<div class="stat-chip"><b>'+totC+'/'+totT+'</b>Total Score</div>' +
+        '<div class="stat-chip"><b>'+acc+'%</b>Total Accuracy</div>' +
+        '<div class="stat-chip"><b>'+totS+'s</b>Total Time</div>' +
+      '</div>' +
+      '<div class="journey-block">' +
+        '<div class="journey-eyebrow">📊 Your full journey</div>' +
+        '<div class="journey-grid">'+rows+'</div>' +
+      '</div>' +
+      '<div class="btn-row">' +
+        '<button class="btn btn-primary" id="pdfBtn2">📄 Save as PDF</button>' +
+        '<button class="btn btn-ghost" id="homeBtn">🔄 Play Again</button>' +
+      '</div>' +
+    '</div>';
+  speak("Programme complete! You finished all twenty math rounds. Outstanding work!");
+  document.getElementById("homeBtn").onclick = renderWelcome;
+  document.getElementById("pdfBtn2").onclick = function(){ savePDF(); };
+}
+
+/* ==========================================================
+   PDF EXPORT
+   ========================================================== */
+function savePDF(){
+  if (!window.jspdf || !window.jspdf.jsPDF){
+    alert("PDF library not loaded. Please check your internet connection.");
+    return;
+  }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({ unit:"pt", format:"a4", orientation:"portrait" });
+  var pageWidth = 595.28, pageHeight = 841.89, margin = 54;
+  var contentWidth = pageWidth - margin*2;
+
+  doc.setFillColor(250,248,245);
+  doc.rect(0,0,pageWidth,pageHeight,"F");
+  doc.setDrawColor(240,192,64); doc.setLineWidth(1.5);
+  doc.line(margin,110,pageWidth-margin,110);
+  doc.line(margin,pageHeight-75,pageWidth-margin,pageHeight-75);
+
+  doc.setFont("Helvetica","bold"); doc.setFontSize(22); doc.setTextColor(17,17,32);
+  doc.text("MATHS PROGRAMME", margin, 80);
+  doc.setFont("Helvetica","normal"); doc.setFontSize(9); doc.setTextColor(94,90,78);
+  doc.text("Talking in Pictures — Progress Report", margin, 98);
+
+  var dateString = new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
+  doc.setFont("Helvetica","bold"); doc.setFontSize(9); doc.setTextColor(17,17,32);
+  doc.text(LEVELS[state.level].name + "  |  " + dateString, pageWidth-margin, 98, {align:"right"});
+
+  var fontSize = 10.5, lineSpacing = 15, currY = 145;
+  doc.setFontSize(fontSize); doc.setTextColor(17,17,32); doc.setFont("Helvetica","normal");
+
+  for (var i=0;i<state.allProgress.length;i++){
+    var p = state.allProgress[i];
+    var line = p.label + "  —  Score: " + p.correct + "/" + p.total +
+               "  |  Accuracy: " + (p.total?Math.round(p.correct/p.total*100):0) +
+               "%  |  Time: " + p.time + "s";
+    var lines = doc.splitTextToSize(line, contentWidth);
+    for (var l=0;l<lines.length;l++){ doc.text(lines[l], margin, currY); currY += lineSpacing; }
+    currY += 4;
+  }
+
+  doc.setFont("Helvetica","bold"); doc.setTextColor(240,192,64);
+  doc.text("•   •   •", pageWidth/2, currY+6, {align:"center"});
+  currY += 26;
+  doc.setFont("Helvetica","normal"); doc.setTextColor(17,17,32);
+  var totC = state.allProgress.reduce(function(a,p){return a+p.correct;},0);
+  var totT = state.allProgress.reduce(function(a,p){return a+p.total;},0);
+  doc.text("Overall: " + totC + "/" + totT + " correct across " + state.allProgress.length + " round(s).", margin, currY);
+
+  doc.setFont("Helvetica","normal"); doc.setFontSize(8); doc.setTextColor(94,90,78);
+  doc.text("Talking in Pictures  |  SEND Resource  |  www.talkinginpictures.co.uk", margin, pageHeight-55);
+
+  doc.save("maths_programme_progress.pdf");
+}
+
+/* ==========================================================
+   BOOT
+   ========================================================== */
+renderWelcome();
+</script>
+</body>
+</html>
