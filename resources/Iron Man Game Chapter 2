@@ -1,0 +1,1563 @@
+<!DOCTYPE html> 
+
+<html lang="en"> 
+
+<head> 
+
+<meta charset="utf-8"/> 
+
+<meta name="viewport" content="width=device-width,initial-scale=1"/> 
+
+<title>The Iron Man — Chapter 2 Reading Adventure</title> 
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> 
+
+<style> 
+
+:root { 
+
+  --bg:        #0a0a1a; 
+
+  --card:      #12122a; 
+
+  --surface:   #1a1a3e; 
+
+  --surface2:  #0d0d24; 
+
+  --accent:    #f0c040; 
+
+  --accent-dim:#a08020; 
+
+  --text:      #f0ece0; 
+
+  --muted:     #5e5a6e; 
+
+  --border:    rgba(240,192,64,0.13); 
+
+  --green-ok:  #4caf7d; 
+
+  --red-no:    #e84343; 
+
+} 
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; } 
+
+html, body { 
+
+  min-height:100%; 
+
+  font-family:'Segoe UI', system-ui, Arial, sans-serif; 
+
+  background:radial-gradient(ellipse at 50% 0%, #1a1a3e 0%, var(--bg) 75%); 
+
+  color:var(--text); 
+
+  font-size:16px; 
+
+  line-height:1.5; 
+
+} 
+
+.wrap { max-width:880px; margin:0 auto; padding:20px 14px 48px; } 
+
+.card { 
+
+  background:var(--card); 
+
+  border-radius:18px; 
+
+  border:1px solid var(--border); 
+
+  box-shadow:0 28px 80px rgba(0,0,0,0.7); 
+
+  padding:24px 24px 20px; 
+
+} 
+
+.game-header { 
+
+  display:flex; align-items:flex-start; justify-content:space-between; 
+
+  margin-bottom:22px; padding-bottom:18px; 
+
+  border-bottom:1px solid var(--border); gap:12px; 
+
+} 
+
+.game-title { font-size:22px; font-weight:900; letter-spacing:0.3px; color:var(--text); } 
+
+.game-title .accent-word { color:var(--accent); transition:color .3s; } 
+
+.game-byline { font-size:11px; color:var(--muted); margin-top:4px; letter-spacing:0.5px; } 
+
+.header-right { display:flex; flex-direction:column; align-items:flex-end; gap:10px; flex-shrink:0; } 
+
+.header-controls { display:flex; gap:6px; align-items:center; } 
+
+.speed-btn { padding:7px 11px; font-size:12px; font-weight:700; letter-spacing:0.2px; white-space:nowrap; } 
+
+.trail { display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end; max-width:200px; } 
+
+.dot { width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.08); transition:background .3s, box-shadow .3s; } 
+
+.dot.done { background:color-mix(in srgb, var(--accent) 55%, transparent); border-color:color-mix(in srgb, var(--accent) 55%, transparent); } 
+
+.dot.now  { background:var(--accent); border-color:var(--accent); box-shadow:0 0 9px var(--accent); } 
+
+.btn { padding:10px 16px; border-radius:10px; border:none; cursor:pointer; font-weight:700; font-size:14px; line-height:1; transition:opacity .15s, transform .1s; display:inline-flex; align-items:center; gap:6px; } 
+
+.btn:hover  { opacity:.84; transform:translateY(-1px); } 
+
+.btn:active { transform:translateY(0); } 
+
+.btn-primary { background:linear-gradient(135deg, var(--accent), var(--accent-dim)); color:#07060a; } 
+
+.btn-ghost   { background:rgba(255,255,255,0.05); color:var(--text); border:1px solid var(--border); } 
+
+.btn-icon    { padding:8px 10px; font-size:18px; } 
+
+.level-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-top:20px; } 
+
+.level-card { 
+
+  background:var(--surface); border-radius:12px; border:2px solid transparent; 
+
+  cursor:pointer; padding:20px 16px; text-align:center; 
+
+  transition:transform .15s, box-shadow .15s, border-color .15s; 
+
+} 
+
+.level-card:hover, .level-card:focus { 
+
+  transform:translateY(-4px); 
+
+  box-shadow:0 10px 30px rgba(0,0,0,.5), 0 0 0 1px var(--lc-color, var(--accent)); 
+
+  border-color:var(--lc-color, var(--accent)); 
+
+  outline:none; 
+
+} 
+
+.level-emoji { font-size:38px; display:block; margin-bottom:8px; } 
+
+.level-name { font-size:16px; font-weight:700; color:var(--text); } 
+
+.level-desc { font-size:12px; color:var(--muted); margin-top:4px; } 
+
+.scene-eyebrow { font-size:11px; text-transform:uppercase; letter-spacing:2px; color:var(--accent); font-weight:700; margin-bottom:8px; } 
+
+.scene-img-wrap { 
+
+  width:100%; height:120px; border-radius:10px; background:var(--surface2); 
+
+  overflow:hidden; position:relative; margin-bottom:14px; 
+
+  display:flex; align-items:center; justify-content:center; 
+
+} 
+
+.scene-emoji-slot { font-size:64px; line-height:1; position:relative; z-index:1; } 
+
+.fade { position:absolute; inset:0; background:linear-gradient(0deg, rgba(10,10,26,.92) 0%, rgba(10,10,26,.1) 100%); pointer-events:none; } 
+
+.scene-text { 
+
+  font-size:16px; line-height:1.75; color:#ddd6c8; padding:13px 16px; margin-bottom:16px; 
+
+  border-left:3px solid var(--accent); border-radius:0 8px 8px 0; background:rgba(240,192,64,.04); 
+
+} 
+
+.scene-text.bullets { padding-left:16px; } 
+
+.scene-text .bline { display:block; margin-bottom:6px; } 
+
+.scene-text .bline:last-child { margin-bottom:0; } 
+
+.vocab-row { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:18px; } 
+
+.vocab-chip { 
+
+  display:flex; align-items:center; gap:8px; background:var(--surface2); 
+
+  border:1px solid var(--border); border-radius:10px; padding:8px 12px; 
+
+} 
+
+.vocab-chip .vi { font-size:28px; line-height:1; } 
+
+.vocab-chip .vw { font-size:14px; font-weight:700; letter-spacing:.3px; } 
+
+.question-label { font-size:19px; font-weight:700; margin-bottom:12px; color:var(--text); } 
+
+.opt-list { display:flex; flex-direction:column; gap:10px; } 
+
+.opt-row { 
+
+  background:var(--surface); border-radius:10px; border:1px solid rgba(255,255,255,0.05); 
+
+  cursor:pointer; padding:14px 16px; font-size:15px; font-weight:600; color:var(--text); 
+
+  transition:transform .12s, box-shadow .12s, border-color .12s, background .2s; 
+
+  user-select:none; 
+
+} 
+
+.opt-row:hover, .opt-row:focus { transform:translateX(3px); box-shadow:0 6px 18px rgba(0,0,0,.4), 0 0 0 1px var(--accent); border-color:var(--accent); outline:none; } 
+
+.opt-row.correct { background:rgba(76,175,125,.18); border-color:var(--green-ok); color:#bdf0d6; } 
+
+.opt-row.wrong   { background:rgba(232,67,67,.16); border-color:var(--red-no); color:#ffc7c7; } 
+
+.opt-row.disabled { pointer-events:none; opacity:.55; } 
+
+.two-choice-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; } 
+
+.two-choice-card { 
+
+  background:var(--surface); border-radius:14px; border:3px solid rgba(255,255,255,0.08); 
+
+  cursor:pointer; padding:26px 14px; text-align:center; 
+
+  transition:transform .14s, box-shadow .14s, border-color .14s, background .2s; 
+
+  user-select:none; 
+
+} 
+
+.two-choice-card:hover, .two-choice-card:focus { 
+
+  transform:translateY(-4px); 
+
+  box-shadow:0 10px 30px rgba(0,0,0,.5), 0 0 0 1px var(--accent); 
+
+  border-color:var(--accent); outline:none; 
+
+} 
+
+.two-choice-card .tc-icon { font-size:64px; line-height:1; display:block; margin-bottom:12px; } 
+
+.two-choice-card .tc-label { font-size:20px; font-weight:800; letter-spacing:.3px; } 
+
+.two-choice-card.correct { background:rgba(76,175,125,.18); border-color:var(--green-ok); } 
+
+.two-choice-card.wrong   { background:rgba(232,67,67,.16); border-color:var(--red-no); } 
+
+.two-choice-card.disabled { pointer-events:none; opacity:.55; } 
+
+.feedback { min-height:26px; font-size:15px; font-weight:700; text-align:center; margin-top:14px; } 
+
+.feedback.ok  { color:var(--green-ok); } 
+
+.feedback.no  { color:#ff9a9a; } 
+
+.name-screen { text-align:center; padding:34px 16px 24px; } 
+
+.name-screen .hero { font-size:58px; display:block; margin-bottom:14px; } 
+
+.name-screen h2 { font-size:26px; font-weight:900; margin-bottom:10px; } 
+
+.name-screen p { font-size:15px; color:#b0a898; line-height:1.7; margin-bottom:24px; max-width:440px; margin-left:auto; margin-right:auto; } 
+
+.text-input { 
+
+  padding:12px 16px; border-radius:10px; border:1px solid var(--border); 
+
+  background:rgba(255,255,255,0.04); color:var(--text); font-size:16px; 
+
+  width:260px; max-width:100%; outline:none; display:block; margin:0 auto 16px; 
+
+} 
+
+.text-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(240,192,64,.14); } 
+
+.ending-screen { text-align:center; padding:8px 4px; } 
+
+.ending-emoji { font-size:58px; display:block; margin-bottom:10px; } 
+
+.ending-title { font-size:25px; font-weight:900; margin-bottom:6px; color:var(--accent); } 
+
+.ending-score { font-size:15px; color:var(--muted); margin-bottom:18px; } 
+
+.ending-text { 
+
+  font-size:16px; line-height:1.8; max-width:640px; margin:0 auto 20px; padding:18px 22px; 
+
+  border-radius:12px; text-align:left; background:rgba(240,192,64,.07); border:1px solid var(--border); 
+
+} 
+
+.journey-block { margin:18px 0; text-align:left; } 
+
+.journey-eyebrow { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted); margin-bottom:10px; } 
+
+.journey-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr)); gap:8px; } 
+
+.j-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px 12px; } 
+
+.j-scene  { font-size:11px; color:var(--muted); margin-bottom:4px; } 
+
+.j-choice { font-size:14px; font-weight:700; color:var(--text); } 
+
+.j-mark   { font-size:12px; margin-top:4px; } 
+
+.j-mark.first { color:var(--green-ok); } 
+
+.j-mark.retry { color:#e0b060; } 
+
+.btn-row { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:18px; } 
+
+footer { margin-top:18px; text-align:center; font-size:11px; color:var(--muted); letter-spacing:0.3px; } 
+
+@media (max-width:480px) { 
+
+  .level-grid { grid-template-columns:1fr; } 
+
+  .two-choice-grid { grid-template-columns:1fr; } 
+
+} 
+
+</style> 
+
+<base target="_blank"> 
+
+</head> 
+
+<body> 
+
+<div class="wrap"> 
+
+  <div class="card"> 
+
+    <header class="game-header"> 
+
+      <div class="title-block"> 
+
+        <div class="game-title">The <span class="accent-word">Iron Man</span></div> 
+
+        <div class="game-byline">Reading Adventure &middot; Chapter 2: The Return</div> 
+
+      </div> 
+
+      <div class="header-right"> 
+
+        <div class="trail" id="trail"></div> 
+
+        <div class="header-controls"> 
+
+          <button class="btn btn-ghost speed-btn" id="speedBtn" title="Playback speed: Normal">▶ Normal</button> 
+
+          <button class="btn btn-ghost btn-icon"  id="soundBtn" title="Toggle sound">🔊</button> 
+
+        </div> 
+
+      </div> 
+
+    </header> 
+
+    <main id="stage"></main> 
+
+    <footer>Talking in Pictures &middot; SEND Resource &middot; www.talkinginpictures.co.uk</footer> 
+
+  </div> 
+
+</div> 
+
+ 
+
+<script> 
+
+/* ========================================================== 
+
+   LEVEL DATA — Chapter 2: The Return of the Iron Man 
+
+   7 scenes, mirroring the Red / Green / Jade adapted readers: 
+
+   Hogarth Sees Him → Something Ate the Tractor → The Missing 
+
+   Metal → The Farmers Make a Trap → Waiting for the Iron Man 
+
+   → Clink, Clink, Clink! → Buried. 
+
+   (No Blue-level Chapter 2 reader was supplied, so Blue is 
+
+   left out of this build — send that source and it can be 
+
+   added the same way.) 
+
+   ========================================================== */ 
+
+ 
+
+var SCENE_EMOJI = { hogarth:"🎣", tractor:"🚜", missing:"⚙️", trap:"🕳️", waiting:"📅", clink:"🔔", buried:"⛰️" }; 
+
+ 
+
+var LEVELS = { 
+
+  red: { 
+
+    key:"red", name:"Red", badge:"RED", desc:"Full sentences & inference", color:"#c0454a", 
+
+    endingText:"You read closely and picked up on small clues — bitten steel, a clinking nail, a fox that wouldn't cross the pit — to work out exactly how the farmers outwitted the Iron Man. That's careful, inferential reading!", 
+
+    lessons:[ 
+
+      { id:"hogarth", sceneLabel:"Chapter 2 · Scene 1", title:"Hogarth Sees Him", img:"hogarth", 
+
+        narrative:"One evening, Hogarth was fishing in a stream near the sea. As darkness fell, he suddenly felt he was being watched. Two green lights appeared above the cliff. Then a huge black figure climbed over the clifftop — the lights were its eyes. The Iron Man had returned. Frightened, Hogarth ran all the way home to warn his family.", 
+
+        question:"Why did Hogarth run home?", 
+
+        options:[ 
+
+          {text:"Because he was frightened by the Iron Man", correct:true}, 
+
+          {text:"Because it started to rain", correct:false}, 
+
+          {text:"Because he had caught a big fish", correct:false}, 
+
+          {text:"Because his fishing rod broke", correct:false} 
+
+        ]}, 
+
+      { id:"tractor", sceneLabel:"Chapter 2 · Scene 2", title:"Something Ate the Tractor", img:"tractor", 
+
+        narrative:"Hogarth told his father what he had seen. At a nearby farm, his father found half a tractor lying in the yard — the steel had been bitten clean through, leaving enormous teeth marks. On the dark road home, two lights appeared high in a tree. A giant iron foot came down in front of the car and a hand reached towards the windscreen. Hogarth's father drove straight at the foot, knocked the Iron Man over, and escaped home.", 
+
+        question:"What do the huge teeth marks on the tractor tell us?", 
+
+        options:[ 
+
+          {text:"Something enormous had bitten straight through the steel", correct:true}, 
+
+          {text:"The tractor had slowly rusted away", correct:false}, 
+
+          {text:"The tractor had been painted over", correct:false}, 
+
+          {text:"The farmer had taken it apart himself", correct:false} 
+
+        ]}, 
+
+      { id:"missing", sceneLabel:"Chapter 2 · Scene 3", title:"The Missing Metal", img:"missing", 
+
+        narrative:"The next morning, farmers across the area found that their tractors, ploughs and other steel machinery had vanished. Broken wheels and axles were left behind, bitten through by enormous teeth. The farmers followed giant footprints across the fields — each print as large as a bed — and the trail led back to the cliff. They realised the Iron Man had eaten their machinery before returning to the sea.", 
+
+        question:"How did the farmers know the metal had been eaten, not just stolen?", 
+
+        options:[ 
+
+          {text:"The broken wheels and axles were left behind, bitten through", correct:true}, 
+
+          {text:"They saw a lorry driving away with it", correct:false}, 
+
+          {text:"A note was left on the farm gate", correct:false}, 
+
+          {text:"The machinery was found painted black", correct:false} 
+
+        ]}, 
+
+      { id:"trap", sceneLabel:"Chapter 2 · Scene 4", title:"The Farmers Make a Trap", img:"trap", 
+
+        narrative:"The farmers decided they would have to deal with the Iron Man themselves. They dug a colossal pit, wider than a house and incredibly deep, then hid it beneath branches, straw and soil. On the other side, they placed an old red lorry as bait. Their plan was simple: the Iron Man would come for the metal, step onto the hidden cover, and crash into the pit, where they could bury him.", 
+
+        question:"Why did the farmers put an old lorry near the hidden pit?", 
+
+        options:[ 
+
+          {text:"To tempt the Iron Man onto the hidden cover", correct:true}, 
+
+          {text:"To block the road into the village", correct:false}, 
+
+          {text:"To give Hogarth somewhere to hide", correct:false}, 
+
+          {text:"To carry the soil away", correct:false} 
+
+        ]}, 
+
+      { id:"waiting", sceneLabel:"Chapter 2 · Scene 5", title:"Waiting for the Iron Man", img:"waiting", 
+
+        narrative:"The farmers returned to their trap each morning, but nothing had changed — the Iron Man did not come. After many days, the bait was removed and grass began to grow across the hidden pit. A warning sign was left nearby. Later, Hogarth decided to use the pit to trap a fox. He waited in a tree as evening fell. The fox approached the bait but would not step onto the unsafe ground. Suddenly it turned and stared towards the cliff.", 
+
+        question:"Why wouldn't the fox step onto the bait?", 
+
+        options:[ 
+
+          {text:"It sensed the ground underneath was unsafe", correct:true}, 
+
+          {text:"It wasn't hungry", correct:false}, 
+
+          {text:"It was frightened of Hogarth", correct:false}, 
+
+          {text:"It preferred staying near the cliff", correct:false} 
+
+        ]}, 
+
+      { id:"clink", sceneLabel:"Chapter 2 · Scene 6", title:"Clink, Clink, Clink!", img:"clink", 
+
+        narrative:"There, enormous against the evening sky, stood the Iron Man. Hogarth had an idea. He took a nail and knife from his pocket and tapped them together: CLINK, CLINK, CLINK! The sound caught the Iron Man's attention. Step by step he came towards Hogarth, searching for the metal. Hogarth kept tapping until the giant crossed the hidden pit. With a tremendous crash, the Iron Man vanished into the darkness below.", 
+
+        question:"Why did Hogarth tap the nail and knife together?", 
+
+        options:[ 
+
+          {text:"To lure the Iron Man towards the hidden trap with the sound of metal", correct:true}, 
+
+          {text:"To scare the fox away", correct:false}, 
+
+          {text:"To signal to his father", correct:false}, 
+
+          {text:"To mend his fishing rod", correct:false} 
+
+        ]}, 
+
+      { id:"buried", sceneLabel:"Chapter 2 · Scene 7", title:"Buried", img:"buried", 
+
+        narrative:"The farmers gathered around the pit and cheered. Bulldozers pushed the huge pile of earth back over the struggling Iron Man until the pit was full and the giant was buried beneath a mound of packed soil. The farmers went home believing they had seen the last of him. Only Hogarth felt sorry — he knew he had been the one who lured the Iron Man into the trap.", 
+
+        question:"Why did Hogarth feel differently from the other farmers?", 
+
+        options:[ 
+
+          {text:"He knew he had tricked the Iron Man into the trap himself", correct:true}, 
+
+          {text:"He wanted to keep the old lorry", correct:false}, 
+
+          {text:"He was too tired to cheer", correct:false}, 
+
+          {text:"He didn't think the plan had worked", correct:false} 
+
+        ]} 
+
+    ] 
+
+  }, 
+
+ 
+
+  green: { 
+
+    key:"green", name:"Green", badge:"GREEN", desc:"Simple sentences", color:"#3f7d4f", 
+
+    endingText:"You followed the whole return of the Iron Man, from the clifftop to the pit, and picked out the key events along the way. Great reading!", 
+
+    lessons:[ 
+
+      { id:"hogarth", sceneLabel:"Chapter 2 · Scene 1", title:"Hogarth Sees the Iron Man", img:"hogarth", 
+
+        bullets:["Hogarth was fishing.","It was getting dark.","He saw two green lights.","The Iron Man climbed onto the cliff.","Hogarth was scared.","He ran home."], 
+
+        question:"What did Hogarth see?", 
+
+        options:[ 
+
+          {text:"Two green lights", correct:true}, 
+
+          {text:"A red boat", correct:false} 
+
+        ]}, 
+
+      { id:"tractor", sceneLabel:"Chapter 2 · Scene 2", title:"Something Ate the Tractor", img:"tractor", 
+
+        bullets:["Hogarth told his dad.","His dad went to another farm.","Half a tractor was missing.","There were huge teeth marks.","On the road, the Iron Man appeared.","Hogarth's dad drove away."], 
+
+        question:"What was missing from the farm?", 
+
+        options:[ 
+
+          {text:"Half a tractor", correct:true}, 
+
+          {text:"A red car", correct:false} 
+
+        ]}, 
+
+      { id:"missing", sceneLabel:"Chapter 2 · Scene 3", title:"The Missing Metal", img:"missing", 
+
+        bullets:["The farmers were angry.","Their metal machines were gone.","Tractors and ploughs had disappeared.","They saw giant teeth marks.","They followed huge footprints.","The Iron Man had taken the metal."], 
+
+        question:"Who had taken the metal?", 
+
+        options:[ 
+
+          {text:"The Iron Man", correct:true}, 
+
+          {text:"A fox", correct:false} 
+
+        ]}, 
+
+      { id:"trap", sceneLabel:"Chapter 2 · Scene 4", title:"The Farmers Make a Trap", img:"trap", 
+
+        bullets:["The farmers made a plan.","They dug a huge hole.","They covered it with branches and soil.","They put an old lorry nearby.","The lorry was bait.","They wanted the Iron Man to fall in."], 
+
+        question:"What did the farmers dig?", 
+
+        options:[ 
+
+          {text:"A huge hole", correct:true}, 
+
+          {text:"A swimming pool", correct:false} 
+
+        ]}, 
+
+      { id:"waiting", sceneLabel:"Chapter 2 · Scene 5", title:"Waiting for the Iron Man", img:"waiting", 
+
+        bullets:["The farmers waited.","The Iron Man did not come.","Days passed.","Grass grew over the trap.","The farmers put up a danger sign.","Hogarth came to trap a fox."], 
+
+        question:"What grew over the trap?", 
+
+        options:[ 
+
+          {text:"Grass", correct:true}, 
+
+          {text:"Flowers", correct:false} 
+
+        ]}, 
+
+      { id:"clink", sceneLabel:"Chapter 2 · Scene 6", title:"Clink, Clink, Clink!", img:"clink", 
+
+        bullets:["The Iron Man was back.","Hogarth had a nail and a knife.","CLINK! CLINK! CLINK!","The Iron Man followed the sound.","He walked over the trap.","CRASH! He fell into the pit."], 
+
+        question:"What did Hogarth use to make a sound?", 
+
+        options:[ 
+
+          {text:"A nail and a knife", correct:true}, 
+
+          {text:"A drum", correct:false} 
+
+        ]}, 
+
+      { id:"buried", sceneLabel:"Chapter 2 · Scene 7", title:"Buried", img:"buried", 
+
+        bullets:["The Iron Man was stuck.","The farmers filled the pit with earth.","They buried the Iron Man.","They drove tractors over the soil.","The farmers were happy.","Hogarth felt sorry."], 
+
+        question:"Who felt sorry at the end?", 
+
+        options:[ 
+
+          {text:"Hogarth", correct:true}, 
+
+          {text:"The farmers", correct:false} 
+
+        ]} 
+
+    ] 
+
+  }, 
+
+ 
+
+  jade: { 
+
+    key:"jade", name:"Jade", badge:"JADE", desc:"Choose 1 of 2", color:"#1e9e82", twoChoice:true, 
+
+    endingText:"You matched every picture and word about the Iron Man's return. Well done!", 
+
+    lessons:[ 
+
+      { id:"hogarth", sceneLabel:"Chapter 2 · Scene 1", title:"Hogarth Sees Iron Man", img:"hogarth", 
+
+        vocab:[{icon:"👦",word:"Hogarth"},{icon:"🌊",word:"Fishing"},{icon:"🌙",word:"Dark"},{icon:"👁️",word:"Green Eyes"},{icon:"🤖",word:"Iron Man"},{icon:"🏠",word:"Run Home"}], 
+
+        question:"Iron Man", 
+
+        options:[ 
+
+          {icon:"🤖", text:"Iron Man", correct:true}, 
+
+          {icon:"🍎", text:"Apple", correct:false} 
+
+        ]}, 
+
+      { id:"tractor", sceneLabel:"Chapter 2 · Scene 2", title:"Something Ate the Tractor", img:"tractor", 
+
+        vocab:[{icon:"💬",word:"Tell Dad"},{icon:"🚜",word:"Farm"},{icon:"🚜",word:"Tractor"},{icon:"🍽️",word:"Big Bite"},{icon:"🚗",word:"Car"},{icon:"🤖",word:"Iron Man"}], 
+
+        question:"Tractor", 
+
+        options:[ 
+
+          {icon:"🚜", text:"Tractor", correct:true}, 
+
+          {icon:"🍌", text:"Banana", correct:false} 
+
+        ]}, 
+
+      { id:"missing", sceneLabel:"Chapter 2 · Scene 3", title:"The Missing Metal", img:"missing", 
+
+        vocab:[{icon:"☀️",word:"Morning"},{icon:"👥",word:"Angry Farmers"},{icon:"🚜",word:"No Tractors"},{icon:"⚙️",word:"Metal Gone"},{icon:"👣",word:"Big Footprints"},{icon:"🤖",word:"Iron Man"}], 
+
+        question:"Big Footprints", 
+
+        options:[ 
+
+          {icon:"👣", text:"Big Footprints", correct:true}, 
+
+          {icon:"🎈", text:"Balloon", correct:false} 
+
+        ]}, 
+
+      { id:"trap", sceneLabel:"Chapter 2 · Scene 4", title:"The Farmers Make a Trap", img:"trap", 
+
+        vocab:[{icon:"💡",word:"Make a Plan"},{icon:"🕳️",word:"Big Hole"},{icon:"⬇️",word:"Very Deep"},{icon:"⛰️",word:"Cover Hole"},{icon:"🚚",word:"Old Lorry"},{icon:"🪤",word:"Trap"}], 
+
+        question:"Big Hole", 
+
+        options:[ 
+
+          {icon:"🕳️", text:"Big Hole", correct:true}, 
+
+          {icon:"🌞", text:"Sun", correct:false} 
+
+        ]}, 
+
+      { id:"waiting", sceneLabel:"Chapter 2 · Scene 5", title:"Waiting for the Iron Man", img:"waiting", 
+
+        vocab:[{icon:"📅",word:"Wait"},{icon:"🤖",word:"No Iron Man"},{icon:"🌱",word:"Grass Grows"},{icon:"⚠️",word:"Danger"},{icon:"👦",word:"Hogarth"},{icon:"🦊",word:"Fox"}], 
+
+        question:"Fox", 
+
+        options:[ 
+
+          {icon:"🦊", text:"Fox", correct:true}, 
+
+          {icon:"🐘", text:"Elephant", correct:false} 
+
+        ]}, 
+
+      { id:"clink", sceneLabel:"Chapter 2 · Scene 6", title:"Clink, Clink, Clink!", img:"clink", 
+
+        vocab:[{icon:"🤖",word:"Iron Man"},{icon:"⚙️",word:"Nail"},{icon:"🔔",word:"Clink!"},{icon:"🦵",word:"Come Closer"},{icon:"⬇️",word:"Fall In"},{icon:"🪤",word:"Caught!"}], 
+
+        question:"Clink!", 
+
+        options:[ 
+
+          {icon:"🔔", text:"Clink!", correct:true}, 
+
+          {icon:"🎸", text:"Guitar", correct:false} 
+
+        ]}, 
+
+      { id:"buried", sceneLabel:"Chapter 2 · Scene 7", title:"Buried", img:"buried", 
+
+        vocab:[{icon:"🕳️",word:"In the Pit"},{icon:"👥",word:"Farmers"},{icon:"⛰️",word:"Bury Him"},{icon:"⛰️",word:"Soil"},{icon:"🤖",word:"All Gone"},{icon:"☹️",word:"Hogarth Sad"}], 
+
+        question:"Hogarth Sad", 
+
+        options:[ 
+
+          {icon:"☹️", text:"Hogarth Sad", correct:true}, 
+
+          {icon:"😄", text:"Happy Face", correct:false} 
+
+        ]} 
+
+    ] 
+
+  } 
+
+}; 
+
+ 
+
+var LEVEL_ORDER = ["red","green","jade"]; 
+
+ 
+
+/* ========================================================== 
+
+   STATE 
+
+   ========================================================== */ 
+
+var state = { name:"", levelKey:null, lessonIdx:0, journey:[], attemptsOnCurrent:0 }; 
+
+var soundOn = true; 
+
+ 
+
+var SPEEDS = [ 
+
+  { label:"🐢 Slow",  rate:0.6,  title:"Slow"   }, 
+
+  { label:"▶ Normal", rate:0.93, title:"Normal" }, 
+
+  { label:"⚡ Fast",  rate:1.6,  title:"Fast"   }, 
+
+  { label:"🚀 Turbo", rate:2.2,  title:"Turbo"  } 
+
+]; 
+
+var speedIdx = 1; 
+
+var speechRate = SPEEDS[speedIdx].rate; 
+
+ 
+
+/* ========================================================== 
+
+   DOM REFERENCES 
+
+   ========================================================== */ 
+
+var stage    = document.getElementById("stage"); 
+
+var trailEl  = document.getElementById("trail"); 
+
+var soundBtn = document.getElementById("soundBtn"); 
+
+var speedBtn = document.getElementById("speedBtn"); 
+
+ 
+
+soundBtn.addEventListener("click", function () { 
+
+  soundOn = !soundOn; 
+
+  soundBtn.textContent = soundOn ? "🔊" : "🔇"; 
+
+  if (!soundOn && window.speechSynthesis) window.speechSynthesis.cancel(); 
+
+}); 
+
+ 
+
+speedBtn.addEventListener("click", function () { 
+
+  speedIdx = (speedIdx + 1) % SPEEDS.length; 
+
+  speechRate = SPEEDS[speedIdx].rate; 
+
+  speedBtn.textContent = SPEEDS[speedIdx].label; 
+
+  speedBtn.title = "Playback speed: " + SPEEDS[speedIdx].title; 
+
+  if (window.speechSynthesis) window.speechSynthesis.cancel(); 
+
+}); 
+
+ 
+
+/* ========================================================== 
+
+   UTILITIES 
+
+   ========================================================== */ 
+
+function setAccent(color) { 
+
+  document.documentElement.style.setProperty("--accent", color); 
+
+} 
+
+ 
+
+function setTrail(total, idx) { 
+
+  trailEl.innerHTML = ""; 
+
+  for (var i = 0; i < total; i++) { 
+
+    var cls = i < idx ? "dot done" : i === idx ? "dot now" : "dot"; 
+
+    trailEl.innerHTML += '<div class="' + cls + '"></div>'; 
+
+  } 
+
+} 
+
+ 
+
+function clearTrail() { trailEl.innerHTML = ""; } 
+
+ 
+
+function spokenNarrative(lesson) { 
+
+  if (lesson.bullets) return lesson.bullets.join(". "); 
+
+  if (lesson.vocab) return lesson.vocab.map(function (v) { return v.word; }).join(". "); 
+
+  return lesson.narrative; 
+
+} 
+
+ 
+
+/* ========================================================== 
+
+   SPEECH 
+
+   ========================================================== */ 
+
+function speak(text, onEnd) { 
+
+  if (!soundOn || !window.speechSynthesis) { if (onEnd) onEnd(); return; } 
+
+  try { 
+
+    window.speechSynthesis.cancel(); 
+
+    var u = new SpeechSynthesisUtterance(text); 
+
+    u.lang = "en-GB"; 
+
+    u.rate = speechRate; 
+
+    var fired = false; 
+
+    var done = function () { if (!fired) { fired = true; if (onEnd) onEnd(); } }; 
+
+    u.onend = done; u.onerror = done; 
+
+    var ms = Math.max(Math.ceil(text.length * 80 / speechRate) + 2000, 3000); 
+
+    setTimeout(done, ms); 
+
+    window.speechSynthesis.speak(u); 
+
+  } catch (e) { 
+
+    console.warn("TTS error:", e); 
+
+    if (onEnd) onEnd(); 
+
+  } 
+
+} 
+
+ 
+
+/* ========================================================== 
+
+   SCREEN: WELCOME (Name Entry) 
+
+   ========================================================== */ 
+
+function renderWelcome() { 
+
+  clearTrail(); 
+
+  setAccent("#f0c040"); 
+
+  state.name = ""; state.levelKey = null; state.lessonIdx = 0; state.journey = []; 
+
+ 
+
+  stage.innerHTML = 
+
+    '<div class="name-screen">' + 
+
+      '<span class="hero">🤖</span>' + 
+
+      '<h2>The Iron Man — Chapter 2</h2>' + 
+
+      '<p>The Return of the Iron Man.<br><br>' + 
+
+         'Read each part of the story.<br>' + 
+
+         'Answer the question to carry on.<br><br>' + 
+
+         'What is your name, reader?</p>' + 
+
+      '<input class="text-input" id="nameIn" placeholder="Enter your name..." maxlength="30" autocomplete="off"/>' + 
+
+      '<button class="btn btn-primary" id="startBtn">Continue →</button>' + 
+
+    '</div>'; 
+
+ 
+
+  var inp = document.getElementById("nameIn"); 
+
+  var btn = document.getElementById("startBtn"); 
+
+  inp.addEventListener("keydown", function (e) { if (e.key === "Enter") btn.click(); }); 
+
+  btn.addEventListener("click", function () { 
+
+    var n = (inp.value || "").trim(); 
+
+    if (!n) { inp.focus(); inp.style.borderColor = "var(--red-no)"; return; } 
+
+    state.name = n; 
+
+    speak("Welcome, " + n + "!", function () { renderLevelSelect(); }); 
+
+  }); 
+
+} 
+
+ 
+
+/* ========================================================== 
+
+   SCREEN: LEVEL SELECTOR 
+
+   ========================================================== */ 
+
+function renderLevelSelect() { 
+
+  clearTrail(); 
+
+  setAccent("#f0c040"); 
+
+ 
+
+  var cardsHtml = LEVEL_ORDER.map(function (key) { 
+
+    var lvl = LEVELS[key]; 
+
+    return ( 
+
+      '<div class="level-card" id="level_' + key + '" tabindex="0" role="button" style="--lc-color:' + lvl.color + '" aria-label="' + lvl.name + ' Level">' + 
+
+        '<span class="level-emoji">' + (lvl.badge === "JADE" ? "🟩" : lvl.badge === "GREEN" ? "🟢" : lvl.badge === "BLUE" ? "🔵" : "🔴") + '</span>' + 
+
+        '<div class="level-name">' + lvl.name + ' Level</div>' + 
+
+        '<div class="level-desc">' + lvl.desc + '</div>' + 
+
+      '</div>' 
+
+    ); 
+
+  }).join(""); 
+
+ 
+
+  stage.innerHTML = 
+
+    '<div class="name-screen">' + 
+
+      '<span class="hero">🤖</span>' + 
+
+      '<h2>Hello, ' + state.name + '!</h2>' + 
+
+      '<p>Choose your reading level to begin Chapter 2.</p>' + 
+
+      '<div class="level-grid">' + cardsHtml + '</div>' + 
+
+    '</div>'; 
+
+ 
+
+  LEVEL_ORDER.forEach(function (key) { 
+
+    var el = document.getElementById("level_" + key); 
+
+    el.onclick = function () { selectLevel(key); }; 
+
+    el.onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectLevel(key); } }; 
+
+  }); 
+
+} 
+
+ 
+
+function selectLevel(key) { 
+
+  state.levelKey = key; 
+
+  state.lessonIdx = 0; 
+
+  state.journey = []; 
+
+  var lvl = LEVELS[key]; 
+
+  setAccent(lvl.color); 
+
+  speak(lvl.name + " Level. Let's begin!", function () { renderLesson(); }); 
+
+} 
+
+ 
+
+/* ========================================================== 
+
+   SCREEN: LESSON (scene + gate question) 
+
+   ========================================================== */ 
+
+function renderLesson() { 
+
+  var lvl = LEVELS[state.levelKey]; 
+
+  var lesson = lvl.lessons[state.lessonIdx]; 
+
+  state.attemptsOnCurrent = 0; 
+
+  setTrail(lvl.lessons.length, state.lessonIdx); 
+
+ 
+
+  var sceneHtml = ""; 
+
+  if (lesson.bullets) { 
+
+    sceneHtml = '<div class="scene-text bullets">' + 
+
+      lesson.bullets.map(function (b) { return '<span class="bline">' + b + '</span>'; }).join("") + 
+
+      '</div>'; 
+
+  } else if (lesson.vocab) { 
+
+    sceneHtml = '<div class="vocab-row">' + 
+
+      lesson.vocab.map(function (v) { 
+
+        return '<div class="vocab-chip"><span class="vi">' + v.icon + '</span><span class="vw">' + v.word.toUpperCase() + '</span></div>'; 
+
+      }).join("") + 
+
+      '</div>'; 
+
+  } else { 
+
+    sceneHtml = '<div class="scene-text">' + lesson.narrative + '</div>'; 
+
+  } 
+
+ 
+
+  var optionsHtml; 
+
+  if (lvl.twoChoice) { 
+
+    optionsHtml = '<div class="two-choice-grid" id="optGrid">' + 
+
+      lesson.options.map(function (opt, i) { 
+
+        return '<div class="two-choice-card" data-idx="' + i + '" tabindex="0" role="button">' + 
+
+          '<span class="tc-icon">' + opt.icon + '</span>' + 
+
+          '<span class="tc-label">' + opt.text.toUpperCase() + '</span>' + 
+
+        '</div>'; 
+
+      }).join(""); 
+
+    optionsHtml += '</div>'; 
+
+  } else { 
+
+    optionsHtml = '<div class="opt-list" id="optGrid">' + 
+
+      lesson.options.map(function (opt, i) { 
+
+        return '<div class="opt-row" data-idx="' + i + '" tabindex="0" role="button">' + opt.text + '</div>'; 
+
+      }).join("") + 
+
+      '</div>'; 
+
+  } 
+
+ 
+
+  stage.innerHTML = 
+
+    '<div class="scene-eyebrow">' + lesson.sceneLabel + '</div>' + 
+
+    '<div class="scene-img-wrap">' + 
+
+      '<div class="scene-emoji-slot">' + SCENE_EMOJI[lesson.img] + '</div>' + 
+
+      '<div class="fade"></div>' + 
+
+    '</div>' + 
+
+    '<h3 style="font-size:20px;font-weight:800;margin-bottom:10px;">' + lesson.title + '</h3>' + 
+
+    sceneHtml + 
+
+    (lvl.twoChoice ? '<div class="question-label">Which one is ' + lesson.question.toUpperCase() + '?</div>' : '<div class="question-label">' + lesson.question + '</div>') + 
+
+    optionsHtml + 
+
+    '<div class="feedback" id="feedback"></div>'; 
+
+ 
+
+  var toSpeak = (lesson.narrative || spokenNarrative(lesson)) + " " + (lvl.twoChoice ? "Which one is " + lesson.question + "?" : lesson.question); 
+
+  speak(toSpeak); 
+
+ 
+
+  var cardSelector = lvl.twoChoice ? ".two-choice-card" : ".opt-row"; 
+
+  var cards = stage.querySelectorAll(cardSelector); 
+
+  cards.forEach(function (card) { 
+
+    card.addEventListener("click", function () { onAnswer(lesson, parseInt(card.getAttribute("data-idx"), 10), card, cards); }); 
+
+    card.addEventListener("keydown", function (e) { 
+
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onAnswer(lesson, parseInt(card.getAttribute("data-idx"), 10), card, cards); } 
+
+    }); 
+
+  }); 
+
+} 
+
+ 
+
+function onAnswer(lesson, idx, card, allCards) { 
+
+  var opt = lesson.options[idx]; 
+
+  state.attemptsOnCurrent++; 
+
+  var fb = document.getElementById("feedback"); 
+
+ 
+
+  if (opt.correct) { 
+
+    card.classList.add("correct"); 
+
+    allCards.forEach(function (c) { c.classList.add("disabled"); }); 
+
+    fb.className = "feedback ok"; 
+
+    fb.textContent = "That's right!"; 
+
+    state.journey.push({ 
+
+      scene: lesson.sceneLabel, title: lesson.title, 
+
+      question: lesson.question, answer: opt.text, 
+
+      firstTry: state.attemptsOnCurrent === 1 
+
+    }); 
+
+    speak("That's right!", function () { 
+
+      setTimeout(function () { 
+
+        var lvl = LEVELS[state.levelKey]; 
+
+        if (state.lessonIdx < lvl.lessons.length - 1) { 
+
+          state.lessonIdx++; 
+
+          renderLesson(); 
+
+        } else { 
+
+          renderEnding(); 
+
+        } 
+
+      }, 500); 
+
+    }); 
+
+  } else { 
+
+    card.classList.add("wrong"); 
+
+    fb.className = "feedback no"; 
+
+    fb.textContent = "Not quite — have another look and try again!"; 
+
+    speak("Not quite. Try again."); 
+
+    setTimeout(function () { card.classList.remove("wrong"); }, 900); 
+
+  } 
+
+} 
+
+ 
+
+/* ========================================================== 
+
+   SCREEN: ENDING 
+
+   ========================================================== */ 
+
+function renderEnding() { 
+
+  var lvl = LEVELS[state.levelKey]; 
+
+  clearTrail(); 
+
+ 
+
+  var firstTryCount = state.journey.filter(function (j) { return j.firstTry; }).length; 
+
+ 
+
+  var journeyHtml = state.journey.map(function (j) { 
+
+    return '<div class="j-card">' + 
+
+      '<div class="j-scene">' + j.scene + '</div>' + 
+
+      '<div class="j-choice">' + j.answer + '</div>' + 
+
+      '<div class="j-mark ' + (j.firstTry ? "first" : "retry") + '">' + (j.firstTry ? "✓ first try" : "✓ got there") + '</div>' + 
+
+    '</div>'; 
+
+  }).join(""); 
+
+ 
+
+  stage.innerHTML = 
+
+    '<div class="ending-screen">' + 
+
+      '<span class="ending-emoji">🏆</span>' + 
+
+      '<div class="ending-title">Well done, ' + state.name + '!</div>' + 
+
+      '<div class="ending-score">' + firstTryCount + ' of ' + state.journey.length + ' answered first try &middot; ' + lvl.name + ' Level</div>' + 
+
+      '<div class="ending-text" id="endTxt">' + lvl.endingText + '</div>' + 
+
+      '<div class="journey-block">' + 
+
+        '<div class="journey-eyebrow">📍 ' + state.name + "&#39;s journey</div>" + 
+
+        '<div class="journey-grid">' + journeyHtml + '</div>' + 
+
+      '</div>' + 
+
+      '<div class="btn-row">' + 
+
+        '<button class="btn btn-primary" id="readBtn">🔊 Read Aloud</button>' + 
+
+        '<button class="btn btn-ghost"   id="pdfBtn">📄 Save as PDF</button>' + 
+
+        '<button class="btn btn-ghost"   id="levelBtn">🔁 Change Level</button>' + 
+
+        '<button class="btn btn-ghost"   id="againBtn">🔄 Play Again</button>' + 
+
+      '</div>' + 
+
+    '</div>'; 
+
+ 
+
+  speak("Well done, " + state.name + "! " + lvl.endingText); 
+
+ 
+
+  document.getElementById("readBtn").addEventListener("click", function () { 
+
+    speak(state.name + "'s story. " + lvl.endingText); 
+
+  }); 
+
+  document.getElementById("pdfBtn").addEventListener("click", function () { savePDF(lvl); }); 
+
+  document.getElementById("levelBtn").addEventListener("click", renderLevelSelect); 
+
+  document.getElementById("againBtn").addEventListener("click", function () { 
+
+    state.lessonIdx = 0; state.journey = []; renderLesson(); 
+
+  }); 
+
+} 
+
+ 
+
+/* ========================================================== 
+
+   PDF EXPORT 
+
+   ========================================================== */ 
+
+function savePDF(lvl) { 
+
+  if (!window.jspdf || !window.jspdf.jsPDF) { 
+
+    alert("PDF library not loaded. Please check your internet connection."); 
+
+    return; 
+
+  } 
+
+  var jsPDF = window.jspdf.jsPDF; 
+
+  var doc = new jsPDF({ unit:"pt", format:"a4", orientation:"portrait" }); 
+
+  var pageWidth = 595.28, pageHeight = 841.89, margin = 54; 
+
+  var contentWidth = pageWidth - margin * 2; 
+
+ 
+
+  doc.setFillColor(250, 248, 245); 
+
+  doc.rect(0, 0, pageWidth, pageHeight, "F"); 
+
+  doc.setDrawColor(240, 192, 64); 
+
+  doc.setLineWidth(1.5); 
+
+  doc.line(margin, 110, pageWidth - margin, 110); 
+
+  doc.line(margin, pageHeight - 75, pageWidth - margin, pageHeight - 75); 
+
+ 
+
+  doc.setFont("Helvetica", "bold"); doc.setFontSize(22); doc.setTextColor(17, 17, 32); 
+
+  doc.text("THE IRON MAN — CHAPTER 2", margin, 80); 
+
+  doc.setFont("Helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(94, 90, 78); 
+
+  doc.text("The Return of the Iron Man — TIPS Reader", margin, 98); 
+
+ 
+
+  var dateString = new Date().toLocaleDateString("en-GB", { day:"numeric", month:"long", year:"numeric" }); 
+
+  var metaText = "Reader: " + state.name + "  |  " + lvl.name + " Level  |  " + dateString; 
+
+  doc.setFont("Helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(17, 17, 32); 
+
+  doc.text(metaText, pageWidth - margin, 98, { align:"right" }); 
+
+ 
+
+  var paragraphs = state.journey.map(function (j) { 
+
+    return j.scene + " — " + j.title + ". Question: " + j.question + "  Answer: " + j.answer + (j.firstTry ? " (first try)" : ""); 
+
+  }); 
+
+ 
+
+  var fontSize = 10.5, lineSpacing = 15, paraSpacing = 12, startY = 140, maxY = 745; 
+
+  var wrappedParas = [], wrappedEnding = []; 
+
+ 
+
+  function computeLayout(fSize, lSpacing, pSpacing) { 
+
+    doc.setFontSize(fSize); doc.setFont("Helvetica", "normal"); 
+
+    var h = 0; wrappedParas = []; 
+
+    for (var i = 0; i < paragraphs.length; i++) { 
+
+      var lines = doc.splitTextToSize(paragraphs[i], contentWidth); 
+
+      wrappedParas.push(lines); 
+
+      h += lines.length * lSpacing; 
+
+      if (i < paragraphs.length - 1) h += pSpacing; 
+
+    } 
+
+    h += 25 + 18; 
+
+    wrappedEnding = doc.splitTextToSize(lvl.endingText, contentWidth); 
+
+    h += wrappedEnding.length * lSpacing; 
+
+    return h; 
+
+  } 
+
+ 
+
+  var totalHeight = computeLayout(fontSize, lineSpacing, paraSpacing); 
+
+  while (startY + totalHeight > maxY && fontSize > 8) { 
+
+    fontSize -= 0.5; lineSpacing -= 0.7; paraSpacing -= 0.5; 
+
+    totalHeight = computeLayout(fontSize, lineSpacing, paraSpacing); 
+
+  } 
+
+ 
+
+  var currY = startY; 
+
+  doc.setFontSize(fontSize); doc.setTextColor(17, 17, 32); 
+
+  for (var i = 0; i < paragraphs.length; i++) { 
+
+    var lines = wrappedParas[i]; 
+
+    doc.setFont("Helvetica", "normal"); 
+
+    for (var l = 0; l < lines.length; l++) { doc.text(lines[l], margin, currY); currY += lineSpacing; } 
+
+    if (i < paragraphs.length - 1) currY += paraSpacing; 
+
+  } 
+
+ 
+
+  currY += paraSpacing + 4; 
+
+  doc.setFont("Helvetica", "bold"); doc.setFontSize(fontSize + 1); doc.setTextColor(240, 192, 64); 
+
+  doc.text("•   •   •", pageWidth / 2, currY, { align:"center" }); 
+
+  currY += 20; 
+
+ 
+
+  doc.setFont("Helvetica", "bold"); doc.setFontSize(fontSize); doc.setTextColor(240, 192, 64); 
+
+  doc.text("WELL DONE, " + state.name.toUpperCase() + "!", margin, currY); 
+
+  currY += 15; 
+
+ 
+
+  doc.setFont("Helvetica", "normal"); doc.setTextColor(17, 17, 32); 
+
+  for (var l = 0; l < wrappedEnding.length; l++) { doc.text(wrappedEnding[l], margin, currY); currY += lineSpacing; } 
+
+ 
+
+  doc.setFont("Helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(94, 90, 78); 
+
+  doc.text("Talking in Pictures  |  SEND Resource  |  www.talkinginpictures.co.uk", margin, pageHeight - 55); 
+
+ 
+
+  var fileBase = (state.name || "reader").replace(/[^a-z0-9]/gi, "_").toLowerCase(); 
+
+  doc.save(fileBase + "_iron_man_ch2_" + lvl.key + ".pdf"); 
+
+} 
+
+ 
+
+/* ========================================================== 
+
+   BOOT 
+
+   ========================================================== */ 
+
+renderWelcome(); 
+
+</script> 
+
+</body> 
+
+</html> 
