@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Colourful Semantics Sentence Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- Compromise NLP Library -->
+<script src="https://unpkg.com/compromise@latest/builds/compromise.min.js"></script>
+
+<style>
+/* ===== DESIGN TOKENS ===== */
+:root {
+  --green:   #2ecc8e;
+  --green-d: #1a9e6a;
+  --blue:    #3b82f6;
+  --blue-d:  #1d5bbf;
+  --amber:   #f59e0b;
+  --amber-d: #b97a08;
+  --red:     #ef4444;
+  --purple:  #8b5cf6;
+  --bg:      #f4f6fb;
+  --surface: #ffffff;
+  --surface2:#f0f4ff;
+  --border:  #dde3f0;
+  --text:    #1e2640;
+  --text-m:  #6b7494;
+  --shadow:  0 10px 30px -10px rgba(30,38,64,0.08);
+  --shadow-sm:0 4px 12px rgba(30,38,64,0.04);
+  --radius:  16px;
+  --radius-sm:8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito Sans', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 20px 15px;
+}
+h1, h2, h3, h4 { font-family: 'Nunito', sans-serif; font-weight: 800; color: var(--text); }
+
+.app-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.app-header {
+  background: var(--surface);
+  padding: 20px 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 4px solid var(--green);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.brand h1 { font-size: 22px; line-height: 1.2; }
+.brand p { color: var(--text-m); font-size: 13px; margin-top: 2px; }
+
+.btn {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 18px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+.btn-primary { background: var(--green); color: white; }
+.btn-primary:hover { background: var(--green-d); transform: translateY(-1px); }
+.btn-secondary { background: #f1f5f9; color: #475569; }
+.btn-secondary:hover { background: #e2e8f0; }
+.btn-blue { background: var(--blue); color: white; }
+.btn-blue:hover { background: var(--blue-d); transform: translateY(-1px); }
+
+.pipeline-panel {
+  background: var(--surface);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.pipeline-input-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.pipeline-input-row input {
+  flex: 1;
+  min-width: 280px;
+  padding: 14px 18px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.pipeline-input-row input:focus { border-color: var(--blue); }
+
+.mode-tabs {
+  display: flex;
+  gap: 8px;
+  background: var(--bg);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  width: fit-content;
+  flex-wrap: wrap;
+}
+.tab-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-m);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tab-btn.active {
+  background: var(--surface);
+  color: var(--blue);
+  box-shadow: var(--shadow-sm);
+}
+
+.panel {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  border: 1px solid var(--border);
+}
+
+/* Prominent Main Anchor Image Container */
+.main-image-wrapper {
+  width: 100%;
+  max-width: 720px;
+  min-height: 180px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  margin: 0 auto 20px auto;
+  border: 2px dashed var(--border);
+  cursor: pointer;
+  padding: 10px;
+  transition: border-color 0.2s;
+}
+.main-image-wrapper:hover {
+  border-color: var(--blue);
+}
+.main-image-wrapper img {
+  max-width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+}
+
+.placement-mat-row {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+.mat-slot {
+  width: 115px;
+  height: 125px;
+  border: 3px dashed #aab4d0;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.mat-slot-label {
+  position: absolute;
+  top: 4px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  width: 90%;
+  text-align: center;
+}
+
+.sentence-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: var(--bg);
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  min-height: 140px;
+  border: 2px dashed var(--border);
+  justify-content: center;
+  align-items: center;
+}
+
+.sentence-card {
+  background: var(--surface);
+  border: 4px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  width: 115px;
+  min-height: 135px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s;
+}
+.sentence-card:hover { transform: translateY(-2px); }
+.sentence-card img { width: 48px; height: 48px; object-fit: contain; margin-bottom: 6px; }
+.sentence-card .glyph-fallback { font-size: 38px; line-height: 48px; height: 48px; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; }
+
+/* Editable Card Label Styling */
+.sentence-card .card-label {
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+  width: 100%;
+  word-break: break-word;
+  outline: none;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background 0.2s, border-color 0.2s;
+  border: 1px dashed transparent;
+  cursor: text;
+}
+.sentence-card .card-label:hover {
+  background: var(--surface2);
+  border-color: var(--blue);
+}
+.sentence-card .card-label:focus {
+  background: #ffffff;
+  border: 1px solid var(--blue);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Image Swap Trigger & Selection Overlay */
+.card-img-container {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-img-container::after {
+  content: "🔄 Pick Image";
+  position: absolute;
+  inset: -2px;
+  background: rgba(30, 38, 64, 0.85);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+.card-img-container:hover::after {
+  opacity: 1;
+}
+
+.alt-symbol-picker {
+  display: none;
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%);
+  background: #ffffff;
+  border: 2px solid var(--blue);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  z-index: 100;
+  width: 180px;
+}
+.sentence-card:hover .alt-symbol-picker,
+.alt-symbol-picker.active {
+  display: block;
+}
+
+.alt-symbol-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  max-height: 120px;
+  overflow-y: auto;
+  margin-bottom: 6px;
+}
+.alt-symbol-item {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+.alt-symbol-item:hover {
+  border-color: var(--blue);
+  background: var(--surface2);
+}
+.alt-symbol-item img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  margin: 0;
+}
+
+.alt-symbol-search {
+  width: 100%;
+  padding: 4px 6px;
+  font-size: 11px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  outline: none;
+}
+
+.remove-btn {
+  position: absolute;
+  top: -6px; right: -6px;
+  width: 20px; height: 20px;
+  border-radius: 50%; background: var(--red);
+  color: white; border: none; font-size: 12px; font-weight: 800;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  z-index: 10;
+}
+
+.cs-colour-popup {
+  position: absolute;
+  bottom: -28px; left: 50%; transform: translateX(-50%);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 3px 5px;
+  display: flex; gap: 3px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 20;
+}
+.sentence-card:hover .cs-colour-popup { opacity: 1; pointer-events: auto; }
+.cs-swatch { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); }
+
+.cut-paste-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  padding: 15px;
+  border: 2px dashed #94a3b8;
+  border-radius: var(--radius-sm);
+  background: #fafbfc;
+}
+.cut-card {
+  border: 2px dashed #64748b !important;
+  position: relative;
+}
+.cut-card::after {
+  content: "✂";
+  position: absolute;
+  top: -10px; left: -10px;
+  font-size: 12px; color: #64748b;
+}
+
+.comm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  background: var(--bg);
+  padding: 15px;
+  border-radius: var(--radius-sm);
+}
+
+.print-footer {
+  display: none;
+}
+
+/* PDF / Printable Formatting Enhancements */
+@media print {
+  body { background: white; padding: 0; }
+  .app-header, .pipeline-panel, .mode-tabs, .btn, .remove-btn, .cs-colour-popup, .alt-symbol-picker, .card-img-container::after, .no-print { display: none !important; }
+  .app-container { max-width: 100%; gap: 0; }
+  .panel { border: none; box-shadow: none; padding: 0; }
+  .cut-card { page-break-inside: avoid; }
+  .cut-card::after { content: "✂"; }
+
+  /* Ensure Uploaded Main Context Anchor Photo is Prominent in Print / PDF */
+  .main-image-wrapper {
+    display: flex !important;
+    border: none !important;
+    background: transparent !important;
+    max-width: 100% !important;
+    margin: 25px 0 20px 0 !important; /* Added small top margin above main picture for print/PDF */
+    padding: 0 !important;
+  }
+  .main-image-wrapper img {
+    max-height: 380px !important;
+    width: auto !important;
+    object-fit: contain !important;
+    margin: 0 auto !important;
+    box-shadow: none !important;
+  }
+  .main-image-wrapper #imgPlaceholder {
+    display: none !important;
+  }
+  .main-image-wrapper:has(#mainImage[style*="display: none"]) {
+    display: none !important;
+  }
+
+  /* Printable Footer Styling */
+  .print-footer {
+    display: block !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    color: #475569;
+    padding: 10px 0;
+    border-top: 1px solid var(--border);
+    background: white;
+  }
+  .print-footer a {
+    color: var(--blue-d);
+    text-decoration: none;
+    font-weight: 700;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <header class="app-header">
+    <div class="brand">
+      <h1>Colourful Semantics Sentence Builder</h1>
+      <p>Automated Natural Language Parsing & Printable Resource Generator</p>
+    </div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-secondary" id="btnSpeak">🔊 Speak Strip</button>
+      <button class="btn btn-blue" onclick="window.print()">🖨️ Print Worksheet / PDF</button>
+    </div>
+  </header>
+
+  <section class="pipeline-panel">
+    <div class="pipeline-input-row">
+      <input type="text" id="sentenceInput" placeholder="Type a sentence (e.g. 'a monkey driving an aeroplane')..." autocomplete="off" value="a monkey driving an aeroplane" />
+      <button class="btn btn-primary" id="btnGenerate">⚡ Auto-Generate</button>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <div class="mode-tabs">
+        <button class="tab-btn active" data-mode="strip">Sentence Strip</button>
+        <button class="tab-btn" data-mode="cutpaste">Cut & Paste Sheet</button>
+        <button class="tab-btn" data-mode="board">Communication Board</button>
+      </div>
+
+      <div style="display:flex; gap:15px; align-items:center;">
+        <label style="font-size:13px; font-weight:700; cursor:pointer; color:var(--amber-d);">
+          <input type="checkbox" id="toggleDecoys" checked /> 🎯 Auto-Generate Distractors
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <main class="panel" id="printArea">
+
+    <div class="main-image-wrapper" id="imageDropZone" onclick="document.getElementById('imgUpload').click()">
+      <div id="imgPlaceholder" class="no-print" style="text-align:center; color:var(--text-m);">
+        <div style="font-size:32px; margin-bottom:4px;">🖼️</div>
+        <p style="font-size:14px; font-weight:700;">Click or Drag to Upload Context Anchor Photo</p>
+        <p style="font-size:11px; color:var(--text-m);">This image will be featured prominently on printed worksheets</p>
+      </div>
+      <img id="mainImage" src="" style="display:none;" alt="Context Anchor Photo" />
+      <input type="file" id="imgUpload" accept="image/*" style="display:none;" />
+    </div>
+
+    <div id="viewStrip">
+      <div class="placement-mat-row" id="placementMat"></div>
+      <h3 class="no-print" style="font-size:14px; color:var(--text-m); margin-bottom:8px; text-align:center;">Target Sentence Strip</h3>
+      <div class="sentence-strip" id="targetStrip"></div>
+
+      <div id="decoySection" style="margin-top:20px;">
+        <h3 class="no-print" style="font-size:14px; color:var(--amber-d); margin-bottom:8px; text-align:center;">🎯 Distractor / Decoy Cards</h3>
+        <div class="sentence-strip" id="decoyStrip" style="border-color:var(--amber); background:#fff8e6;"></div>
+      </div>
+    </div>
+
+    <div id="viewCutPaste" style="display:none;">
+      <div style="text-align:center; margin-bottom:20px; border-bottom:2px dashed var(--border); padding-bottom:15px;">
+        <h2 style="font-size:20px;">Cut & Paste Sentence Activity</h2>
+        <p style="font-size:14px; color:var(--text-m);">Cut out the target cards and distractors below and paste them onto your placement strip.</p>
+      </div>
+      <div class="cut-paste-grid" id="cutPasteGrid"></div>
+    </div>
+
+    <div id="viewBoard" style="display:none;">
+      <h2 style="font-size:18px; margin-bottom:12px; text-align:center;">Categorized Vocabulary Board</h2>
+      <div class="comm-grid" id="commBoardGrid"></div>
+    </div>
+
+  </main>
+
+  <footer class="print-footer">
+    <a href="https://www.talkinginpictures.co.uk" target="_blank">www.talkinginpictures.co.uk</a> — SEND Resources to engage all early Speakers, Readers and Writers.
+  </footer>
+
+</div>
+
+<script>
+// ===== COLOURFUL SEMANTICS ROLES =====
+const CS_COLOURS = [
+  { key: "who",    bg: "#F07800", label: "Who",     textCol: "#ffffff" },
+  { key: "doing",  bg: "#FFD700", label: "Doing",   textCol: "#333333" },
+  { key: "what",   bg: "#007A00", label: "What",    textCol: "#ffffff" },
+  { key: "where",  bg: "#0055CC", label: "Where",   textCol: "#ffffff" },
+  { key: "whom",   bg: "#E040A0", label: "To Whom", textCol: "#ffffff" },
+  { key: "when",   bg: "#8B4513", label: "When",    textCol: "#ffffff" },
+  { key: "how",    bg: "#222222", label: "How",     textCol: "#ffffff" },
+  { key: "why",    bg: "#6A0DAD", label: "Why",     textCol: "#ffffff" },
+  { key: "none",   bg: "",        label: "None",    textCol: "#1e2640" }
+];
+
+// Lexical Role Dictionary
+const ROLE_RULES = {
+  who: ["monkey", "cat", "dog", "mouse", "rabbit", "boy", "girl", "teacher", "man", "woman", "child", "baby", "bird", "lion", "elephant", "bear", "duck"],
+  doing: ["flying", "fly", "flies", "flew", "eats", "eat", "eating", "ate", "chased", "chase", "chasing", "walked", "walk", "walking", "runs", "run", "running", "driving", "drives", "drove", "reading", "reads", "plays", "playing", "jumping", "jumps"],
+  what: ["aeroplane", "airplane", "plane", "milk", "cheese", "apple", "ball", "car", "book", "hat", "train", "bus", "bike", "toy", "banana", "water", "food"],
+  where: ["garden", "park", "school", "house", "home", "kitchen", "sky", "street", "shop", "zoo", "forest"],
+  when: ["night", "day", "morning", "afternoon", "today", "yesterday"]
+};
+
+// Symbol Dictionary
+const EMOJI_DICTIONARY = {
+  "driving": [
+    { hex: "1f697", glyph: "🚗" },
+    { hex: "1f3cd", glyph: "🏎️" },
+    { hex: "1f698", glyph: "🚘" },
+    { hex: "1f3c2", glyph: "🏎️" },
+    { hex: "1f3cc", glyph: "🏌️" }
+  ],
+  "drives": [
+    { hex: "1f687", glyph: "🚘" },
+    { hex: "1f697", glyph: "🚗" }
+  ],
+  "drove": [
+    { hex: "1f687", glyph: "🚘" },
+    { hex: "1f697", glyph: "🚗" }
+  ],
+  "monkey": [
+    { hex: "1f412", glyph: "🐒" },
+    { hex: "1f435", glyph: "🐵" },
+    { hex: "1f648", glyph: "🙈" }
+  ],
+  "flying": [
+    { hex: "2708", glyph: "✈️" },
+    { hex: "1f6eb", glyph: "🛫" },
+    { hex: "1f6ec", glyph: "🛬" }
+  ],
+  "fly": [
+    { hex: "1faa0", glyph: "🪰" },
+    { hex: "2708", glyph: "✈️" }
+  ],
+  "aeroplane": [
+    { hex: "2708", glyph: "✈️" },
+    { hex: "1f6eb", glyph: "🛫" },
+    { hex: "1f6ec", glyph: "🛬" },
+    { hex: "1f329", glyph: "🛩️" }
+  ],
+  "airplane": [
+    { hex: "2708", glyph: "✈️" },
+    { hex: "1f6eb", glyph: "🛫" }
+  ],
+  "plane": [
+    { hex: "2708", glyph: "✈️" }
+  ],
+  "milk": [
+    { hex: "1f95b", glyph: "🥛" },
+    { hex: "1f37c", glyph: "🍼" }
+  ],
+  "cheese": [
+    { hex: "1f9c0", glyph: "🧀" }
+  ],
+  "cat": [
+    { hex: "1f431", glyph: "🐱" },
+    { hex: "1f408", glyph: "🐈" }
+  ],
+  "dog": [
+    { hex: "1f436", glyph: "🐶" },
+    { hex: "1f415", glyph: "🐕" }
+  ],
+  "mouse": [
+    { hex: "1f42d", glyph: "🐭" },
+    { hex: "1f401", glyph: "🐁" }
+  ],
+  "rabbit": [
+    { hex: "1f430", glyph: "🐰" },
+    { hex: "1f407", glyph: "🐇" }
+  ],
+  "girl": [
+    { hex: "1f467", glyph: "👧" }
+  ],
+  "boy": [
+    { hex: "1f466", glyph: "👦" }
+  ],
+  "teacher": [
+    { hex: "1f469-200d-1f3eb", glyph: "👩‍🏫" },
+    { hex: "1f468-200d-1f3eb", glyph: "👨‍🏫" }
+  ],
+  "eat": [
+    { hex: "1f374", glyph: "🍽️" },
+    { hex: "1f963", glyph: "🥣" }
+  ],
+  "eats": [
+    { hex: "1f374", glyph: "🍽️" }
+  ],
+  "eating": [
+    { hex: "1f374", glyph: "🍽️" },
+    { hex: "1f354", glyph: "🍔" }
+  ],
+  "ball": [
+    { hex: "26bd", glyph: "⚽" },
+    { hex: "1f3c0", glyph: "🏀" },
+    { hex: "1f3be", glyph: "🎾" }
+  ],
+  "apple": [
+    { hex: "1f34e", glyph: "🍎" },
+    { hex: "1f34f", glyph: "🍏" }
+  ],
+  "car": [
+    { hex: "1f697", glyph: "🚗" },
+    { hex: "1f698", glyph: "🚘" },
+    { hex: "1f3c2", glyph: "🏎️" }
+  ],
+  "book": [
+    { hex: "1f4d6", glyph: "📖" },
+    { hex: "1f4da", glyph: "📚" }
+  ],
+  "hat": [
+    { hex: "1f4a2", glyph: "🧢" },
+    { hex: "1f3a9", glyph: "🎩" }
+  ],
+  "garden": [
+    { hex: "1f3e1", glyph: "🏡" },
+    { hex: "1f33f", glyph: "🌿" }
+  ],
+  "park": [
+    { hex: "1f3de", glyph: "🏞️" },
+    { hex: "1f333", glyph: "🌳" }
+  ],
+  "school": [
+    { hex: "1f3eb", glyph: "🏫" }
+  ],
+  "house": [
+    { hex: "1f3e0", glyph: "🏠" }
+  ],
+  "night": [
+    { hex: "1f303", glyph: "🌃" },
+    { hex: "1f31f", glyph: "🌟" }
+  ],
+  "sky": [
+    { hex: "1f324", glyph: "🌤️" },
+    { hex: "2601", glyph: "☁️" }
+  ]
+};
+
+const DISTRACTOR_POOL = {
+  who: ["dog", "cat", "girl", "boy", "rabbit"],
+  doing: ["driving", "eating", "running", "walking"],
+  what: ["milk", "book", "ball", "car", "apple"],
+  where: ["park", "school", "house", "garden"],
+  when: ["day", "morning"]
+};
+
+let FULL_EMOJI_DATA = null;
+let TARGET_ITEMS = [];
+let DECOY_ITEMS = [];
+let ACTIVE_MODE = "strip";
+
+async function loadEmojiDatabase() {
+  try {
+    const res = await fetch("https://cdn.jsdelivr.net/npm/emojibase-data@17.0.0/en/data.json", { cache: "force-cache" });
+    if (res.ok) FULL_EMOJI_DATA = await res.json();
+  } catch(e) {}
+}
+
+function twemojiUrl(hex) {
+  return "https://cdnjs.cloudflare.com/ajax/libs/twemoji/16.0.1/72x72/" + hex.toLowerCase() + ".png";
+}
+
+function hexToGlyph(hex) {
+  try {
+    return String.fromCodePoint(...hex.split("-").map(h => parseInt(h, 16)));
+  } catch(e) {
+    return "❓";
+  }
+}
+
+function getSymbolOptions(rawWord) {
+  const word = rawWord.toLowerCase();
+  let results = [];
+
+  if (EMOJI_DICTIONARY[word]) {
+    results = [...EMOJI_DICTIONARY[word]];
+  }
+
+  if (FULL_EMOJI_DATA) {
+    const matched = FULL_EMOJI_DATA.filter(e => {
+      const label = (e.label || "").toLowerCase();
+      const tags = (e.tags || []).map(t => t.toLowerCase());
+      return label.includes(word) || tags.some(t => t.includes(word));
+    }).slice(0, 9);
+
+    matched.forEach(match => {
+      if (match && match.hexcode) {
+        const hex = match.hexcode.toLowerCase();
+        if (!results.some(r => r.hex === hex)) {
+          results.push({ hex: hex, glyph: hexToGlyph(hex) });
+        }
+      }
+    });
+  }
+
+  if (results.length === 0) {
+    results.push({ hex: "2753", glyph: "❓" });
+  }
+
+  return results;
+}
+
+function lookupSymbol(rawWord) {
+  const options = getSymbolOptions(rawWord);
+  return options[0];
+}
+
+// Improved Semantic Parser
+function parseSentence(sentence) {
+  const words = sentence.toLowerCase().replace(/[^\w\s]/gi, '').split(/\s+/).filter(Boolean);
+  const stopWords = ["the", "a", "an", "in", "on", "at", "to", "is", "are", "was", "were", "of", "with"];
+  const contentWords = words.filter(w => !stopWords.includes(w));
+  const parsed = [];
+
+  let doc = null;
+  if (typeof nlp !== 'undefined') {
+    try { doc = nlp(sentence); } catch(e){}
+  }
+
+  contentWords.forEach((word, index) => {
+    let csKey = null;
+
+    for (const [role, list] of Object.entries(ROLE_RULES)) {
+      if (list.includes(word)) {
+        csKey = role;
+        break;
+      }
+    }
+
+    if (!csKey) {
+      if (word.endsWith("ing") || word.endsWith("ed") || word.endsWith("eats")) {
+        csKey = "doing";
+      } else if (doc) {
+        const match = doc.match(word);
+        if (match.has('#Verb')) csKey = "doing";
+        else if (match.has('#Person') || match.has('#Pronoun')) csKey = "who";
+        else if (match.has('#Place')) csKey = "where";
+        else if (match.has('#Date') || match.has('#Time')) csKey = "when";
+        else if (match.has('#Noun')) csKey = "what";
+      }
+    }
+
+    if (!csKey) {
+      if (index === 0) csKey = "who";
+      else if (index === 1) csKey = "doing";
+      else if (index === 2) csKey = "what";
+      else csKey = "where";
+    }
+
+    const symbol = lookupSymbol(word);
+
+    parsed.push({
+      label: word,
+      hex: symbol.hex,
+      glyph: symbol.glyph,
+      csKey: csKey
+    });
+  });
+
+  return parsed;
+}
+
+function generateDistractors(targets) {
+  const decoys = [];
+  targets.forEach(item => {
+    const pool = DISTRACTOR_POOL[item.csKey] || DISTRACTOR_POOL.what;
+    const filtered = pool.filter(w => w !== item.label);
+    const randomWord = filtered[Math.floor(Math.random() * filtered.length)];
+    if (randomWord) {
+      const symbol = lookupSymbol(randomWord);
+      decoys.push({
+        label: randomWord,
+        hex: symbol.hex,
+        glyph: symbol.glyph,
+        csKey: item.csKey
+      });
+    }
+  });
+  return decoys;
+}
+
+// ===== UI RENDERERS =====
+function createCardElement(item, idx, isDecoy) {
+  const card = document.createElement("div");
+  card.className = "sentence-card" + (ACTIVE_MODE === "cutpaste" ? " cut-card" : "");
+
+  const csDef = CS_COLOURS.find(c => c.key === item.csKey) || CS_COLOURS[8];
+  if (csDef.bg) {
+    card.style.borderColor = csDef.bg;
+    card.style.backgroundColor = csDef.bg + "15";
+  }
+
+  let swatchesHtml = "";
+  CS_COLOURS.forEach(c => {
+    swatchesHtml += `<div class="cs-swatch" style="background:${c.bg || '#ccc'}" onclick="overrideColor(${idx}, '${c.key}', ${isDecoy})"></div>`;
+  });
+
+  const availableOptions = getSymbolOptions(item.label);
+  let optionsGridHtml = "";
+  availableOptions.forEach(opt => {
+    optionsGridHtml += `
+      <div class="alt-symbol-item" onclick="selectCardSymbol(${idx}, '${opt.hex}', '${opt.glyph}', ${isDecoy})">
+        <img src="${twemojiUrl(opt.hex)}" onerror="this.outerHTML='${opt.glyph}';" />
+      </div>
+    `;
+  });
+
+  card.innerHTML = `
+    <button class="remove-btn no-print" onclick="removeCard(${idx}, ${isDecoy})">×</button>
+    
+    <div class="alt-symbol-picker no-print" id="picker-${isDecoy ? 'decoy' : 'target'}-${idx}">
+      <div class="alt-symbol-grid" id="grid-${isDecoy ? 'decoy' : 'target'}-${idx}">${optionsGridHtml}</div>
+      <input type="text" class="alt-symbol-search" placeholder="Search icon..." oninput="searchAltSymbols(this.value, ${idx}, ${isDecoy})" />
+    </div>
+
+    <div class="card-img-container" onclick="togglePicker(${idx}, ${isDecoy}, event)">
+      <img src="${twemojiUrl(item.hex)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+      <div class="glyph-fallback" style="display:none;">${item.glyph || '❓'}</div>
+    </div>
+    
+    <div class="card-label" contenteditable="true" spellcheck="false" 
+         onblur="updateCardText(${idx}, this.innerText, ${isDecoy})"
+         onkeydown="handleLabelKeydown(event, this)">${item.label}</div>
+
+    <div class="cs-colour-popup no-print">${swatchesHtml}</div>
+  `;
+
+  return card;
+}
+
+window.updateCardText = function(idx, newText, isDecoy) {
+  const cleanedText = newText.trim();
+  if (isDecoy) {
+    if (DECOY_ITEMS[idx]) DECOY_ITEMS[idx].label = cleanedText;
+  } else {
+    if (TARGET_ITEMS[idx]) TARGET_ITEMS[idx].label = cleanedText;
+  }
+};
+
+window.handleLabelKeydown = function(e, element) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    element.blur();
+  }
+};
+
+window.togglePicker = function(idx, isDecoy, event) {
+  event.stopPropagation();
+  const pickerId = `picker-${isDecoy ? 'decoy' : 'target'}-${idx}`;
+  const picker = document.getElementById(pickerId);
+  if (picker) {
+    const isVisible = picker.classList.contains("active");
+    document.querySelectorAll('.alt-symbol-picker').forEach(p => p.classList.remove('active'));
+    if (!isVisible) picker.classList.add("active");
+  }
+};
+
+window.selectCardSymbol = function(idx, hex, glyph, isDecoy) {
+  if (isDecoy) {
+    DECOY_ITEMS[idx].hex = hex;
+    DECOY_ITEMS[idx].glyph = glyph;
+  } else {
+    TARGET_ITEMS[idx].hex = hex;
+    TARGET_ITEMS[idx].glyph = glyph;
+  }
+  render();
+};
+
+window.searchAltSymbols = function(query, idx, isDecoy) {
+  const grid = document.getElementById(`grid-${isDecoy ? 'decoy' : 'target'}-${idx}`);
+  if (!grid) return;
+
+  const item = isDecoy ? DECOY_ITEMS[idx] : TARGET_ITEMS[idx];
+  const searchQuery = query.trim() || item.label;
+  const options = getSymbolOptions(searchQuery);
+
+  let html = "";
+  options.forEach(opt => {
+    html += `
+      <div class="alt-symbol-item" onclick="selectCardSymbol(${idx}, '${opt.hex}', '${opt.glyph}', ${isDecoy})">
+        <img src="${twemojiUrl(opt.hex)}" onerror="this.outerHTML='${opt.glyph}';" />
+      </div>
+    `;
+  });
+  grid.innerHTML = html;
+};
+
+function render() {
+  const mat = document.getElementById("placementMat");
+  const targetStrip = document.getElementById("targetStrip");
+  const decoyStrip = document.getElementById("decoyStrip");
+  const cutPasteGrid = document.getElementById("cutPasteGrid");
+  const commBoardGrid = document.getElementById("commBoardGrid");
+
+  mat.innerHTML = "";
+  targetStrip.innerHTML = "";
+  decoyStrip.innerHTML = "";
+  cutPasteGrid.innerHTML = "";
+  commBoardGrid.innerHTML = "";
+
+  TARGET_ITEMS.forEach(item => {
+    const csDef = CS_COLOURS.find(c => c.key === item.csKey) || CS_COLOURS[8];
+    const slot = document.createElement("div");
+    slot.className = "mat-slot";
+    slot.innerHTML = `
+      <div class="mat-slot-label" style="background:${csDef.bg}; color:${csDef.textCol}">${csDef.label}</div>
+      <div style="font-size:32px; color:#aab4d0; margin-top:15px; font-weight:800;">?</div>
+    `;
+    mat.appendChild(slot);
+  });
+
+  TARGET_ITEMS.forEach((item, idx) => {
+    targetStrip.appendChild(createCardElement(item, idx, false));
+  });
+
+  if (document.getElementById("toggleDecoys").checked) {
+    document.getElementById("decoySection").style.display = "block";
+    DECOY_ITEMS.forEach((item, idx) => {
+      decoyStrip.appendChild(createCardElement(item, idx, true));
+    });
+  } else {
+    document.getElementById("decoySection").style.display = "none";
+  }
+
+  if (ACTIVE_MODE === "cutpaste") {
+    const allCards = [...TARGET_ITEMS, ...DECOY_ITEMS].sort(() => Math.random() - 0.5);
+    allCards.forEach((item, idx) => {
+      cutPasteGrid.appendChild(createCardElement(item, idx, false));
+    });
+  }
+
+  if (ACTIVE_MODE === "board") {
+    [...TARGET_ITEMS, ...DECOY_ITEMS].forEach((item, idx) => {
+      commBoardGrid.appendChild(createCardElement(item, idx, false));
+    });
+  }
+}
+
+// ===== ACTIONS & LISTENERS =====
+window.overrideColor = function(idx, newKey, isDecoy) {
+  if (isDecoy) DECOY_ITEMS[idx].csKey = newKey;
+  else TARGET_ITEMS[idx].csKey = newKey;
+  render();
+};
+
+window.removeCard = function(idx, isDecoy) {
+  if (isDecoy) DECOY_ITEMS.splice(idx, 1);
+  else TARGET_ITEMS.splice(idx, 1);
+  render();
+};
+
+function handleGenerate() {
+  const text = document.getElementById("sentenceInput").value;
+  if (!text.trim()) return;
+  TARGET_ITEMS = parseSentence(text);
+  DECOY_ITEMS = generateDistractors(TARGET_ITEMS);
+  render();
+}
+
+document.addEventListener("click", () => {
+  document.querySelectorAll('.alt-symbol-picker').forEach(p => p.classList.remove('active'));
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadEmojiDatabase();
+
+  document.getElementById("btnGenerate").addEventListener("click", handleGenerate);
+  document.getElementById("sentenceInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") handleGenerate();
+  });
+
+  document.getElementById("toggleDecoys").addEventListener("change", render);
+
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", e => {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      e.target.classList.add("active");
+      ACTIVE_MODE = e.target.dataset.mode;
+
+      document.getElementById("viewStrip").style.display = ACTIVE_MODE === "strip" ? "block" : "none";
+      document.getElementById("viewCutPaste").style.display = ACTIVE_MODE === "cutpaste" ? "block" : "none";
+      document.getElementById("viewBoard").style.display = ACTIVE_MODE === "board" ? "block" : "none";
+
+      render();
+    });
+  });
+
+  document.getElementById("imgUpload").addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        document.getElementById("mainImage").src = ev.target.result;
+        document.getElementById("mainImage").style.display = "block";
+        document.getElementById("imgPlaceholder").style.display = "none";
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  document.getElementById("btnSpeak").addEventListener("click", () => {
+    const phrase = TARGET_ITEMS.map(i => i.label).join(" ");
+    if ('speechSynthesis' in window && phrase) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(phrase);
+      u.rate = 0.85;
+      window.speechSynthesis.speak(u);
+    }
+  });
+
+  // Initial parse on load
+  handleGenerate();
+});
+</script>
+</body>
+</html>
